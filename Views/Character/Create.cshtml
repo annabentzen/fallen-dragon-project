@@ -1,0 +1,38 @@
+@model MyMvcApp.Models.Character
+@{
+    ViewData["Title"] = "Design Your Character";
+}
+
+<h2>Create/Edit Character</h2>
+
+<form asp-action="Create" method="post">
+    <div class="avatar-preview" style="position: relative; width: 200px; height: 200px; margin: 2rem auto;">
+        <img src="~/images/base.png" alt="Base" />
+        <img id="hair" src="~/images/hair/@Model.Hair" alt="Hair" />
+        <img id="face" src="~/images/faces/@Model.Face" alt="Face" />
+        <img id="clothing" src="~/images/clothes/@Model.Clothing" alt="Clothing" />
+        <input type="hidden" id="hairInput" name="Hair" value="@Model.Hair" />
+        <input type="hidden" id="faceInput" name="Face" value="@Model.Face" />
+        <input type="hidden" id="clothingInput" name="Clothing" value="@Model.Clothing" />
+    </div>
+
+    <div class="form-group">
+        <label>Hair</label>
+        <button type="button" class="prev" data-target="hair">Prev</button>
+        <button type="button" class="next" data-target="hair">Next</button>
+    </div>
+
+    <div class="form-group">
+        <label>Face</label>
+        <button type="button" class="prev" data-target="face">Prev</button>
+        <button type="button" class="next" data-target="face">Next</button>
+    </div>
+
+    <div class="form-group">
+        <label>Clothing</label>
+        <button type="button" class="prev" data-target="clothing">Prev</button>
+        <button type="button" class="next" data-target="clothing">Next</button>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save Character</button>
+</form>

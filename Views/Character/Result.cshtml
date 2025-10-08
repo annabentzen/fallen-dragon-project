@@ -1,0 +1,18 @@
+@model MyMvcApp.Models.Character
+@{
+    ViewData["Title"] = "Your Character";
+}
+
+<h2>Your Character</h2>
+
+<div class="avatar" style="position: relative; width: 200px; height: 200px; margin: 2rem auto;">
+    <img src="~/images/base.png" alt="Base" />
+    <img src="~/images/hair/@Model.Hair" alt="Hair" />
+    <img src="~/images/faces/@Model.Face" alt="Face" />
+    <img src="~/images/clothes/@Model.Clothing" alt="Clothing" />
+</div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" name="id" value="@Model.Id" />
+    <button type="submit" class="btn btn-danger">Restart</button>
+</form>

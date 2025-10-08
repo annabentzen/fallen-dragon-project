@@ -1,0 +1,38 @@
+.character-creator {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.avatar-container {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    margin: 0 auto 1rem auto;
+}
+
+.avatar-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 220px;
+    height: 220px;
+}
+
+.carousel-buttons {
+    margin-top: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.carousel-buttons button {
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    padding: 0.3rem 0.7rem;
+    cursor: pointer;
+    border-radius: 0.25rem;
+}
+
+.carousel-buttons button:hover {
+    background-color: #0b5ed7;
+}
