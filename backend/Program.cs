@@ -20,10 +20,18 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseStaticFiles(); // This serves wwwroot files (css, js, images)
-app.UseRouting();
+if (app.Environment.IsDevelopment())
+{
+    // Helpful detailed errors while developing
+    app.UseDeveloperExceptionPage();
+}
 
+// Redirect HTTP -> HTTPS early
 app.UseHttpsRedirection();
+
+// Serve static files (wwwroot)
+app.UseStaticFiles(); // This serves wwwroot files (css, js, images)
+
 app.UseRouting();
 
 app.UseAuthorization();
