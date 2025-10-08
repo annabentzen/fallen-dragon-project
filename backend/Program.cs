@@ -9,7 +9,7 @@ builder.Services.AddControllersWithViews();
 
 // Configure DbContext using the renamed class
 builder.Services.AddDbContext<MyMvcAppDbContext>(options =>
-    options.UseSqlite("Data Source=MyMvcApp.db")); 
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
@@ -20,7 +20,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseStaticFiles(); // 👈 This serves wwwroot files (css, js, images)
+app.UseStaticFiles(); // This serves wwwroot files (css, js, images)
 app.UseRouting();
 
 app.UseHttpsRedirection();
