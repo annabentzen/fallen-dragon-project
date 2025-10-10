@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace DragonGame.Migrations
+namespace DragonGame.Data.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
@@ -16,10 +16,9 @@ namespace DragonGame.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
+                    Hair = table.Column<string>(type: "TEXT", nullable: false),
                     Face = table.Column<string>(type: "TEXT", nullable: false),
-                    Hairstyle = table.Column<string>(type: "TEXT", nullable: false),
-                    Clothing = table.Column<string>(type: "TEXT", nullable: false),
-                    Weapon = table.Column<string>(type: "TEXT", nullable: false)
+                    Clothing = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {

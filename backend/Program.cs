@@ -9,7 +9,7 @@ builder.Services.AddControllersWithViews();
 
 // Configure DbContext using the renamed class
 builder.Services.AddDbContext<DragonGameDbContext>(options =>
-    options.UseSqlite("Data Source=DragonGame.db")); 
+    options.UseSqlite("Data Source=App_Data/DragonGame.db"));
 
 var app = builder.Build();
 
@@ -20,10 +20,9 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseStaticFiles(); // 👈 This serves wwwroot files (css, js, images)
-app.UseRouting();
-
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+
 app.UseRouting();
 
 app.UseAuthorization();

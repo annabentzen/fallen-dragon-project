@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using DragonGame.Models;
 
 namespace DragonGame.Data
+
 {
     public class DragonGameDbContext : DbContext
     {
