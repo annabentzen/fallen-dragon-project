@@ -10,5 +10,7 @@ namespace DragonGame.Models
         public string Clothing { get; set; } = "clothing1.png";
 
         public List<Power> Power { get; set; } = new();
+        public List<CharacterPose> Pose { get; set; } = new();
+
     }
 }
