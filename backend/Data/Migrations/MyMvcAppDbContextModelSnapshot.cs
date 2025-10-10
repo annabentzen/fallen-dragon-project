@@ -2,21 +2,21 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using MyMvcApp.Data;
+using DragonGame.Data;
 
 #nullable disable
 
 namespace MyMvcApp.Migrations
 {
-    [DbContext(typeof(MyMvcAppDbContext))]
-    partial class MyMvcAppDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(DragonGameDbContext))]
+    partial class DragonGameDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.9");
 
-            modelBuilder.Entity("MyMvcApp.Models.Character", b =>
+            modelBuilder.Entity("DragonGame.Models.Character", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -43,7 +43,7 @@ namespace MyMvcApp.Migrations
                     b.ToTable("Characters");
                 });
 
-            modelBuilder.Entity("MyMvcApp.Models.Power", b =>
+            modelBuilder.Entity("DragonGame.Models.Power", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -63,9 +63,9 @@ namespace MyMvcApp.Migrations
                     b.ToTable("Power");
                 });
 
-            modelBuilder.Entity("MyMvcApp.Models.Power", b =>
+            modelBuilder.Entity("DragonGame.Models.Power", b =>
                 {
-                    b.HasOne("MyMvcApp.Models.Character", "Character")
+                    b.HasOne("DragonGame.Models.Character", "Character")
                         .WithMany("Power")
                         .HasForeignKey("CharacterId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -74,7 +74,7 @@ namespace MyMvcApp.Migrations
                     b.Navigation("Character");
                 });
 
-            modelBuilder.Entity("MyMvcApp.Models.Character", b =>
+            modelBuilder.Entity("DragonGame.Models.Character", b =>
                 {
                     b.Navigation("Power");
                 });
