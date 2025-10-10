@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace MyMvcApp.Migrations
+namespace DragonGame.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
