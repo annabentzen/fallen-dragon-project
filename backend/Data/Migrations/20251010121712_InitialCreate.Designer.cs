@@ -7,10 +7,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace DragonGame.Migrations
+namespace DragonGame.Data.Migrations
 {
     [DbContext(typeof(DragonGameDbContext))]
-    [Migration("20250923113318_InitialCreate")]
+    [Migration("20251010121712_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -19,7 +19,7 @@ namespace DragonGame.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.9");
 
-            modelBuilder.Entity("MyMvcApp.Models.Character", b =>
+            modelBuilder.Entity("DragonGame.Models.Character", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -33,11 +33,7 @@ namespace DragonGame.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Hairstyle")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Weapon")
+                    b.Property<string>("Hair")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -46,7 +42,7 @@ namespace DragonGame.Migrations
                     b.ToTable("Characters");
                 });
 
-            modelBuilder.Entity("MyMvcApp.Models.Power", b =>
+            modelBuilder.Entity("DragonGame.Models.Power", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -66,9 +62,9 @@ namespace DragonGame.Migrations
                     b.ToTable("Power");
                 });
 
-            modelBuilder.Entity("MyMvcApp.Models.Power", b =>
+            modelBuilder.Entity("DragonGame.Models.Power", b =>
                 {
-                    b.HasOne("MyMvcApp.Models.Character", "Character")
+                    b.HasOne("DragonGame.Models.Character", "Character")
                         .WithMany("Power")
                         .HasForeignKey("CharacterId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -77,7 +73,7 @@ namespace DragonGame.Migrations
                     b.Navigation("Character");
                 });
 
-            modelBuilder.Entity("MyMvcApp.Models.Character", b =>
+            modelBuilder.Entity("DragonGame.Models.Character", b =>
                 {
                     b.Navigation("Power");
                 });

@@ -1,4 +1,4 @@
-namespace MyMvcApp.Models;
+namespace DragonGame.Models;
 
 public class ErrorViewModel
 {
