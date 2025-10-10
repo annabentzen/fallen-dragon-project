@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DragonGame.Data.Migrations
 {
     [DbContext(typeof(DragonGameDbContext))]
-    [Migration("20251010121712_InitialCreate")]
+    [Migration("20251010143346_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
