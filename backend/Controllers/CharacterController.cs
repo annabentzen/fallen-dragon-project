@@ -1,17 +1,17 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using MyMvcApp.Data;
-using MyMvcApp.Models;
+using DragonGame.Data;
+using DragonGame.Models;
 
-namespace MyMvcApp.Controllers
+namespace DragonGame.Controllers
 {
     public class CharacterController : Controller
     {
-        private readonly MyMvcAppDbContext _context;
+        private readonly DragonGameDbContext _context;
         private readonly ILogger<CharacterController> _logger;
 
-        public CharacterController(MyMvcAppDbContext context, ILogger<CharacterController> logger)
+        public CharacterController(DragonGameDbContext context, ILogger<CharacterController> logger)
         {
             _context = context;
             _logger = logger;
@@ -45,7 +45,7 @@ namespace MyMvcApp.Controllers
             }
         }
 
-        // GET: Character/Result/5
+        // GET: Character/Result/{id}
         public async Task<IActionResult> Result(int id)
         {
             var character = await _context.Characters.FindAsync(id);
@@ -53,7 +53,7 @@ namespace MyMvcApp.Controllers
             return View(character);
         }
 
-        // POST: Character/Delete/5
+        // POST: Character/Delete/{id}
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)

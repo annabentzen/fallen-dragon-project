@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace MyMvcApp.Models
+namespace DragonGame.Models
 {
     public class Character
     {
