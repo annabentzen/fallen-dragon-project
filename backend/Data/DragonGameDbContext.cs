@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
-using MyMvcApp.Models;
+using DragonGame.Models;
 
-namespace MyMvcApp.Data
+namespace DragonGame.Data
 {
-    public class MyMvcAppDbContext : DbContext
+    public class DragonGameDbContext : DbContext
     {
-        public MyMvcAppDbContext(DbContextOptions<MyMvcAppDbContext> options)
+        public DragonGameDbContext(DbContextOptions<DragonGameDbContext> options)
             : base(options)
         {
         }
@@ -16,12 +16,12 @@ namespace MyMvcApp.Data
         // DbSet for Power table
         public DbSet<Power> Power { get; set; }
 
-        // Optional: configure relationships
+        // to configure relationships
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // One-to-many: Character -> Powers
+            // One-to-many releations for Character -> Powers
             modelBuilder.Entity<Power>()
                 .HasOne(p => p.Character)
                 .WithMany(c => c.Power)

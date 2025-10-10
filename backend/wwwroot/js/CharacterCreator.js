@@ -1,41 +1,52 @@
-// Character carousel JS
 $(document).ready(function () {
-    // Arrays of image filenames
-    const hairImages = ["hair1.png", "hair2.png"];
-    const faceImages = ["face1.png", "face2.png"];
-    const clothingImages = ["clothing1.png", "clothing2.png"];
+    // Image arrays
+    const imagesMap = {
+        hair: ["hair1.png", "hair2.png", "hair3.png"],
+        face: ["face1.png", "face2.png", "face3.png"],
+        clothing: ["clothing1.png", "clothing2.png", "clothing3.png"]
+    };
 
-    // Change the image for the given category
-    function changeImage(target, direction) {
-        const imagesMap = {
-            hair: hairImages,
-            face: faceImages,
-            clothing: clothingImages
-        };
+    // Folder map to match actual folders
+    const folderMap = {
+        hair: "hair",
+        face: "faces",      // matches your ~/images/faces/
+        clothing: "clothes" // matches your ~/images/clothes/
+    };
 
-        const img = $("#" + target);            // the <img> element
-        const input = $("#" + target + "Input"); // the hidden input to submit form
-        let index = imagesMap[target].indexOf(input.val());
+    // Initialize index for each category
+    const indexMap = {
+        hair: 0,
+        face: 0,
+        clothing: 0
+    };
 
-        if (direction === 'next') {
-            index = (index + 1) % imagesMap[target].length;
+    // Set initial index based on hidden input values
+    Object.keys(indexMap).forEach(function (target) {
+        const input = $("#" + target + "Input");
+        const currentValue = input.val();
+        let idx = imagesMap[target].indexOf(currentValue);
+        if (idx === -1) idx = 0; // fallback to first image if not found
+        indexMap[target] = idx;
+
+        // Set the initial image
+        $("#" + target).attr("src", `/images/${folderMap[target]}/${imagesMap[target][idx]}`);
+        input.val(imagesMap[target][idx]);
+    });
+
+    // Handle next/prev buttons
+    $("button.next, button.prev").click(function () {
+        const target = $(this).data("target");
+        const maxIndex = imagesMap[target].length - 1;
+
+        if ($(this).hasClass("next")) {
+            indexMap[target] = (indexMap[target] + 1) > maxIndex ? 0 : indexMap[target] + 1;
         } else {
-            index = (index - 1 + imagesMap[target].length) % imagesMap[target].length;
+            indexMap[target] = (indexMap[target] - 1) < 0 ? maxIndex : indexMap[target] - 1;
         }
 
-        // Update the image source and hidden input value
-        img.attr("src", `/images/${target}/${imagesMap[target][index]}`);
-        input.val(imagesMap[target][index]);
-    }
-
-    // Button click handlers
-    $(".next").click(function () {
-        const target = $(this).data("target");
-        changeImage(target, "next");
-    });
-
-    $(".prev").click(function () {
-        const target = $(this).data("target");
-        changeImage(target, "prev");
+        // Update image and hidden input
+        $("#" + target).attr("src", `/images/${folderMap[target]}/${imagesMap[target][indexMap[target]]}`);
+        $("#" + target + "Input").val(imagesMap[target][indexMap[target]]);
     });
 });
+

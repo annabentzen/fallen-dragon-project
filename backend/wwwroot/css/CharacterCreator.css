@@ -1,38 +1,28 @@
-.character-creator {
-    text-align: center;
-    margin-top: 2rem;
-}
-
-.avatar-container {
+.avatar-preview {
     position: relative;
-    width: 220px;
-    height: 220px;
-    margin: 0 auto 1rem auto;
+    width: 200px;
+    height: 200px;
+    margin: 2rem auto;
 }
 
-.avatar-container img {
+/* Base image is below everything */
+.avatar-preview img {
     position: absolute;
     top: 0;
     left: 0;
-    width: 220px;
-    height: 220px;
+    width: 100%;
+    height: 100%;
 }
 
-.carousel-buttons {
-    margin-top: 0.5rem;
-    display: flex;
-    justify-content: space-between;
+/* Optional: explicitly control z-index */
+#hair {
+    z-index: 2;
 }
 
-.carousel-buttons button {
-    background-color: #0d6efd;
-    color: white;
-    border: none;
-    padding: 0.3rem 0.7rem;
-    cursor: pointer;
-    border-radius: 0.25rem;
+#face {
+    z-index: 3;
 }
 
-.carousel-buttons button:hover {
-    background-color: #0b5ed7;
+#clothing {
+    z-index: 4;
 }

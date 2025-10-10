@@ -1,5 +1,6 @@
 using MyMvcApp.Data;
 using Microsoft.EntityFrameworkCore;
+using DragonGame.Data;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,8 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 // Configure DbContext using the renamed class
-builder.Services.AddDbContext<MyMvcAppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<DragonGameDbContext>(options =>
+    options.UseSqlite("Data Source=DragonGame.db")); 
 
 var app = builder.Build();
 
@@ -20,18 +21,10 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-if (app.Environment.IsDevelopment())
-{
-    // Helpful detailed errors while developing
-    app.UseDeveloperExceptionPage();
-}
+app.UseStaticFiles(); // 👈 This serves wwwroot files (css, js, images)
+app.UseRouting();
 
-// Redirect HTTP -> HTTPS early
 app.UseHttpsRedirection();
-
-// Serve static files (wwwroot)
-app.UseStaticFiles(); // This serves wwwroot files (css, js, images)
-
 app.UseRouting();
 
 app.UseAuthorization();
