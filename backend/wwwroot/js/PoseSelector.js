@@ -1,19 +1,35 @@
-$(document).ready(function() {
-    // Fetch poses from the server
-    $.get('/api/characterposes', function(poses) {
-        const poseSelector = $('#poseSelector');
-        poses.forEach(pose => {
-            const option = $('<option></option>')
-                .attr('value', pose.id)
-                .text(pose.name);
-            poseSelector.append(option);
-        });
-    });
+$(document).ready(function () {
+            // Function to fetch poses from your API
+            function fetchPoses() {
+                $.ajax({
+                    url: '/api/poses', // Your API endpoint for poses
+                    method: 'GET',
+                    success: function (data) {
+                        const poseDropdown = $('#poseDropdown');
+                        data.forEach(function (pose) {
+                            poseDropdown.append($('<option></option>').val(pose.imageUrl).text(pose.name));
+                        });
+                    },
+                    error: function (error) {
+                        console.error("Error fetching poses:", error);
+                    }
+                });
+            }
 
-    // Handle pose selection change
-    $('#poseSelector').change(function() {
-        const selectedPoseId = $(this).val();
-        // You can add code here to update the character's pose in the UI
-        console.log('Selected Pose ID:', selectedPoseId);
-    });
-});
+            // Call the function to populate the dropdown when the page loads
+            fetchPoses();
+
+            // Event listener for dropdown change
+            $('#poseDropdown').change(function () {
+                const selectedPoseImageUrl = $(this).val();
+                const poseImageElement = $('#poseImage');
+
+                if (selectedPoseImageUrl) {
+                    poseImageElement.attr('src', '/images/poses/' + selectedPoseImageUrl);
+                    poseImageElement.show(); // Make sure the image is visible
+                } else {
+                    poseImageElement.hide(); // Hide if no pose is selected
+                    poseImageElement.attr('src', ''); // Clear the src
+                }
+            });
+        });
