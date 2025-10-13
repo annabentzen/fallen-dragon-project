@@ -12,7 +12,25 @@
     <img src="~/images/clothes/@Model.Clothing" alt="Clothing" />
 </div>
 
+
+{{-- section for pose selection --}}
+<div class="container text center mt-4">
+    <h3>Select a Pose</h3>
+    <div class="row justify-content-center">
+        
+    </div>
+</div>
+
+
+
+
+
+
 <form asp-action="Delete" method="post">
     <input type="hidden" name="id" value="@Model.Id" />
     <button type="submit" class="btn btn-danger">Restart</button>
 </form>
+
+@section Scripts {
+    <script src="~/js/poseSelector.js"></script>
+}

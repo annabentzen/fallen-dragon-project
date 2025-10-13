@@ -1,14 +1,14 @@
-using DragonGame.Models;
-using DragonGame.ViewModels;
-using DragonGame.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using DragonGame.Data;
+using DragonGame.Models;
 
 public class PoseController : ControllerBase
 {
-    private readonly DragonGameContext _context;
+    private readonly DragonGameDbContext _context;
 
-    public PoseController(DragonGameContext context)
+    public PoseController(DragonGameDbContext context)
     {
         _context = context;
     }

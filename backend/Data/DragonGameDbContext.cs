@@ -16,6 +16,9 @@ namespace DragonGame.Data
         // DbSet for Power table
         public DbSet<Power> Power { get; set; }
 
+        // DbSet for CharacterPoses table
+        public DbSet<CharacterPose> CharacterPoses { get; set; }
+
         // to configure relationships
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
