@@ -11,8 +11,8 @@ namespace DragonGame.Models
 
         public List<Power> Power { get; set; } = new(); // Navigation property
         
-        public int PoseId { get; set; } // Foreign key
-        public CharacterPose Pose { get; set; } // Navigation property
+        public int? PoseId { get; set; } // Foreign key
+        public CharacterPose? Pose { get; set; } // Navigation property
 
     }
 }
