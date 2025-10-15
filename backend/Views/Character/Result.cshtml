@@ -7,12 +7,13 @@
 
 <div class="avatar" style="position: relative; width: 400px; height: 400px; margin: 2rem auto 3rem auto;">
     @* Pose image replaces base *@
-    <img id="pose" src="@(Model.Pose != null ? "/images/poses/" + Model.Pose.ImageUrl : "/images/base.png")" 
-         alt="@(Model.Pose?.Name ?? "Base")" style="position:absolute; width:100%; height:100%;"/>
+    <img id="pose" src="@(Model.Pose != null ? "/images/poses/" + Model.Pose.ImageUrl : "/images/base.png")"
+        alt="@(Model.Pose?.Name ?? "Base")" style="position:absolute; width:100%; height:100%;" />
 
-    <img id="hair" src="/images/hair/@Model.Hair" alt="Hair" style="position:absolute; width:100%; height:100%;"/>
-    <img id="face" src="/images/faces/@Model.Face" alt="Face" style="position:absolute; width:100%; height:100%;"/>
-    <img id="clothing" src="/images/clothes/@Model.Clothing" alt="Clothing" style="position:absolute; width:100%; height:100%;"/>
+    <img id="hair" src="/images/hair/@Model.Hair" alt="Hair" style="position:absolute; width:100%; height:100%;" />
+    <img id="face" src="/images/faces/@Model.Face" alt="Face" style="position:absolute; width:100%; height:100%;" />
+    <img id="clothing" src="/images/clothes/@Model.Clothing" alt="Clothing"
+        style="position:absolute; width:100%; height:100%;" />
 </div>
 
 
@@ -20,14 +21,14 @@
 <form asp-action="UpdateCharacterPose" asp-controller="Character" method="post">
     @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Id" />
-    
-   @* Pose dropdown *@
-<div class="mt-4 text-center">
-    <label asp-for="PoseId">Pose</label>
-    <select asp-for="PoseId" class="form-control w-auto d-inline-block" asp-items="ViewBag.PoseOptions">
-        <option value="">Select a pose</option>
-    </select>
-</div>
+
+    @* Pose dropdown *@
+    <div class="mt-4 text-center">
+        <label asp-for="PoseId">Pose</label>
+        <select asp-for="PoseId" asp-items="ViewBag.PoseOptions" class="form-control w-auto d-inline-block">
+            <option value="">Select a pose</option>
+        </select>
+    </div>
 
 
     <div class="row justify-content-center mt-4">
@@ -48,7 +49,7 @@
     <script>
         var initialCharacterData = {
             id: @Model.Id,
-            poseId: @(Model.PoseId.HasValue ? Model.PoseId.Value.ToString() : "null"),
+            poseId: @(Model.PoseId.HasValue? Model.PoseId.Value.ToString() : "null"),
             hair: "@Model.Hair",
             face: "@Model.Face",
             clothing: "@Model.Clothing"
@@ -56,5 +57,5 @@
     </script>
 
     <script src="~/js/poseSelector.js"></script>
-    <script src="~/js/CharacterCreator.js"></script> 
+    <script src="~/js/CharacterCreator.js"></script>
 }

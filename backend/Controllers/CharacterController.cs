@@ -10,12 +10,9 @@ namespace DragonGame.Controllers
     public class CharacterController : Controller
     {
 
-        // repository for dataoperations
-        private readonly ICharacterRepository _repository;
-        // repository for character poses
-        private readonly ICharacterPoseRepository _poseRepository;
-        // logger for error logging
-        private readonly ILogger<CharacterController> _logger;
+        private readonly ICharacterRepository _repository; // repository for characters
+        private readonly ICharacterPoseRepository _poseRepository; // repository for character poses
+        private readonly ILogger<CharacterController> _logger; // logger
 
         // constructor with dependency injection
         public CharacterController(ICharacterRepository repository, ICharacterPoseRepository poseRepository, ILogger<CharacterController> logger)
@@ -40,8 +37,8 @@ namespace DragonGame.Controllers
         {
             _logger.LogInformation("Create called. ModelState.IsValid={IsValid}", ModelState.IsValid);
 
-            // if poseid not set, set default pose
-            character.PoseId = 1;
+            // set default pose if none selected
+            character.PoseId ??= 1;
 
             if (!ModelState.IsValid)
             {
@@ -52,11 +49,9 @@ namespace DragonGame.Controllers
             {
                 await _repository.AddAsync(character); // save character to database
                 _logger.LogInformation("Saved Character with Id: {Id}", character.Id);
-
-
                 return RedirectToAction(nameof(Result), new { id = character.Id });
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 _logger.LogError(ex, "Error saving character");
                 ModelState.AddModelError("", "Error saving character, try again.");
@@ -77,7 +72,7 @@ namespace DragonGame.Controllers
 
             // Populate dropdown for poses
             var poses = await _poseRepository.GetAllAsync();
-            ViewBag.PoseOptions = poses.Select(p => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+            ViewBag.PoseOptions = poses.Select(p => new SelectListItem
             {
                 Value = p.Id.ToString(),
                 Text = p.Name
@@ -91,19 +86,18 @@ namespace DragonGame.Controllers
         // updates the pose of an existing character
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateCharacterPose(int id, int? selectedPoseId)
+        public async Task<IActionResult> UpdateCharacterPose(int id, int? PoseId)
         {
             var character = await _repository.GetByIdAsync(id);
             if (character == null)
                 return NotFound();
 
-            character.PoseId = selectedPoseId;
-            await _repository.UpdateAsync(character); // update via repository
+            // update pose
+            character.PoseId = PoseId;
+            await _repository.UpdateAsync(character);
 
-            return RedirectToAction("Result", new { id = character.Id });
+            return RedirectToAction(nameof(Result), new { id = character.Id });
         }
-
-
 
         // POST: Character/Delete/{id}
         // deletes the character and redirects to create new character
