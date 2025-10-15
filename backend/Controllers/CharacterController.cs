@@ -1,29 +1,35 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using DragonGame.Data;
 using DragonGame.Models;
+using DragonGame.Repositories;
 
 namespace DragonGame.Controllers
 {
     public class CharacterController : Controller
     {
-        private readonly DragonGameDbContext _context;
+
+        // repository for dataoperations
+        private readonly ICharacterRepository _repository;
+        // logger for error logging
         private readonly ILogger<CharacterController> _logger;
 
-        public CharacterController(DragonGameDbContext context, ILogger<CharacterController> logger)
+        // constructor with dependency injection
+        public CharacterController(ICharacterRepository repository, ILogger<CharacterController> logger)
         {
-            _context = context;
+            _repository = repository;
             _logger = logger;
         }
 
         // GET: Character/Create
+        // opens character creation view
         public IActionResult Create()
         {
             return View(new Character());
         }
 
         // POST: Character/Create
+        // receives character data from form and saves a new character
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateAsync(Character character)
@@ -33,8 +39,7 @@ namespace DragonGame.Controllers
 
             try
             {
-                await _context.Characters.AddAsync(character);
-                await _context.SaveChangesAsync();
+                await _repository.AddAsync(character); // save character to database
                 return RedirectToAction(nameof(Result), new { id = character.Id });
             }
             catch (Exception ex)
@@ -46,24 +51,21 @@ namespace DragonGame.Controllers
         }
 
         // GET: Character/Result/{id}
+        // shows the created character
         public async Task<IActionResult> Result(int id)
         {
-            var character = await _context.Characters.FindAsync(id);
+            var character = await _repository.GetByIdAsync(id);
             if (character == null) return RedirectToAction(nameof(Create));
             return View(character);
         }
 
         // POST: Character/Delete/{id}
+        // deletes the character and redirects to create new character
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            var character = await _context.Characters.FindAsync(id);
-            if (character != null)
-            {
-                _context.Characters.Remove(character);
-                await _context.SaveChangesAsync();
-            }
+            await _repository.DeleteAsync(id);
             return RedirectToAction(nameof(Create));
         }
     }
