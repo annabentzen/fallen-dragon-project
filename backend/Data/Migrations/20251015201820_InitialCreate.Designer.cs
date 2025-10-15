@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DragonGame.Data.Migrations
 {
     [DbContext(typeof(DragonGameDbContext))]
-    [Migration("20251013091128_AddPoseIdToCharacter")]
-    partial class AddPoseIdToCharacter
+    [Migration("20251015201820_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,14 +37,14 @@ namespace DragonGame.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("PoseId")
+                    b.Property<int?>("PoseId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
                     b.HasIndex("PoseId");
 
-                    b.ToTable("Characters");
+                    b.ToTable("Characters", (string)null);
                 });
 
             modelBuilder.Entity("DragonGame.Models.CharacterPose", b =>
@@ -63,54 +63,16 @@ namespace DragonGame.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CharacterPoses");
-                });
-
-            modelBuilder.Entity("DragonGame.Models.Power", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("CharacterId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Element")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CharacterId");
-
-                    b.ToTable("Power");
+                    b.ToTable("CharacterPoses", (string)null);
                 });
 
             modelBuilder.Entity("DragonGame.Models.Character", b =>
                 {
                     b.HasOne("DragonGame.Models.CharacterPose", "Pose")
                         .WithMany("Characters")
-                        .HasForeignKey("PoseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PoseId");
 
                     b.Navigation("Pose");
-                });
-
-            modelBuilder.Entity("DragonGame.Models.Power", b =>
-                {
-                    b.HasOne("DragonGame.Models.Character", "Character")
-                        .WithMany("Power")
-                        .HasForeignKey("CharacterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Character");
-                });
-
-            modelBuilder.Entity("DragonGame.Models.Character", b =>
-                {
-                    b.Navigation("Power");
                 });
 
             modelBuilder.Entity("DragonGame.Models.CharacterPose", b =>

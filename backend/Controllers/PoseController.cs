@@ -3,90 +3,67 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using DragonGame.Data;
 using DragonGame.Models;
+using DragonGame.Repositories;
 
-public class PoseController : ControllerBase
+namespace DragonGame.Controllers
 {
-    private readonly DragonGameDbContext _context;
-
-    public PoseController(DragonGameDbContext context)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class PoseController : ControllerBase
     {
-        _context = context;
-    }
+        private readonly ICharacterPoseRepository _poseRepository;
+        private readonly ILogger<PoseController> _logger;
 
-    [HttpGet("api/poses")]
-    public async Task<ActionResult<IEnumerable<CharacterPose>>> GetPoses()
-    {
-        return await _context.CharacterPoses.ToListAsync();
-    }
-
-    [HttpGet("api/poses/{id}")]
-    public async Task<ActionResult<CharacterPose>> GetPose(int id)
-    {
-        var pose = await _context.CharacterPoses.FindAsync(id);
-
-        if (pose == null)
+        public PoseController(ICharacterPoseRepository poseRepository, ILogger<PoseController> logger)
         {
-            return NotFound();
+            _poseRepository = poseRepository;
+            _logger = logger;
         }
 
-        return pose;
-    }
-
-    [HttpPost("api/poses")]
-    public async Task<ActionResult<CharacterPose>> CreatePose(CharacterPose pose)
-    {
-        _context.CharacterPoses.Add(pose);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetPose), new { id = pose.Id }, pose);
-    }
-
-    [HttpPut("api/poses/{id}")]
-    public async Task<IActionResult> UpdatePose(int id, CharacterPose pose)
-    {
-        if (id != pose.Id)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<CharacterPose>>> GetPoses()
         {
-            return BadRequest();
+            var poses = await _poseRepository.GetAllAsync();
+            return Ok(poses);
         }
 
-        _context.Entry(pose).State = EntityState.Modified;
+        [HttpGet("{id}")]
+        public async Task<ActionResult<CharacterPose>> GetPose(int id)
+        {
+            var pose = await _poseRepository.GetByIdAsync(id);
 
-        try
-        {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!PoseExists(id))
+            if (pose == null)
             {
                 return NotFound();
             }
-            else
-            {
-                throw;
-            }
+
+            return Ok(pose);
         }
 
-        return NoContent();
-    }
-
-    [HttpDelete("api/poses/{id}")]
-    public async Task<IActionResult> DeletePose(int id)
-    {
-        var pose = await _context.CharacterPoses.FindAsync(id);
-        if (pose == null)
+        [HttpPost]
+        public async Task<ActionResult<CharacterPose>> CreatePose(CharacterPose pose)
         {
-            return NotFound();
+            await _poseRepository.AddAsync(pose);
+            return CreatedAtAction(nameof(GetPose), new { id = pose.Id }, pose);
+            return CreatedAtAction(nameof(GetPose), new { id = pose.Id }, pose);
         }
 
-        _context.CharacterPoses.Remove(pose);
-        await _context.SaveChangesAsync();
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdatePose(int id, CharacterPose pose)
+        {
+            if (id != pose.Id)
+                return BadRequest();
 
-        return NoContent();
-    }
+            await _poseRepository.UpdateAsync(pose);
+            return NoContent();
+        }
 
-    private bool PoseExists(int id)
-    {
-        return _context.CharacterPoses.Any(e => e.Id == id);
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeletePose(int id)
+        {
+            await _poseRepository.DeleteAsync(id);
+            return NoContent();
+        }
     }
 }

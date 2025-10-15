@@ -34,14 +34,14 @@ namespace DragonGame.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("PoseId")
+                    b.Property<int?>("PoseId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
                     b.HasIndex("PoseId");
 
-                    b.ToTable("Characters");
+                    b.ToTable("Characters", (string)null);
                 });
 
             modelBuilder.Entity("DragonGame.Models.CharacterPose", b =>
@@ -60,7 +60,7 @@ namespace DragonGame.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CharacterPoses");
+                    b.ToTable("CharacterPoses", (string)null);
                 });
 
             modelBuilder.Entity("DragonGame.Models.Character", b =>

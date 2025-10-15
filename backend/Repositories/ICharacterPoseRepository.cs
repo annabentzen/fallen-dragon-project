@@ -6,7 +6,7 @@ namespace DragonGame.Repositories
 {
     public interface ICharacterPoseRepository
     {
-        Task<List<CharacterPose>> GetAllPosesAsync();
+        Task<List<CharacterPose>> GetAllAsync();
         Task<CharacterPose?> GetByIdAsync(int id);
         Task AddAsync(CharacterPose pose);
         Task UpdateAsync(CharacterPose pose);
