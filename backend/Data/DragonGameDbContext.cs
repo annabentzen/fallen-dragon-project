@@ -14,9 +14,6 @@ namespace DragonGame.Data
         // DbSet for Characters table
         public DbSet<Character> Characters { get; set; }
 
-        // DbSet for Power table
-        public DbSet<Power> Power { get; set; }
-
         // DbSet for CharacterPoses table
         public DbSet<CharacterPose> CharacterPoses { get; set; }
 
@@ -25,12 +22,6 @@ namespace DragonGame.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            // Existing Power configuration
-            modelBuilder.Entity<Power>()
-                .HasOne(p => p.Character)
-                .WithMany(c => c.Power)
-                .HasForeignKey(p => p.CharacterId);
 
             // Character to CharacterPose relationship
             modelBuilder.Entity<Character>()

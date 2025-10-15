@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace DragonGame.Models
 {
@@ -8,9 +9,9 @@ namespace DragonGame.Models
         public string Hair { get; set; } = "hair1.png";
         public string Face { get; set; } = "face1.png";
         public string Clothing { get; set; } = "clothing1.png";
-
-        public List<Power> Power { get; set; } = new(); // Navigation property
         
+        [Display(Name = "Pose")]
+        [Required(ErrorMessage = "Please select a pose.")]
         public int? PoseId { get; set; } // Foreign key
         public CharacterPose? Pose { get; set; } // Navigation property
 

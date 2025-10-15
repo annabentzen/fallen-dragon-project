@@ -46,6 +46,7 @@ namespace DragonGame.Controllers
         }
 
         // GET: Character/Result/{id}
+        [HttpGet]
         public async Task<IActionResult> Result(int id) // Add 'id' parameter to fetch specific character
         {
             // Fetch the character by ID, INCLUDING its associated Pose
@@ -61,8 +62,10 @@ namespace DragonGame.Controllers
             return View(character);
         }
 
+
+        // POST: Character/Update/{id}
         [HttpPost]
-        [ValidateAntiForgeryToken] // Highly recommended for POST actions
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateCharacterPose(int id, int? selectedPoseId) // Match nullable PoseId
         {
             // 1. Find the character to update
