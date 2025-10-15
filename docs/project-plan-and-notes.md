@@ -1,3 +1,7 @@
+hva mangler vi?
+
+- update på character entiteten
+
 krav til oblig 2:
 
 - .NET Core 8.0
