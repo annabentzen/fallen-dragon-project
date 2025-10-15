@@ -6,17 +6,17 @@ namespace DragonGame.Data
 {
     public class DragonGameDbContext : DbContext
     {
+         // DbSet for Characters table
+        public DbSet<Character> Characters { get; set; }
+        // DbSet for CharacterPoses table
+        public DbSet<CharacterPose> CharacterPoses { get; set; }
+
+
         public DragonGameDbContext(DbContextOptions<DragonGameDbContext> options)
             : base(options)
         {
         }
-
-        // DbSet for Characters table
-        public DbSet<Character> Characters { get; set; }
-
-        // DbSet for CharacterPoses table
-        public DbSet<CharacterPose> CharacterPoses { get; set; }
-
+        
         // to configure relationships
         // In DragonGameDbContext.cs OnModelCreating method
         protected override void OnModelCreating(ModelBuilder modelBuilder)

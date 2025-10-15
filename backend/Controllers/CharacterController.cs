@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using DragonGame.Data;
@@ -20,27 +21,32 @@ namespace DragonGame.Controllers
         // GET: Character/Create
         public IActionResult Create()
         {
+            ViewBag.PoseOptions = new SelectList(_context.CharacterPoses, "Id", "Name");
             return View(new Character());
         }
 
         // POST: Character/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateAsync(Character character)
+        public async Task<IActionResult> Create(Character character)
         {
             if (!ModelState.IsValid)
+                _logger.LogWarning("ModelState invalid: {@ModelState}", ModelState);
+                ViewBag.PoseOptions = new SelectList(_context.CharacterPoses, "Id", "Name");
                 return View(character);
 
             try
             {
                 await _context.Characters.AddAsync(character);
                 await _context.SaveChangesAsync();
+                _logger.LogInformation("Saved Character with Id: {Id}", character.Id);
                 return RedirectToAction(nameof(Result), new { id = character.Id });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error saving character");
                 ModelState.AddModelError("", "Error saving character, try again.");
+                ViewBag.PoseOptions = new SelectList(_context.CharacterPoses, "Id", "Name");
                 return View(character);
             }
         }
