@@ -1,35 +1,52 @@
 $(document).ready(function () {
-            // Function to fetch poses from your API
-            function fetchPoses() {
-                $.ajax({
-                    url: '/api/poses', // Your API endpoint for poses
-                    method: 'GET',
-                    success: function (data) {
-                        const poseDropdown = $('#poseDropdown');
-                        data.forEach(function (pose) {
-                            poseDropdown.append($('<option></option>').val(pose.imageUrl).text(pose.name));
-                        });
-                    },
-                    error: function (error) {
-                        console.error("Error fetching poses:", error);
-                    }
+    let allPoses = []; 
+
+    function fetchPoses() {
+        $.ajax({
+            url: '/api/poses', 
+            method: 'GET',
+            success: function (data) {
+                allPoses = data; 
+                const poseDropdown = $('#poseDropdown');
+                poseDropdown.empty().append('<option value="">-- Select a Pose --</option>'); 
+                
+                data.forEach(function (pose) {
+                    poseDropdown.append($('<option></option>').val(pose.id).text(pose.name));
                 });
-            }
 
-            // Call the function to populate the dropdown when the page loads
-            fetchPoses();
-
-            // Event listener for dropdown change
-            $('#poseDropdown').change(function () {
-                const selectedPoseImageUrl = $(this).val();
-                const poseImageElement = $('#poseImage');
-
-                if (selectedPoseImageUrl) {
-                    poseImageElement.attr('src', '/images/poses/' + selectedPoseImageUrl);
-                    poseImageElement.show(); // Make sure the image is visible
-                } else {
-                    poseImageElement.hide(); // Hide if no pose is selected
-                    poseImageElement.attr('src', ''); // Clear the src
+                // Set initial selection from page data
+                if (initialCharacterData.poseId) {
+                    poseDropdown.val(initialCharacterData.poseId);
+                    displayPoseImage(initialCharacterData.poseId); 
                 }
-            });
+            },
+            error: function (error) {
+                console.error("Error fetching poses:", error);
+            }
         });
+    }
+
+    function displayPoseImage(poseId) {
+        const poseImageElement = $('#poseImage');
+        if (poseId) {
+            const selectedPose = allPoses.find(p => p.id == poseId); 
+            if (selectedPose && selectedPose.imageUrl) {
+                poseImageElement.attr('src', '/images/poses/' + selectedPose.imageUrl);
+                poseImageElement.show();
+            } else {
+                poseImageElement.hide();
+                poseImageElement.attr('src', '');
+            }
+        } else {
+            poseImageElement.hide();
+            poseImageElement.attr('src', '');
+        }
+    }
+
+    fetchPoses();
+
+    $('#poseDropdown').change(function () {
+        const selectedPoseId = $(this).val(); 
+        displayPoseImage(selectedPoseId);
+    });
+});
