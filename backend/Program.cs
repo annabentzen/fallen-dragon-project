@@ -14,6 +14,7 @@ builder.Services.AddDbContext<DragonGameDbContext>(options =>
 
 // Register the repository
 builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
+builder.Services.AddScoped<ICharacterPoseRepository, CharacterPoseRepository>();
 
 var app = builder.Build();
 
