@@ -30,10 +30,18 @@ namespace DragonGame.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Character character)
         {
+            _logger.LogInformation("CreateAsync called. ModelState.IsValid={IsValid}", ModelState.IsValid);
+            foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+            {
+                _logger.LogWarning("ModelState error: {Error}", error.ErrorMessage);
+            }
+
             if (!ModelState.IsValid)
+            {
                 _logger.LogWarning("ModelState invalid: {@ModelState}", ModelState);
                 ViewBag.PoseOptions = new SelectList(_context.CharacterPoses, "Id", "Name");
                 return View(character);
+            }
 
             try
             {
@@ -50,6 +58,7 @@ namespace DragonGame.Controllers
                 return View(character);
             }
         }
+
 
         // GET: Character/Result/{id}
         [HttpGet]
