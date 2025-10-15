@@ -21,7 +21,6 @@ namespace DragonGame.Controllers
         // GET: Character/Create
         public IActionResult Create()
         {
-            ViewBag.PoseOptions = new SelectList(_context.CharacterPoses, "Id", "Name");
             return View(new Character());
         }
 
@@ -30,16 +29,13 @@ namespace DragonGame.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Character character)
         {
-            _logger.LogInformation("CreateAsync called. ModelState.IsValid={IsValid}", ModelState.IsValid);
-            foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
-            {
-                _logger.LogWarning("ModelState error: {Error}", error.ErrorMessage);
-            }
+            _logger.LogInformation("Create called. ModelState.IsValid={IsValid}", ModelState.IsValid);
+
+             // If PoseId is null, assign default pose (for example, ID = 1)
+            character.PoseId ??= 3;
 
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("ModelState invalid: {@ModelState}", ModelState);
-                ViewBag.PoseOptions = new SelectList(_context.CharacterPoses, "Id", "Name");
                 return View(character);
             }
 
@@ -48,73 +44,57 @@ namespace DragonGame.Controllers
                 await _context.Characters.AddAsync(character);
                 await _context.SaveChangesAsync();
                 _logger.LogInformation("Saved Character with Id: {Id}", character.Id);
+
                 return RedirectToAction(nameof(Result), new { id = character.Id });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error saving character");
                 ModelState.AddModelError("", "Error saving character, try again.");
-                ViewBag.PoseOptions = new SelectList(_context.CharacterPoses, "Id", "Name");
                 return View(character);
             }
         }
 
 
-        // GET: Character/Result/{id}
+
+        /// GET: Character/Result/{id}
         [HttpGet]
-        public async Task<IActionResult> Result(int id) // Add 'id' parameter to fetch specific character
+        public async Task<IActionResult> Result(int id)
         {
-            // Fetch the character by ID, INCLUDING its associated Pose
             var character = await _context.Characters
-                                        .Include(c => c.Pose) // Include the navigation property
-                                        .FirstOrDefaultAsync(c => c.Id == id);
+                .Include(c => c.Pose)
+                .FirstOrDefaultAsync(c => c.Id == id);
 
             if (character == null)
-            {
-                return NotFound(); // Character not found
-            }
+                return NotFound();
+
+            // Populate dropdown
+            ViewBag.PoseOptions = _context.CharacterPoses
+                                        .Select(p => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                                        {
+                                            Value = p.Id.ToString(),
+                                            Text = p.Name
+                                        }).ToList();
 
             return View(character);
         }
 
-
-        // POST: Character/Update/{id}
+        // POST: Character/UpdateCharacterPose
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateCharacterPose(int id, int? selectedPoseId) // Match nullable PoseId
+        public async Task<IActionResult> UpdateCharacterPose(int id, int? selectedPoseId)
         {
-            // 1. Find the character to update
-            var characterToUpdate = await _context.Characters.FindAsync(id);
+            var character = await _context.Characters.FindAsync(id);
+            if (character == null)
+                return NotFound();
 
-            if (characterToUpdate == null)
-            {
-                return NotFound(); // Character with given ID not found
-            }
+            character.PoseId = selectedPoseId;
 
-            // 2. Update the PoseId
-            characterToUpdate.PoseId = selectedPoseId;
+            await _context.SaveChangesAsync();
 
-            try
-            {
-                // 3. Save changes to the database
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                // Handle potential concurrency conflicts
-                if (!_context.Characters.Any(e => e.Id == id))
-                {
-                    return NotFound(); // Character was deleted by another process
-                }
-                else
-                {
-                    throw; // Re-throw other concurrency exceptions
-                }
-            }
-
-            // 4. Redirect to the Result page for the updated character
-            return RedirectToAction("Result", new { id = characterToUpdate.Id });
+            return RedirectToAction("Result", new { id = character.Id });
         }
+
 
 
         // POST: Character/Delete/{id}

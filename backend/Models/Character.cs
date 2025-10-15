@@ -11,7 +11,6 @@ namespace DragonGame.Models
         public string Clothing { get; set; } = "clothing1.png";
         
         [Display(Name = "Pose")]
-        [Required(ErrorMessage = "Please select a pose.")]
         public int? PoseId { get; set; } // Foreign key
         public CharacterPose? Pose { get; set; } // Navigation property
 
