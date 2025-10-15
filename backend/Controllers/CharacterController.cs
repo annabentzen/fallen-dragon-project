@@ -31,8 +31,8 @@ namespace DragonGame.Controllers
         {
             _logger.LogInformation("Create called. ModelState.IsValid={IsValid}", ModelState.IsValid);
 
-             // If PoseId is null, assign default pose (for example, ID = 1)
-            character.PoseId ??= 3;
+             // Assign a default pose (e.g., first pose in DB)
+            character.PoseId = _context.CharacterPoses.FirstOrDefault()?.Id;
 
             if (!ModelState.IsValid)
             {

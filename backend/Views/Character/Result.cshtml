@@ -21,19 +21,14 @@
     @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Id" />
     
-    <div class="container text-center mt-4">
-        <h3>Select a Pose</h3>
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label for="poseDropdown">Choose a Pose:</label>
-                    <select id="poseDropdown" name="selectedPoseId" class="form-control">
-                        <option value="">-- Select a Pose --</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-    </div>
+   @* Pose dropdown *@
+<div class="mt-4 text-center">
+    <label asp-for="PoseId">Pose</label>
+    <select asp-for="PoseId" class="form-control w-auto d-inline-block" asp-items="ViewBag.PoseOptions">
+        <option value="">Select a pose</option>
+    </select>
+</div>
+
 
     <div class="row justify-content-center mt-4">
         <div class="col-auto">
@@ -49,13 +44,14 @@
 
 @section Scripts {
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    
 
     <script>
         var initialCharacterData = {
             id: @Model.Id,
-            // Ensure poseId is correctly handled for null values
-            poseId: @(Model.PoseId.HasValue ? Model.PoseId.Value.ToString() : "null")
+            poseId: @(Model.PoseId.HasValue ? Model.PoseId.Value.ToString() : "null"),
+            hair: "@Model.Hair",
+            face: "@Model.Face",
+            clothing: "@Model.Clothing"
         };
     </script>
 

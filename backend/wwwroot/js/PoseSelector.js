@@ -1,4 +1,3 @@
-
 $(document).ready(function () {
     let allPoses = []; 
 
@@ -15,8 +14,8 @@ $(document).ready(function () {
                     poseDropdown.append($('<option></option>').val(pose.id).text(pose.name));
                 });
 
-                // *** Use the global initialCharacterData to set the initial selection ***
-                if (initialCharacterData.poseId !== "null") {
+                // Set initial selection from page data
+                if (initialCharacterData.poseId) {
                     poseDropdown.val(initialCharacterData.poseId);
                     displayPoseImage(initialCharacterData.poseId); 
                 }
@@ -35,7 +34,6 @@ $(document).ready(function () {
                 poseImageElement.attr('src', '/images/poses/' + selectedPose.imageUrl);
                 poseImageElement.show();
             } else {
-                console.warn("Pose image URL not found for ID:", poseId);
                 poseImageElement.hide();
                 poseImageElement.attr('src', '');
             }
