@@ -15,34 +15,34 @@ namespace DragonGame.Repositories
             _context = context;
         }
 
+        // get all characters with their poses
         public async Task<List<Character>> GetAllAsync()
         {
             return await _context.Characters
-                .Include(c => c.Power)
-                .Include(c => c.Pose)
+                .Include(c => c.Pose) // include pose data
                 .ToListAsync();
         }
-
+        // get character by id with pose
         public async Task<Character?> GetByIdAsync(int id)
         {
             return await _context.Characters
-                .Include(c => c.Power)
-                .Include(c => c.Pose)
+                .Include(c => c.Pose) // include pose data
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
-
+        // add a new character
         public async Task AddAsync(Character character)
         {
             await _context.Characters.AddAsync(character);
             await _context.SaveChangesAsync();
         }
-
+        // update an existing character
         public async Task UpdateAsync(Character character)
         {
             _context.Characters.Update(character);
             await _context.SaveChangesAsync();
         }
 
+        // delete a character by id
         public async Task DeleteAsync(int id)
         {
             var character = await _context.Characters.FindAsync(id);
