@@ -12,13 +12,16 @@ namespace DragonGame.Controllers
 
         // repository for dataoperations
         private readonly ICharacterRepository _repository;
+        // repository for character poses
+        private readonly ICharacterPoseRepository _poseRepository;
         // logger for error logging
         private readonly ILogger<CharacterController> _logger;
 
         // constructor with dependency injection
-        public CharacterController(ICharacterRepository repository, ILogger<CharacterController> logger)
+        public CharacterController(ICharacterRepository repository, ICharacterPoseRepository poseRepository, ILogger<CharacterController> logger)
         {
             _repository = repository;
+            _poseRepository = poseRepository;
             _logger = logger;
         }
 
@@ -37,8 +40,8 @@ namespace DragonGame.Controllers
         {
             _logger.LogInformation("Create called. ModelState.IsValid={IsValid}", ModelState.IsValid);
 
-             // Assign a default pose (e.g., first pose in DB)
-            character.PoseId = _context.CharacterPoses.FirstOrDefault()?.Id;
+            // if poseid not set, set default pose
+            character.PoseId = 1;
 
             if (!ModelState.IsValid)
             {
@@ -47,11 +50,10 @@ namespace DragonGame.Controllers
 
             try
             {
-                await _context.Characters.AddAsync(character);
-                await _context.SaveChangesAsync();
+                await _repository.AddAsync(character); // save character to database
                 _logger.LogInformation("Saved Character with Id: {Id}", character.Id);
 
-                await _repository.AddAsync(character); // save character to database
+
                 return RedirectToAction(nameof(Result), new { id = character.Id });
             }
             catch (Exception ex)
@@ -63,47 +65,40 @@ namespace DragonGame.Controllers
         }
 
 
-
-        /// GET: Character/Result/{id}
-        [HttpGet]
+        // GET: Character/Result/{id}
+        // shows the created character and allows selecting/updating pose
         public async Task<IActionResult> Result(int id)
         {
-            var character = await _context.Characters
-                .Include(c => c.Pose)
-                .FirstOrDefaultAsync(c => c.Id == id);
+            // Get character via repository
+            var character = await _repository.GetByIdAsync(id);
 
             if (character == null)
-                return NotFound();
+                return RedirectToAction(nameof(Create));
 
-            // Populate dropdown
-            ViewBag.PoseOptions = _context.CharacterPoses
-                                        .Select(p => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
-                                        {
-                                            Value = p.Id.ToString(),
-                                            Text = p.Name
-                                        }).ToList();
+            // Populate dropdown for poses
+            var poses = await _poseRepository.GetAllAsync();
+            ViewBag.PoseOptions = poses.Select(p => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+            {
+                Value = p.Id.ToString(),
+                Text = p.Name
+            })
+            .ToList();
 
-        // GET: Character/Result/{id}
-        // shows the created character
-        public async Task<IActionResult> Result(int id)
-        {
-            var character = await _repository.GetByIdAsync(id);
-            if (character == null) return RedirectToAction(nameof(Create));
             return View(character);
         }
 
         // POST: Character/UpdateCharacterPose
+        // updates the pose of an existing character
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateCharacterPose(int id, int? selectedPoseId)
         {
-            var character = await _context.Characters.FindAsync(id);
+            var character = await _repository.GetByIdAsync(id);
             if (character == null)
                 return NotFound();
 
             character.PoseId = selectedPoseId;
-
-            await _context.SaveChangesAsync();
+            await _repository.UpdateAsync(character); // update via repository
 
             return RedirectToAction("Result", new { id = character.Id });
         }
