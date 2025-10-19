@@ -1,15 +1,46 @@
-$(document).ready(function () {
-    const poseDropdown = $("#poseDropdown");
-    const poseImage = $("#poseImage");
 
-    poseDropdown.on("change", function () {
-        const poseId = $(this).val();
+$(document).ready(function () {
+    let allPoses = [];
+
+    function fetchPoses() {
+        $.ajax({
+            url: '/api/poses',
+            method: 'GET',
+            success: function(data) {
+                allPoses = data;
+                populateDropdown();
+            }
+        });
+    }
+
+    function populateDropdown() {
+        const poseDropdown = $('#poseDropdown');
+        poseDropdown.empty().append('<option value="">Select a pose</option>');
+        allPoses.forEach(p => {
+            poseDropdown.append($('<option></option>').val(p.id).text(p.name));
+        });
+    }
+
+    function displayPoseImage(poseId) {
+        const poseImageElement = $('#poseImage');
         if (poseId) {
-            const poseOption = $(this).find("option:selected").text().trim().toLowerCase();
-            const poseFileName = poseOption.replace(/\s+/g, "_") + ".png";
-            poseImage.attr("src", "/images/poses/" + poseFileName);
+            const selectedPose = allPoses.find(p => p.id == poseId);
+            if (selectedPose && selectedPose.imageUrl) {
+                poseImageElement.attr('src', '/images/poses/' + selectedPose.imageUrl);
+                poseImageElement.show();
+            } else {
+                poseImageElement.hide();
+                poseImageElement.attr('src', '');
+            }
         } else {
-            poseImage.attr("src", "/images/base.png");
+            poseImageElement.hide();
+            poseImageElement.attr('src', '');
         }
+    }
+
+    $('#poseDropdown').change(function() {
+        displayPoseImage($(this).val());
     });
+
+    fetchPoses();
 });

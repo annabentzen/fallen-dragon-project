@@ -17,7 +17,7 @@ namespace DragonGame.Controllers
             _poseRepository = poseRepository;
         }
 
-        // ✅ GET: api/poses
+        // GET: api/poses
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CharacterPose>>> GetAllPoses()
         {
@@ -25,7 +25,7 @@ namespace DragonGame.Controllers
             return Ok(poses);
         }
 
-        // ✅ GET: api/poses/{id}
+        // GET: api/poses/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<CharacterPose>> GetPose(int id)
         {
@@ -36,7 +36,7 @@ namespace DragonGame.Controllers
             return Ok(pose);
         }
 
-        // ✅ POST: api/poses
+        // POST: api/poses
         [HttpPost]
         public async Task<ActionResult<CharacterPose>> CreatePose(CharacterPose pose)
         {
@@ -44,7 +44,7 @@ namespace DragonGame.Controllers
             return CreatedAtAction(nameof(GetPose), new { id = pose.Id }, pose);
         }
 
-        // ✅ PUT: api/poses/{id}
+        // PUT: api/poses/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdatePose(int id, CharacterPose pose)
         {
@@ -62,7 +62,7 @@ namespace DragonGame.Controllers
             return NoContent();
         }
 
-        // ✅ DELETE: api/poses/{id}
+        // DELETE: api/poses/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePose(int id)
         {

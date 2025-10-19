@@ -19,10 +19,17 @@ namespace DragonGame.Controllers
 
         // CREATE VIEW
         // GET: Character/Create
+        [HttpGet]
         public async Task<IActionResult> Create()
         {
-            // Create an empty character so the view can reference its properties
-            var model = new Character
+            // Get all poses from repository
+            var poses = await _poseRepository.GetAllPosesAsync();
+
+            // Pass to ViewBag for dropdown
+            ViewBag.PoseOptions = new SelectList(poses, "Id", "Name");
+
+            // Initialize a new character
+            var character = new Character
             {
                 Hair = "hair1.png",
                 Face = "face1.png",
@@ -30,11 +37,7 @@ namespace DragonGame.Controllers
                 PoseId = null
             };
 
-            // Optionally load pose options into ViewBag
-            var poses = await _poseRepository.GetAllPosesAsync();
-            ViewBag.PoseOptions = new SelectList(poses, "Id", "Name");
-
-            return View(model);
+            return View(character);
         }
 
 
@@ -54,6 +57,7 @@ namespace DragonGame.Controllers
         }
 
         // RESULT VIEW
+        [HttpGet]
         public async Task<IActionResult> Result(int id)
         {
             var character = await _characterRepository.GetByIdAsync(id);
