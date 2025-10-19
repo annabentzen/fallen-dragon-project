@@ -1,118 +1,93 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using DragonGame.Models;
 using DragonGame.Repositories;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Threading.Tasks;
 
 namespace DragonGame.Controllers
 {
     public class CharacterController : Controller
     {
-
-        // repository for dataoperations
-        private readonly ICharacterRepository _repository;
-        // repository for character poses
+        private readonly ICharacterRepository _characterRepository;
         private readonly ICharacterPoseRepository _poseRepository;
-        // logger for error logging
-        private readonly ILogger<CharacterController> _logger;
 
-        // constructor with dependency injection
-        public CharacterController(ICharacterRepository repository, ICharacterPoseRepository poseRepository, ILogger<CharacterController> logger)
+        public CharacterController(ICharacterRepository characterRepository, ICharacterPoseRepository poseRepository)
         {
-            _repository = repository;
+            _characterRepository = characterRepository;
             _poseRepository = poseRepository;
-            _logger = logger;
         }
 
+        // CREATE VIEW
         // GET: Character/Create
-        // opens character creation view
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View(new Character());
+            // Create an empty character so the view can reference its properties
+            var model = new Character
+            {
+                Hair = "hair1.png",
+                Face = "face1.png",
+                Clothing = "clothing1.png",
+                PoseId = null
+            };
+
+            // Optionally load pose options into ViewBag
+            var poses = await _poseRepository.GetAllPosesAsync();
+            ViewBag.PoseOptions = new SelectList(poses, "Id", "Name");
+
+            return View(model);
         }
 
-        // POST: Character/Create
-        // receives character data from form and saves a new character
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Character character)
         {
-            _logger.LogInformation("Create called. ModelState.IsValid={IsValid}", ModelState.IsValid);
-
-            // if poseid not set, set default pose
-            character.PoseId = 1;
-
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                return View(character);
+                await _characterRepository.AddAsync(character);
+                return RedirectToAction("Result", new { id = character.Id });
             }
 
-            try
-            {
-                await _repository.AddAsync(character); // save character to database
-                _logger.LogInformation("Saved Character with Id: {Id}", character.Id);
-
-
-                return RedirectToAction(nameof(Result), new { id = character.Id });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error saving character");
-                ModelState.AddModelError("", "Error saving character, try again.");
-                return View(character);
-            }
+            var poses = await _poseRepository.GetAllPosesAsync();
+            ViewBag.PoseOptions = new SelectList(poses, "Id", "Name");
+            return View(character);
         }
 
-
-        // GET: Character/Result/{id}
-        // shows the created character and allows selecting/updating pose
+        // RESULT VIEW
         public async Task<IActionResult> Result(int id)
         {
-            // Get character via repository
-            var character = await _repository.GetByIdAsync(id);
-
+            var character = await _characterRepository.GetByIdAsync(id);
             if (character == null)
-                return RedirectToAction(nameof(Create));
+                return NotFound();
 
-            // Populate dropdown for poses
-            var poses = await _poseRepository.GetAllAsync();
-            ViewBag.PoseOptions = poses.Select(p => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
-            {
-                Value = p.Id.ToString(),
-                Text = p.Name
-            })
-            .ToList();
+            var poses = await _poseRepository.GetAllPosesAsync();
+            ViewBag.PoseOptions = new SelectList(poses, "Id", "Name", character.PoseId);
 
             return View(character);
         }
 
-        // POST: Character/UpdateCharacterPose
-        // updates the pose of an existing character
+        // UPDATE CHARACTER POSE
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateCharacterPose(int id, int? selectedPoseId)
+        public async Task<IActionResult> UpdateCharacterPose(int id, int? poseId)
         {
-            var character = await _repository.GetByIdAsync(id);
+            var character = await _characterRepository.GetByIdAsync(id);
             if (character == null)
                 return NotFound();
 
-            character.PoseId = selectedPoseId;
-            await _repository.UpdateAsync(character); // update via repository
+            character.PoseId = poseId;
+            await _characterRepository.UpdateAsync(character);
 
-            return RedirectToAction("Result", new { id = character.Id });
+            return RedirectToAction("Result", new { id });
         }
 
-
-
-        // POST: Character/Delete/{id}
-        // deletes the character and redirects to create new character
+        // DELETE CHARACTER
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            await _repository.DeleteAsync(id);
-            return RedirectToAction(nameof(Create));
+            await _characterRepository.DeleteAsync(id);
+            return RedirectToAction("Create");
         }
     }
 }
