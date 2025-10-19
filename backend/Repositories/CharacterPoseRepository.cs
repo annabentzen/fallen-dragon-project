@@ -21,11 +21,13 @@ namespace DragonGame.Repositories
             return await _context.CharacterPoses.ToListAsync();
         }
 
-        // Get pose by id
+      // Get pose by id
         public async Task<CharacterPose?> GetByIdAsync(int id)
         {
-            return await _context.CharacterPoses.FindAsync(id);
+            return await _context.CharacterPoses
+                .FirstOrDefaultAsync(c => c.Id == id);
         }
+
 
         // Add a new pose
         public async Task AddAsync(CharacterPose pose)

@@ -58,7 +58,7 @@ namespace DragonGame.Controllers
 
         // RESULT VIEW
         [HttpGet]
-        public async Task<IActionResult> Result(int id)
+       public async Task<IActionResult> Result(int id)
         {
             var character = await _characterRepository.GetByIdAsync(id);
             if (character == null)
@@ -66,9 +66,10 @@ namespace DragonGame.Controllers
 
             var poses = await _poseRepository.GetAllPosesAsync();
             ViewBag.PoseOptions = new SelectList(poses, "Id", "Name", character.PoseId);
-
             return View(character);
+
         }
+
 
         // UPDATE CHARACTER POSE
         [HttpPost]
@@ -82,7 +83,10 @@ namespace DragonGame.Controllers
             character.PoseId = poseId;
             await _characterRepository.UpdateAsync(character);
 
-            return RedirectToAction("Result", new { id });
+            // Fetch Pose to include in the model for display
+            if (poseId.HasValue) character.Pose = await _poseRepository.GetByIdAsync(poseId.Value);
+
+            return RedirectToAction(nameof(Result), new { id = character.Id });
         }
 
         // DELETE CHARACTER

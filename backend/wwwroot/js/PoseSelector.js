@@ -9,6 +9,12 @@ $(document).ready(function () {
             success: function(data) {
                 allPoses = data;
                 populateDropdown();
+
+                // Select saved pose if it exists
+                if (initialCharacterData.poseId != null) {
+                    $('#poseDropdown').val(initialCharacterData.poseId);
+                    displayPoseImage(initialCharacterData.poseId);
+                }
             }
         });
     }
