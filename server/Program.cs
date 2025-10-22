@@ -16,6 +16,12 @@ builder.Services.AddDbContext<DragonGameDbContext>(options =>
 builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
 builder.Services.AddScoped<ICharacterPoseRepository, CharacterPoseRepository>();
 
+
+// Register Story repository
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("StoryDb")));
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
