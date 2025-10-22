@@ -47,7 +47,9 @@ namespace DragonGame.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Save character to db
                 await _characterRepository.AddAsync(character);
+                //redirect to result view by Id
                 return RedirectToAction("Result", new { id = character.Id });
             }
 
@@ -58,7 +60,7 @@ namespace DragonGame.Controllers
 
         // RESULT VIEW
         [HttpGet]
-       public async Task<IActionResult> Result(int id)
+        public async Task<IActionResult> Result(int id)
         {
             var character = await _characterRepository.GetByIdAsync(id);
             if (character == null)
@@ -66,28 +68,36 @@ namespace DragonGame.Controllers
 
             var poses = await _poseRepository.GetAllPosesAsync();
             ViewBag.PoseOptions = new SelectList(poses, "Id", "Name", character.PoseId);
-            return View(character);
 
+            return View(character);
         }
 
 
         // UPDATE CHARACTER POSE
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateCharacterPose(int id, int? poseId)
+        public async Task<IActionResult> UpdateCharacterPose(int id, int? poseId, string Hair, string Face, string Clothing)
         {
             var character = await _characterRepository.GetByIdAsync(id);
             if (character == null)
                 return NotFound();
 
+            // Update pose
             character.PoseId = poseId;
-            await _characterRepository.UpdateAsync(character);
+            if (poseId.HasValue)
+                character.Pose = await _poseRepository.GetByIdAsync(poseId.Value);
 
-            // Fetch Pose to include in the model for display
-            if (poseId.HasValue) character.Pose = await _poseRepository.GetByIdAsync(poseId.Value);
+            // Update hair, face, clothing from hidden inputs
+            character.Hair = Hair ?? character.Hair;
+            character.Face = Face ?? character.Face;
+            character.Clothing = Clothing ?? character.Clothing;
+
+            await _characterRepository.UpdateAsync(character); // Save to db
 
             return RedirectToAction(nameof(Result), new { id = character.Id });
         }
+
+
 
         // DELETE CHARACTER
         [HttpPost]

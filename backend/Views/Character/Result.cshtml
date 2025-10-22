@@ -19,15 +19,20 @@
 <form asp-action="UpdateCharacterPose" asp-controller="Character" method="post">
     @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Id" />
-    <div class="mt-4 text-center">
-        <select id="poseDropdown"
-                asp-for="PoseId"
-                class="form-control w-auto d-inline-block"
-                asp-items="ViewBag.PoseOptions">
-            <option value="">Select a pose</option>
-        </select>
-    </div>
+
+    <select id="poseDropdown" asp-for="PoseId" asp-items="ViewBag.PoseOptions" class="form-control">
+        <option value="">Select a pose</option>
+    </select>
+
+    <!-- Hidden inputs for hair, face, clothing -->
+    <input type="hidden" id="hairInput" name="Hair" value="@Model.Hair" />
+    <input type="hidden" id="faceInput" name="Face" value="@Model.Face" />
+    <input type="hidden" id="clothingInput" name="Clothing" value="@Model.Clothing" />
+
+
+    <button type="submit" class="btn btn-primary mt-2">Change Pose</button>
 </form>
+
 
 <form>
     <div class="row justify-content-center mt-4">
