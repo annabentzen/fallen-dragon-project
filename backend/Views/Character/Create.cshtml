@@ -14,9 +14,9 @@
         <img id="face" src="~/images/faces/@Model.Face" alt="Face" style="position:absolute; width:100%; height:100%;" />
         <img id="clothing" src="~/images/clothes/@Model.Clothing" alt="Clothing" style="position:absolute; width:100%; height:100%;" />
         
-        <input type="hidden" id="hairInput" name="Hair" value="@Model.Hair" />
-        <input type="hidden" id="faceInput" name="Face" value="@Model.Face" />
-        <input type="hidden" id="clothingInput" name="Clothing" value="@Model.Clothing" />
+        <input type="hidden" id="hairInput" name="Hair" value="@Model.Hair ?? "hair1.png"" />
+        <input type="hidden" id="faceInput" name="Face" value="@Model.Face ?? "face1.png"" />
+        <input type="hidden" id="clothingInput" name="Clothing" value="@Model.Clothing ?? "clothing1.png"" />
     </div>
 
     @* Button controllers for carousels *@

@@ -1,35 +1,36 @@
+
 $(document).ready(function () {
-    let allPoses = []; 
+    let allPoses = [];
 
     function fetchPoses() {
         $.ajax({
-            url: '/api/poses', 
+            url: '/api/poses',
             method: 'GET',
-            success: function (data) {
-                allPoses = data; 
-                const poseDropdown = $('#poseDropdown');
-                poseDropdown.empty().append('<option value="">-- Select a Pose --</option>'); 
-                
-                data.forEach(function (pose) {
-                    poseDropdown.append($('<option></option>').val(pose.id).text(pose.name));
-                });
+            success: function(data) {
+                allPoses = data;
+                populateDropdown();
 
-                // Set initial selection from page data
-                if (initialCharacterData.poseId) {
-                    poseDropdown.val(initialCharacterData.poseId);
-                    displayPoseImage(initialCharacterData.poseId); 
+                // Select saved pose if it exists
+                if (initialCharacterData.poseId != null) {
+                    $('#poseDropdown').val(initialCharacterData.poseId);
+                    displayPoseImage(initialCharacterData.poseId);
                 }
-            },
-            error: function (error) {
-                console.error("Error fetching poses:", error);
             }
+        });
+    }
+
+    function populateDropdown() {
+        const poseDropdown = $('#poseDropdown');
+        poseDropdown.empty().append('<option value="">Select a pose</option>');
+        allPoses.forEach(p => {
+            poseDropdown.append($('<option></option>').val(p.id).text(p.name));
         });
     }
 
     function displayPoseImage(poseId) {
         const poseImageElement = $('#poseImage');
         if (poseId) {
-            const selectedPose = allPoses.find(p => p.id == poseId); 
+            const selectedPose = allPoses.find(p => p.id == poseId);
             if (selectedPose && selectedPose.imageUrl) {
                 poseImageElement.attr('src', '/images/poses/' + selectedPose.imageUrl);
                 poseImageElement.show();
@@ -43,10 +44,9 @@ $(document).ready(function () {
         }
     }
 
-    fetchPoses();
-
-    $('#poseDropdown').change(function () {
-        const selectedPoseId = $(this).val(); 
-        displayPoseImage(selectedPoseId);
+    $('#poseDropdown').change(function() {
+        displayPoseImage($(this).val());
     });
+
+    fetchPoses();
 });
