@@ -22,7 +22,10 @@ namespace DragonGame.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("StoryId")
+                    b.Property<int?>("ActNumber")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("StoryId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Text")
@@ -38,21 +41,21 @@ namespace DragonGame.Migrations
 
             modelBuilder.Entity("DragonGame.Models.Choice", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ChoiceId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("ActId")
+                    b.Property<int>("ActId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("NextActId")
+                    b.Property<int?>("NextActNumber")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Text")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.HasKey("Id");
+                    b.HasKey("ChoiceId");
 
                     b.HasIndex("ActId");
 
@@ -78,14 +81,20 @@ namespace DragonGame.Migrations
                 {
                     b.HasOne("DragonGame.Models.Story", null)
                         .WithMany("Acts")
-                        .HasForeignKey("StoryId");
+                        .HasForeignKey("StoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DragonGame.Models.Choice", b =>
                 {
-                    b.HasOne("DragonGame.Models.Act", null)
+                    b.HasOne("DragonGame.Models.Act", "Act")
                         .WithMany("Choices")
-                        .HasForeignKey("ActId");
+                        .HasForeignKey("ActId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Act");
                 });
 
             modelBuilder.Entity("DragonGame.Models.Act", b =>

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using DragonGame.Models;
 using DragonGame.Repositories;
 using DragonGame.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace DragonGame.Controllers
 {
@@ -12,6 +13,13 @@ namespace DragonGame.Controllers
     {
         private readonly IStoryRepository _repository;
         public StoryController(IStoryRepository repository) => _repository = repository;
+
+        private readonly AppDbContext _context;
+
+        public StoryController(AppDbContext context)
+        {
+            _context = context;
+        }
 
 
         [HttpGet]
@@ -53,7 +61,7 @@ namespace DragonGame.Controllers
         {
             var act = await _context.Acts
                                     .Include(a => a.Choices)
-                                    .FirstOrDefaultAsync(a => a.Id == actId && a.StoryId == storyId);
+                                    .FirstOrDefaultAsync(a => a.Id == actId && a.Id == storyId);
 
             if (act == null) return NotFound();
 

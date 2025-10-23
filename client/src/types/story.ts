@@ -1,11 +1,12 @@
 export interface Choice {
   id: number;
   text: string;
-  nextActId: number;
+  nextActNumber: number;
 }
 
 export interface Act {
   id: number;
+  actNumber: number;
   text: string;
   choices: Choice[];
 }
