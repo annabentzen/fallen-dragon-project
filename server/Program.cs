@@ -1,26 +1,23 @@
-using Microsoft.EntityFrameworkCore;
 using DragonGame.Data;
 using DragonGame.Repositories;
-
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// Configure Entituy Framework and SQLite
+// Configure Entity Framework with SQLite
 builder.Services.AddDbContext<DragonGameDbContext>(options =>
     options.UseSqlite("Data Source=App_Data/DragonGame.db"));
 
-// Register the repository
+// Add Story database (also SQLite)
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite("Data Source=App_Data/Story.db"));
+
+// Register repositories
 builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
 builder.Services.AddScoped<ICharacterPoseRepository, CharacterPoseRepository>();
-
-
-// Register Story repository
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("StoryDb")));
-
 
 var app = builder.Build();
 
@@ -38,7 +35,7 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-// set default route: open character create view first
+// Default route: open character create view first
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Character}/{action=Create}/{id?}");

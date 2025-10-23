@@ -1,11 +1,14 @@
 using Microsoft.EntityFrameworkCore;
-using DragonStory.Models;
+using DragonGame.Models;
 
-public class AppDbContext : DbContext
+namespace DragonGame.Data
 {
-    public DbSet<Story> Stories { get; set; }
-    public DbSet<Act> Acts { get; set; }
-    public DbSet<Choice> Choices { get; set; }
+    public class AppDbContext : DbContext
+    {
+        public DbSet<Story> Stories { get; set; }
+        public DbSet<Act> Acts { get; set; }
+        public DbSet<Choice> Choices { get; set; }
 
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+    }
 }
