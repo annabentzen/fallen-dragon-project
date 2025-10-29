@@ -1,5 +1,5 @@
 import React from "react";
-import { Choice } from "../models/story";
+import { Choice } from "../types/story";
 
 interface Props {
   choice: Choice;

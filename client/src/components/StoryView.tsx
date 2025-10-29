@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Act } from "../models/types";
+import { Act } from "../types/story";
 import { getAct, makeChoice } from "../services/storyApi";
 import ChoiceButton from "./ChoiceButton";
 import "../styles/story.css";
