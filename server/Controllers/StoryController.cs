@@ -1,10 +1,18 @@
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Linq;
+using DragonGame.Data; // For DragonGameDbContext
+using DragonGame.Models; // For Story, Act, etc.
+using Microsoft.EntityFrameworkCore;
+
+
 [Route("api/[controller]")]
 [ApiController]
 public class StoryController : ControllerBase
 {
-    private readonly DragonGameDbContext _context;
+    private readonly AppDbContext _context;
 
-    public StoryController(DragonGameDbContext context)
+    public StoryController(AppDbContext context)
     {
         _context = context;
     }

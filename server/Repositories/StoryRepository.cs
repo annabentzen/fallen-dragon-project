@@ -12,7 +12,7 @@ namespace DragonGame.Repositories
         public StoryRepository(AppDbContext context) => _context = context;
 
         public async Task<List<Story>> GetAllAsync() => await _context.Stories.Include(s => s.Acts).ThenInclude(a => a.Choices).ToListAsync();
-        public async Task<Story> GetByIdAsync(int id) => await _context.Stories.Include(s => s.Acts).ThenInclude(a => a.Choices).FirstOrDefaultAsync(s => s.Id == id);
+        public async Task<Story> GetByIdAsync(int id) => await _context.Stories.Include(s => s.Acts).ThenInclude(a => a.Choices).FirstOrDefaultAsync(s => s.StoryId == id);
         public async Task<Story> CreateAsync(Story story)
         {
             _context.Stories.Add(story);

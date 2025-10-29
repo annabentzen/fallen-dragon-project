@@ -1,16 +1,50 @@
 using Microsoft.EntityFrameworkCore;
 using DragonGame.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace DragonGame.Data
 {
     public class AppDbContext : DbContext
     {
+        public AppDbContext(DbContextOptions<AppDbContext> options)
+            : base(options)
+        {
+        }
+
         public DbSet<Story> Stories { get; set; }
         public DbSet<Act> Acts { get; set; }
         public DbSet<Choice> Choices { get; set; }
 
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // Map tables
+            modelBuilder.Entity<Story>().ToTable("Stories");
+            modelBuilder.Entity<Act>().ToTable("Acts");
+            modelBuilder.Entity<Choice>().ToTable("Choices");
+
+            // Specify primary keys if not called "Id"
+            modelBuilder.Entity<Choice>().HasKey(c => c.ChoiceId);
+            modelBuilder.Entity<Act>().HasKey(a => a.ActId);  // assuming ActId is the key in Act class
+            modelBuilder.Entity<Story>().HasKey(s => s.StoryId);   // Story uses Id
+
+            // Seed data
+            modelBuilder.Entity<Story>().HasData(
+                new Story { StoryId = 1, Title = "Fallen Dragon" }
+            );
+
+            modelBuilder.Entity<Act>().HasData(
+                new Act { ActId = 1, StoryId = 1, ActNumber = 1, Text = "The dragon awakens..." }
+            );
+
+            modelBuilder.Entity<Choice>().HasData(
+                new Choice { ChoiceId = 1, ActId = 1, Text = "Go left", NextActNumber = 2 },
+                new Choice { ChoiceId = 2, ActId = 1, Text = "Go right", NextActNumber = 3 }
+            );
+        }
     }
+}
 
 
     // Seed data for Stories, Acts, and Choices. The main story
@@ -116,4 +150,3 @@ namespace DragonGame.Data
 
 */
 
-}

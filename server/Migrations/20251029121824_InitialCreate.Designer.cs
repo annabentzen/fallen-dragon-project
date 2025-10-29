@@ -10,18 +10,18 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DragonGame.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251023134254_InitStoryDb")]
-    partial class InitStoryDb
+    [Migration("20251029121824_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.9");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.10");
 
             modelBuilder.Entity("DragonGame.Models.Act", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ActId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -35,11 +35,20 @@ namespace DragonGame.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.HasKey("Id");
+                    b.HasKey("ActId");
 
                     b.HasIndex("StoryId");
 
-                    b.ToTable("Acts");
+                    b.ToTable("Acts", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            ActId = 1,
+                            ActNumber = 1,
+                            StoryId = 1,
+                            Text = "The dragon awakens..."
+                        });
                 });
 
             modelBuilder.Entity("DragonGame.Models.Choice", b =>
@@ -62,12 +71,28 @@ namespace DragonGame.Migrations
 
                     b.HasIndex("ActId");
 
-                    b.ToTable("Choices");
+                    b.ToTable("Choices", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            ChoiceId = 1,
+                            ActId = 1,
+                            NextActNumber = 2,
+                            Text = "Go left"
+                        },
+                        new
+                        {
+                            ChoiceId = 2,
+                            ActId = 1,
+                            NextActNumber = 3,
+                            Text = "Go right"
+                        });
                 });
 
             modelBuilder.Entity("DragonGame.Models.Story", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("StoryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -75,9 +100,16 @@ namespace DragonGame.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.HasKey("Id");
+                    b.HasKey("StoryId");
 
-                    b.ToTable("Stories");
+                    b.ToTable("Stories", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            StoryId = 1,
+                            Title = "Fallen Dragon"
+                        });
                 });
 
             modelBuilder.Entity("DragonGame.Models.Act", b =>

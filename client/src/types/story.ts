@@ -19,16 +19,3 @@ export interface Story {
 
 
 
-// Get a specific act by its number or ID
-export async function getAct(actNumber: number) {
-  const res = await fetch(`${API_URL}/act/${actNumber}`);
-  if (!res.ok) throw new Error("Failed to fetch act");
-  return res.json();
-}
-
-// Get choices for a given act
-export async function getChoicesForAct(actId: number) {
-  const res = await fetch(`${API_URL}/choices/${actId}`);
-  if (!res.ok) throw new Error("Failed to fetch choices");
-  return res.json();
-}
