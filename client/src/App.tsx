@@ -1,16 +1,15 @@
-import { useState } from "react";
-import StoryView from "./components/StoryView";
-import EndingScreen from "./components/EndingScreen";
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Home from './components/Home';
+import StoryPage from './components/StoryPage';
 
 function App() {
-  const [gameEnded, setGameEnded] = useState(false);
-
   return (
-    <div>
-      {gameEnded ? <EndingScreen onEnd={function (): void {
-        throw new Error("Function not implemented.");
-      } } /> : <StoryView onEnd={() => setGameEnded(true)} />}
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/story/:sessionId" element={<StoryPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

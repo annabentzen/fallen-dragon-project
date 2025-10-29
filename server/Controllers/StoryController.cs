@@ -17,6 +17,19 @@ public class StoryController : ControllerBase
         _context = context;
     }
 
+
+    [HttpGet]
+    public async Task<IActionResult> GetStory()
+    {
+        var story = await _context.Stories
+                                  .Include(s => s.Acts)
+                                  .ThenInclude(a => a.Choices)
+                                  .FirstOrDefaultAsync();
+        if (story == null) return NotFound();
+        return Ok(story);
+    }
+
+
     [HttpGet("act/{number}")]
     public IActionResult GetAct(int number)
     {
