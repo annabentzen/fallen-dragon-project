@@ -4,7 +4,12 @@ import { getAct, makeChoice } from "../services/storyApi";
 import ChoiceButton from "./ChoiceButton";
 import "../styles/story.css";
 
-const StoryView: React.FC = () => {
+// Add this interface
+interface StoryViewProps {
+  onEnd: () => void;
+}
+
+const StoryView: React.FC<StoryViewProps> = ({ onEnd }) => {
   const [currentAct, setCurrentAct] = useState<Act | null>(null);
   const storyId = 1; // assuming single story for now
   const [actNumber, setActNumber] = useState(1);
@@ -21,6 +26,11 @@ const StoryView: React.FC = () => {
     const nextAct = await makeChoice(storyId, nextActNumber);
     setCurrentAct(nextAct);
     setActNumber(nextAct.actNumber);
+
+    // Example of triggering end (optional)
+    if (nextAct.isEnding) {
+      onEnd();
+    }
   };
 
   if (!currentAct) return <p>Loading story...</p>;
@@ -31,7 +41,11 @@ const StoryView: React.FC = () => {
       <p className="story-text">{currentAct.text}</p>
       <div className="choices">
         {currentAct.choices.map(choice => (
-          <ChoiceButton key={choice.id} choice={choice} onSelect={handleChoice} />
+          <ChoiceButton
+            key={choice.id}
+            choice={choice}
+            onSelect={handleChoice}
+          />
         ))}
       </div>
     </div>

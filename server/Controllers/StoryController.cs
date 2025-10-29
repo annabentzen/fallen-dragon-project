@@ -1,76 +1,35 @@
-using Microsoft.AspNetCore.Mvc;
-using DragonGame.Models;
-using DragonGame.Repositories;
-using DragonGame.Data;
-using Microsoft.EntityFrameworkCore;
-
-namespace DragonGame.Controllers
+[Route("api/[controller]")]
+[ApiController]
+public class StoryController : ControllerBase
 {
+    private readonly DragonGameDbContext _context;
 
-    [ApiController]
-    [Route("api/[controller]")]
-    public class StoryController : ControllerBase
+    public StoryController(DragonGameDbContext context)
     {
-        private readonly IStoryRepository _repository;
-        public StoryController(IStoryRepository repository) => _repository = repository;
+        _context = context;
+    }
 
-        private readonly AppDbContext _context;
+    [HttpGet("act/{number}")]
+    public IActionResult GetAct(int number)
+    {
+        var act = _context.Acts
+            .Include(a => a.Choices)
+            .FirstOrDefault(a => a.ActNumber == number);
 
-        public StoryController(AppDbContext context)
-        {
-            _context = context;
-        }
+        if (act == null)
+            return NotFound();
 
+        return Ok(act);
+    }
 
-        [HttpGet]
-        public async Task<IActionResult> GetStories() => Ok(await _repository.GetAllAsync());
+    [HttpGet("choices/{actId}")]
+    public IActionResult GetChoicesForAct(int actId)
+    {
+        var choices = _context.Choices
+            .Where(c => c.ActId == actId)
+            .ToList();
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetStory(int id)
-        {
-            var story = await _repository.GetByIdAsync(id);
-            return story == null ? NotFound() : Ok(story);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> CreateStory([FromBody] Story story)
-        {
-            var created = await _repository.CreateAsync(story);
-            return CreatedAtAction(nameof(GetStory), new { id = created.Id }, created);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateStory(int id, [FromBody] Story story)
-        {
-            if (id != story.Id) return BadRequest();
-            await _repository.UpdateAsync(story);
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteStory(int id)
-        {
-            await _repository.DeleteAsync(id);
-            return NoContent();
-        }
-
-
-
-        [HttpGet("{storyId}/acts/{actId}")]
-        public async Task<IActionResult> GetAct(int storyId, int actId)
-        {
-            var act = await _context.Acts
-                                    .Include(a => a.Choices)
-                                    .FirstOrDefaultAsync(a => a.Id == actId && a.Id == storyId);
-
-            if (act == null) return NotFound();
-
-            return Ok(act);
-        }
-
-
-
-
-
+        return Ok(choices);
     }
 }
+

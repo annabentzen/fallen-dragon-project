@@ -35,6 +35,11 @@ using (var scope = app.Services.CreateScope())
     DbSeeder.Seed(context);
 }
 
+app.UseCors(builder =>
+    builder.WithOrigins("http://localhost:5173")
+           .AllowAnyHeader()
+           .AllowAnyMethod());
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
