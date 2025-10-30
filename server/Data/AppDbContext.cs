@@ -11,6 +11,7 @@ namespace DragonGame.Data
         {
         }
 
+        public DbSet<PlayerSession> PlayerSessions { get; set; }
         public DbSet<Story> Stories { get; set; }
         public DbSet<Act> Acts { get; set; }
         public DbSet<Choice> Choices { get; set; }
