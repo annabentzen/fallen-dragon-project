@@ -1,24 +1,45 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 
 namespace DragonGame.Models
 {
     public class PlayerSession
     {
         [Key]
-        public Guid SessionId { get; set; } = Guid.NewGuid(); // unique ID
+        public int SessionId { get; set; } // Session ID
 
-        public int CurrentActNumber { get; set; } = 1; // default: Act 1
+        [Required]
+        public string CharacterName { get; set; } = string.Empty;
 
-        // Optional: store metadata
-        public DateTime StartedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? LastUpdatedAt { get; set; }
+        [Required]
+        public string CharacterDesignJson { get; set; } = "{}"; // store design as JSON
 
-        // Foreign key to Story (optional if you support multiple stories)
+        [NotMapped]
+        public CharacterDesign CharacterDesign
+        {
+            get => string.IsNullOrEmpty(CharacterDesignJson)
+                ? new CharacterDesign()
+                : JsonSerializer.Deserialize<CharacterDesign>(CharacterDesignJson) ?? new CharacterDesign();
+            set => CharacterDesignJson = JsonSerializer.Serialize(value);
+        }
+
+        [Required]
         public int StoryId { get; set; }
 
-        [ForeignKey("StoryId")]
-        public Story Story { get; set; }
+        [Required]
+        public int CurrentActNumber { get; set; } = 1; // start at act 1
+
+        [Required]
+        public bool IsCompleted { get; set; } = false;
+    }
+
+    public class CharacterDesign
+    {
+        public string? Hair { get; set; }
+        public string? Outfit { get; set; }
+        public string? Color { get; set; }
     }
 }
+

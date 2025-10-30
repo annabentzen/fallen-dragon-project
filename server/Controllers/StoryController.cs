@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
-using DragonGame.Data; // For DragonGameDbContext
-using DragonGame.Models; // For Story, Act, etc.
+using System.Threading.Tasks;
+using DragonGame.Data;       // For AppDbContext
+using DragonGame.Models;     // For PlayerSession, Story, Act
 using Microsoft.EntityFrameworkCore;
-
+using System.Text.Json;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -17,101 +18,120 @@ public class StoryController : ControllerBase
         _context = context;
     }
 
+    // 1. Start a new session with character
     [HttpPost("start")]
-    public async Task<IActionResult> StartStory()
+    public async Task<IActionResult> StartSession([FromBody] CreateSessionRequest request)
     {
-        // Get the first story in DB
-        var story = await _context.Stories.FirstOrDefaultAsync();
-        if (story == null)
-            return NotFound("No story found.");
-
-        // Create a new session tied to that story
         var session = new PlayerSession
         {
-            StoryId = story.Id,
+            CharacterName = request.CharacterName,
+            CharacterDesignJson = request.CharacterDesignJson,
+            StoryId = request.StoryId,
             CurrentActNumber = 1
         };
 
         _context.PlayerSessions.Add(session);
         await _context.SaveChangesAsync();
 
-        // Return the new sessionId to the frontend
-        return Ok(new { sessionId = session.SessionId });
+        // Return session info (frontend needs SessionId)
+        return Ok(new
+        {
+            sessionId = session.SessionId,
+            session.CharacterName,
+            session.CharacterDesignJson,
+            session.StoryId
+        });
     }
 
-
-
-    [HttpGet]
-    public async Task<IActionResult> GetStory()
+    // 2. Get session by ID
+    [HttpGet("session/{sessionId}")]
+    public async Task<IActionResult> GetSession(int sessionId)
     {
-        var story = await _context.Stories
-                                  .Include(s => s.Acts)
-                                  .ThenInclude(a => a.Choices)
-                                  .FirstOrDefaultAsync();
-        if (story == null) return NotFound();
-        return Ok(story);
+        var session = await _context.PlayerSessions
+            .FirstOrDefaultAsync(s => s.SessionId == sessionId);
+
+        if (session == null) return NotFound();
+
+        return Ok(new
+        {
+            sessionId = session.SessionId,
+            session.CharacterName,
+            session.CharacterDesignJson,
+            session.StoryId,
+            session.CurrentActNumber,
+            session.IsCompleted
+        });
     }
 
-
-    [HttpGet("act/{number}")]
-    public IActionResult GetAct(int number)
-    {
-        var act = _context.Acts
-            .Include(a => a.Choices)
-            .FirstOrDefault(a => a.ActNumber == number);
-
-        if (act == null)
-            return NotFound();
-
-        return Ok(act);
-    }
-
-    [HttpGet("choices/{actId}")]
-    public IActionResult GetChoicesForAct(int actId)
-    {
-        var choices = _context.Choices
-            .Where(c => c.ActId == actId)
-            .ToList();
-
-        return Ok(choices);
-    }
-
-
-    [HttpGet("{sessionId}/current")]
-    public async Task<IActionResult> GetCurrentActForSession(Guid sessionId)
+    // 3. Get current act for a session
+    [HttpGet("currentAct/{sessionId}")]
+    public async Task<IActionResult> GetCurrentAct(int sessionId)
     {
         var session = await _context.PlayerSessions.FirstOrDefaultAsync(s => s.SessionId == sessionId);
-        if (session == null)
-            return NotFound("Session not found.");
+        if (session == null) return NotFound();
 
         var act = await _context.Acts
             .Include(a => a.Choices)
-            .FirstOrDefaultAsync(a => a.ActNumber == session.CurrentActNumber && a.StoryId == session.StoryId);
+            .FirstOrDefaultAsync(a => a.StoryId == session.StoryId && a.ActNumber == session.CurrentActNumber);
 
-        if (act == null)
-            return NotFound("Act not found for this session.");
+        if (act == null) return NotFound();
 
-        return Ok(act);
+        return Ok(new { session, act });
     }
 
-    [HttpPost("{sessionId}/progress/{nextActNumber}")]
-    public async Task<IActionResult> UpdateSessionProgress(Guid sessionId, int nextActNumber)
+    // 4. Advance to next act
+    [HttpPost("nextAct/{sessionId}")]
+    public async Task<IActionResult> NextAct(int sessionId, [FromBody] NextActRequest request)
     {
         var session = await _context.PlayerSessions.FirstOrDefaultAsync(s => s.SessionId == sessionId);
-        if (session == null)
-            return NotFound("Session not found.");
+        if (session == null) return NotFound();
 
-        session.CurrentActNumber = nextActNumber;
-        session.LastUpdatedAt = DateTime.UtcNow;
-
+        session.CurrentActNumber = request.NextActNumber;
         await _context.SaveChangesAsync();
-        return Ok(new { message = "Progress updated" });
+
+        return Ok(new
+        {
+            sessionId = session.SessionId,
+            session.CurrentActNumber
+        });
     }
 
+    // 5. Update character mid-story
+    [HttpPost("updateCharacter/{sessionId}")]
+    public async Task<IActionResult> UpdateCharacter(int sessionId, [FromBody] UpdateCharacterRequest request)
+    {
+        var session = await _context.PlayerSessions.FirstOrDefaultAsync(s => s.SessionId == sessionId);
+        if (session == null) return NotFound();
 
+        session.CharacterName = request.CharacterName;
+        session.CharacterDesignJson = request.CharacterDesignJson;
 
+        await _context.SaveChangesAsync();
 
+        return Ok(new
+        {
+            sessionId = session.SessionId,
+            session.CharacterName,
+            session.CharacterDesignJson
+        });
+    }
 }
 
+// Request DTOs
+public class CreateSessionRequest
+{
+    public string CharacterName { get; set; } = "";
+    public string CharacterDesignJson { get; set; } = "{}";
+    public int StoryId { get; set; }
+}
 
+public class NextActRequest
+{
+    public int NextActNumber { get; set; }
+}
 
+public class UpdateCharacterRequest
+{
+    public string CharacterName { get; set; } = "";
+    public string CharacterDesignJson { get; set; } = "{}";
+}

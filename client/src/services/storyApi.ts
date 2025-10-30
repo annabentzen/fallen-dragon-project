@@ -1,54 +1,72 @@
 // src/services/storyApi.ts
-const API_URL = 'http://localhost:5151/api/story';
+import axios from 'axios';
 
-/**
- * Ask backend to create a new story session.
- * Backend returns { sessionId: "uuid" }.
- */
-export async function startStory() {
-  const response = await fetch(`${API_URL}/start`, {
-    method: 'POST',
-  });
+const API_BASE_URL = 'http://localhost:5151/api/story';
 
-  if (!response.ok) {
-    throw new Error('Failed to start story session');
-  }
-
-  return response.json();
+export interface CharacterDesign {
+  hair: string;
+  outfit: string;
+  color: string;
 }
 
-/**
- * Fetch one specific act (by actNumber)
- */
-export async function getAct(actNumber: number) {
-  const response = await fetch(`${API_URL}/act/${actNumber}`);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch act ${actNumber}: ${response.statusText}`);
-  }
-  return response.json();
+export interface PlayerSession {
+  id: number;
+  characterName: string;
+  characterDesign: CharacterDesign;
+  storyId: number;
 }
 
-/**
- * Fetch all choices for a given actId
- */
-export async function getChoicesForAct(actId: number) {
-  const response = await fetch(`${API_URL}/choices/${actId}`);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch choices for act ${actId}`);
-  }
-  return response.json();
-}
+// Create a new story session
+/*
+export const createSession = async (payload: {
+  characterName: string;
+  characterDesign: CharacterDesign;
+  storyId: number;
+}): Promise<PlayerSession> => {
+  const response = await axios.post(`${API_BASE_URL}/create-session`, payload);
+  return response.data;
+};
+*/
 
-export async function getCurrentActForSession(sessionId: string) {
-  const response = await fetch(`${API_URL}/${sessionId}/current`);
-  if (!response.ok) throw new Error('Failed to get current act for session');
-  return response.json();
-}
+export const createSession = async (sessionData: {
+  characterName: string;
+  characterDesign: any;
+  storyId: number;
+}) => {
+  const response = await axios.post(
+    "http://localhost:5151/api/story/start", // <-- updated
+    {
+      CharacterName: sessionData.characterName,
+      CharacterDesignJson: JSON.stringify(sessionData.characterDesign),
+      StoryId: sessionData.storyId,
+    }
+  );
+  return response.data;
+};
 
-export async function updateSessionProgress(sessionId: string, nextActNumber: number) {
-  const response = await fetch(`${API_URL}/${sessionId}/progress/${nextActNumber}`, {
-    method: 'POST'
-  });
-  if (!response.ok) throw new Error('Failed to update progress');
-  return response.json();
-}
+
+
+
+// Fetch an existing session by ID
+export const getSession = async (sessionId: number): Promise<PlayerSession> => {
+  const response = await axios.get(`${API_BASE_URL}/session/${sessionId}`);
+  return response.data;
+};
+
+// Fetch an act by number
+export const getAct = async (actNumber: number) => {
+  const response = await axios.get(`${API_BASE_URL}/act/${actNumber}`);
+  return response.data;
+};
+
+export const getCurrentAct = async (sessionId: number) => {
+  const response = await axios.get(`http://localhost:5151/api/story/currentAct/${sessionId}`);
+  return response.data.act; // backend returns { session, act }
+};
+
+
+// Fetch choices for an act
+export const getChoicesForAct = async (actId: number) => {
+  const response = await axios.get(`${API_BASE_URL}/choices/${actId}`);
+  return response.data;
+};

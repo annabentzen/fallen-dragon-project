@@ -1,28 +1,38 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './components/Home';
 import StoryPage from './components/StoryPage';
 import EndingScreen from './components/EndingScreen';
-import Home from './components/Home';
 
-
-
-// Main App component that defines which page shows for each URL
-function App() {
+const App: React.FC = () => {
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
-        {/* "/" = Start page */}
+        {/* Home / character builder */}
         <Route path="/" element={<Home />} />
 
-        {/* "/story/:sessionId" = Main story page 
-            ":sessionId" is a URL variable used to track this player's session */}
-        <Route path="/story/:sessionId" element={<StoryPage />} />
+        {/* Story page with dynamic sessionId */}
+        <Route path="/story/:sessionId" element={<StoryPageWrapper />} />
 
-        {/* "/ending" = Ending page shown when the story is complete */}
+        {/* Optional direct ending screen */}
         <Route path="/ending" element={<EndingScreen />} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
-}
+};
+
+// Wrapper to pass sessionId from URL to StoryPage
+import { useParams } from 'react-router-dom';
+const StoryPageWrapper: React.FC = () => {
+  const { sessionId } = useParams<{ sessionId: string }>();
+
+  if (!sessionId) return <div>No session ID provided.</div>;
+
+  const parsedId = parseInt(sessionId, 10);
+  if (isNaN(parsedId)) return <div>Invalid session ID.</div>;
+
+  return <StoryPage sessionId={parsedId} />;
+};
+
 
 export default App;
-

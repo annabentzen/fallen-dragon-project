@@ -1,32 +1,35 @@
-// src/components/Home.tsx
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { startStory } from '../services/storyApi'; // Import the API call to backend
+import { createSession } from '../services/storyApi';
 
 export default function Home() {
   const navigate = useNavigate();
+  const [characterName, setCharacterName] = useState('');
+  const [characterDesign, setCharacterDesign] = useState({ hair: 'brown', outfit: 'armor', color: 'blue' });
 
-  const handleStart = async () => {
-    try {
-      // Ask backend to start a new story session
-      // This returns something like: { sessionId: "b21d4f2e-8c1e-43e8-a7d8-..." }
-      const data = await startStory();
-
-      // Navigate to the story route with the backend-provided sessionId
-      navigate(`/story/${data.sessionId}`);
-    } catch (error) {
-      console.error('Failed to start story session:', error);
-      alert('Could not start story. Please try again.');
-    }
+  const startStory = async () => {
+    const session = await createSession({ characterName, characterDesign, storyId: 1 });
+    navigate(`/story/${session.sessionId}`);
   };
 
   return (
     <div className="home">
       <h1>Fallen Dragon</h1>
-      <p>Begin your journey and shape your destiny.</p>
-      <button onClick={handleStart}>Start Story</button>
+      <div className="character-builder">
+        <input
+          placeholder="Enter character name"
+          value={characterName}
+          onChange={e => setCharacterName(e.target.value)}
+        />
+        <button onClick={() => setCharacterDesign({ ...characterDesign, hair: 'black' })}>Black Hair</button>
+        <button onClick={() => setCharacterDesign({ ...characterDesign, outfit: 'robe' })}>Robe</button>
+        <button onClick={() => setCharacterDesign({ ...characterDesign, color: 'red' })}>Red Color</button>
+      </div>
+      <button onClick={startStory}>Start Story</button>
     </div>
   );
 }
+
 
 /*
 Explanation:

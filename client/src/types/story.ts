@@ -17,5 +17,18 @@ export interface Story {
   acts: Act[];
 }
 
+export interface CharacterDesign {
+  hair?: string;
+  outfit?: string;
+  color?: string;
+}
 
+export interface PlayerSessionFromApi {
+  sessionId: number;
+  characterName: string;
+  characterDesign: CharacterDesign; // matches API response
+  storyId: number;
+  currentActNumber: number;
+  isCompleted: boolean;
+}
 
