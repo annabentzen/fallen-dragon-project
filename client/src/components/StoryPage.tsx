@@ -20,27 +20,16 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
   useEffect(() => {
   const loadSession = async () => {
     try {
-      const data = await getSession(sessionId); // raw backend JSON
-
-      // Transform backend shape to frontend type
-      const sessionData: PlayerSessionFromApi = {
-        sessionId: data.SessionId,                     // map PascalCase -> camelCase
-        characterName: data.CharacterName,
-        characterDesign: JSON.parse(data.CharacterDesignJson || "{}"),
-        storyId: data.StoryId,
-        currentActNumber: data.CurrentActNumber,
-        isCompleted: data.IsCompleted,
-      };
-
+      const sessionData = await getSession(sessionId);
       setPlayerSession(sessionData);
-      // Set character design state
-      setCharacterDesign(sessionData.characterDesign); 
+      setCharacterDesign(sessionData.characterDesign); // now camelCase, not characterDesignJson
     } catch (error) {
-      console.error('Error loading session:', error);
+      console.error("Error loading session:", error);
     }
   };
   loadSession();
 }, [sessionId]);
+
 
 
   // Load current act
