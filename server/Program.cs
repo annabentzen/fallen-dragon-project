@@ -4,30 +4,36 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
 
+/*
+Explanation of code:
+- Single DbContext (AppDbContext) and one SQLite file (Story.db) — avoids confusion.
+- Migration first, then seeding — ensures tables exist before you insert data.
+- JSON serializer uses camelCase, matching your frontend TypeScript interfaces.
+- CORS is configured before middleware, allowing your React frontend on 5173 to call the API.
+*/
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 builder.Services.AddControllersWithViews();
 
+// Configure JSON serialization
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     });
 
-
-// Configure Entity Framework with SQLite
-builder.Services.AddDbContext<DragonGameDbContext>(options =>
-    options.UseSqlite("Data Source=App_Data/DragonGame.db"));
-
+// Configure Entity Framework with SQLite (single database)
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=dragongame.db"));
+    options.UseSqlite("Data Source=App_Data/DragonGame.db")); // <-- database file in root
 
 // Register repositories
 builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
 builder.Services.AddScoped<ICharacterPoseRepository, CharacterPoseRepository>();
 
-// Configure CORS BEFORE building the app
+// Configure CORS
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -40,6 +46,22 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Apply migrations and seed database
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    // Apply migrations
+    context.Database.Migrate();
+
+    // Seed initial data
+    await DbSeeder.Seed(context);
+}
+
+
+
+
+
 // Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
@@ -47,9 +69,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-// Use CORS
-app.UseCors(); // default policy
-
+app.UseCors(); // use default CORS policy
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
@@ -59,18 +79,5 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Character}/{action=Create}/{id?}");
-
-// Apply migrations and seed database
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<AppDbContext>();
-
-    // Apply migrations
-    context.Database.Migrate();
-
-    // Seed data
-    DbSeeder.Seed(context);
-}
 
 app.Run();

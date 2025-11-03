@@ -67,17 +67,27 @@ public class StoryController : ControllerBase
     [HttpGet("currentAct/{sessionId}")]
     public async Task<IActionResult> GetCurrentAct(int sessionId)
     {
-        var session = await _context.PlayerSessions.FirstOrDefaultAsync(s => s.SessionId == sessionId);
-        if (session == null) return NotFound();
+        try
+        {
+            var session = await _context.PlayerSessions.FirstOrDefaultAsync(s => s.SessionId == sessionId);
+            if (session == null) return NotFound("Session not found");
 
-        var act = await _context.Acts
-            .Include(a => a.Choices)
-            .FirstOrDefaultAsync(a => a.StoryId == session.StoryId && a.ActNumber == session.CurrentActNumber);
+            var act = await _context.Acts
+                .Include(a => a.Choices)
+                .FirstOrDefaultAsync(a => a.StoryId == session.StoryId && a.ActNumber == session.CurrentActNumber);
 
-        if (act == null) return NotFound();
+            if (act == null) return NotFound("Act not found for this story and act number");
+            
+            Console.WriteLine($"SessionId={session.SessionId}, StoryId={session.StoryId}, CurrentActNumber={session.CurrentActNumber}");
 
-        return Ok(new { session, act });
+            return Ok(new { session, act });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
     }
+
 
     // 4. Advance to next act
     [HttpPost("nextAct/{sessionId}")]
