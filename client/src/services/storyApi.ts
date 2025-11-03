@@ -15,6 +15,7 @@ export interface CharacterDesign {
 // -----------------------------------------
 // Create new story session
 // -----------------------------------------
+/*
 export const createSession = async (sessionData: {
   characterName: string;
   characterDesign: CharacterDesign;
@@ -27,6 +28,20 @@ export const createSession = async (sessionData: {
   });
   return response.data;
 };
+*/
+export const createSession = async (sessionData: {
+  characterName: string;
+  characterDesign: CharacterDesign;
+  storyId: number;
+}): Promise<PlayerSessionFromApi> => {
+  const response = await axios.post(`${API_BASE}/start`, {
+    characterName: sessionData.characterName,
+    characterDesignJson: JSON.stringify(sessionData.characterDesign),
+    storyId: sessionData.storyId,
+  });
+  return response.data;
+};
+
 
 // -----------------------------------------
 // Fetch existing session by ID

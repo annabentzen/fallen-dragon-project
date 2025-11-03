@@ -8,9 +8,9 @@ namespace DragonGame.Repositories
 {
     public class CharacterPoseRepository : ICharacterPoseRepository
     {
-        private readonly DragonGameDbContext _context;
+        private readonly AppDbContext _context;
 
-        public CharacterPoseRepository(DragonGameDbContext context)
+        public CharacterPoseRepository(AppDbContext context)
         {
             _context = context;
         }

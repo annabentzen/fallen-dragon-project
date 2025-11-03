@@ -7,11 +7,42 @@
 namespace DragonGame.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialAppDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "CharacterPoses",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    ImageUrl = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CharacterPoses", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PlayerSessions",
+                columns: table => new
+                {
+                    SessionId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    CharacterName = table.Column<string>(type: "TEXT", nullable: false),
+                    CharacterDesignJson = table.Column<string>(type: "TEXT", nullable: false),
+                    StoryId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CurrentActNumber = table.Column<int>(type: "INTEGER", nullable: false),
+                    IsCompleted = table.Column<bool>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PlayerSessions", x => x.SessionId);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Stories",
                 columns: table => new
@@ -23,6 +54,27 @@ namespace DragonGame.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Stories", x => x.StoryId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Characters",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Hair = table.Column<string>(type: "TEXT", nullable: true),
+                    Face = table.Column<string>(type: "TEXT", nullable: true),
+                    Clothing = table.Column<string>(type: "TEXT", nullable: true),
+                    PoseId = table.Column<int>(type: "INTEGER", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Characters", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Characters_CharacterPoses_PoseId",
+                        column: x => x.PoseId,
+                        principalTable: "CharacterPoses",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -68,6 +120,16 @@ namespace DragonGame.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "CharacterPoses",
+                columns: new[] { "Id", "ImageUrl", "Name" },
+                values: new object[,]
+                {
+                    { 1, "pose1.png", "Standing" },
+                    { 2, "pose2.png", "Fighting" },
+                    { 3, "pose3.png", "Flying" }
+                });
+
+            migrationBuilder.InsertData(
                 table: "Stories",
                 columns: new[] { "StoryId", "Title" },
                 values: new object[] { 1, "Fallen Dragon" });
@@ -92,6 +154,11 @@ namespace DragonGame.Migrations
                 column: "StoryId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Characters_PoseId",
+                table: "Characters",
+                column: "PoseId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Choices_ActId",
                 table: "Choices",
                 column: "ActId");
@@ -101,7 +168,16 @@ namespace DragonGame.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Characters");
+
+            migrationBuilder.DropTable(
                 name: "Choices");
+
+            migrationBuilder.DropTable(
+                name: "PlayerSessions");
+
+            migrationBuilder.DropTable(
+                name: "CharacterPoses");
 
             migrationBuilder.DropTable(
                 name: "Acts");

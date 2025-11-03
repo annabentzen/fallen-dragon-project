@@ -8,9 +8,9 @@ namespace DragonGame.Repositories
 {
     public class CharacterRepository : ICharacterRepository
     {
-        private readonly DragonGameDbContext _context;
+        private readonly AppDbContext _context;
 
-        public CharacterRepository(DragonGameDbContext context)
+        public CharacterRepository(AppDbContext context)
         {
             _context = context;
         }

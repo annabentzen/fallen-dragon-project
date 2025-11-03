@@ -34,18 +34,29 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
 
   // Load current act
   const loadAct = async () => {
-    setLoading(true);
-    try {
-      const data = await getCurrentAct(sessionId);
-      setCurrentAct(data.act);
-      setChoices(data.act.choices || []);
-      setStoryEnded(data.act.choices.length === 0);
-    } catch (error) {
-      console.error('Error loading act:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  setLoading(true);
+  try {
+    // Fetch current act for this session
+    const { session, act } = await getCurrentAct(sessionId);
+
+    setCurrentAct(act);
+    setChoices(act.choices || []);
+    setStoryEnded(act.choices.length === 0);
+
+    // Update player session and character design
+    setPlayerSession(session);
+    setCharacterDesign(
+      typeof session.characterDesign === "string"
+        ? JSON.parse(session.characterDesign || "{}")
+        : session.characterDesign
+    );
+  } catch (error) {
+    console.error("Error loading act:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     loadAct();
