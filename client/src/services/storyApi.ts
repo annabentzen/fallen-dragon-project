@@ -1,3 +1,4 @@
+// src/services/storyApi.ts
 import axios from "axios";
 import { Act, PlayerSessionFromApi } from "../types/story";
 
@@ -15,7 +16,6 @@ export interface CharacterDesign {
 // -----------------------------------------
 // Create new story session
 // -----------------------------------------
-/*
 export const createSession = async (sessionData: {
   characterName: string;
   characterDesign: CharacterDesign;
@@ -23,25 +23,11 @@ export const createSession = async (sessionData: {
 }): Promise<PlayerSessionFromApi> => {
   const response = await axios.post(`${API_BASE}/start`, {
     characterName: sessionData.characterName,
-    characterDesign: sessionData.characterDesign, // backend expects camelCase now
+    characterDesignJson: JSON.stringify(sessionData.characterDesign), // backend expects JSON string
     storyId: sessionData.storyId,
   });
   return response.data;
 };
-*/
-export const createSession = async (sessionData: {
-  characterName: string;
-  characterDesign: CharacterDesign;
-  storyId: number;
-}): Promise<PlayerSessionFromApi> => {
-  const response = await axios.post(`${API_BASE}/start`, {
-    characterName: sessionData.characterName,
-    characterDesignJson: JSON.stringify(sessionData.characterDesign),
-    storyId: sessionData.storyId,
-  });
-  return response.data;
-};
-
 
 // -----------------------------------------
 // Fetch existing session by ID
@@ -52,7 +38,7 @@ export const getSession = async (
   const response = await axios.get(`${API_BASE}/session/${sessionId}`);
   const data = response.data;
 
-  // The backend already sends camelCase + characterDesign (object)
+  // Convert JSON string to object if needed
   return {
     ...data,
     characterDesign:
@@ -73,10 +59,16 @@ export const getAct = async (actNumber: number): Promise<Act> => {
 // -----------------------------------------
 // Fetch current act for a session
 // -----------------------------------------
-export const getCurrentAct = async (sessionId: number) => {
-  const response = await axios.get(`${API_BASE}/currentAct/${sessionId}`);
-  return response.data; // backend returns { session, act }
+export const getCurrentAct = async (sessionId: number): Promise<{ session: PlayerSessionFromApi; act: Act } | null> => {
+  try {
+    const res = await axios.get(`http://localhost:5151/api/story/currentAct/${sessionId}`);
+    return res.data || null; 
+  } catch (error) {
+    console.error("Error fetching current act:", error);
+    return null;
+  }
 };
+
 
 // -----------------------------------------
 // Fetch choices for an act

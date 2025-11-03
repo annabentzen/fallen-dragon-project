@@ -7,10 +7,21 @@ export default function Home() {
   const [characterName, setCharacterName] = useState('');
   const [characterDesign, setCharacterDesign] = useState({ hair: 'brown', outfit: 'armor', color: 'blue' });
 
-  const startStory = async () => {
-    const session = await createSession({ characterName, characterDesign, storyId: 1 });
-    navigate(`/story/${session.sessionId}`);
-  };
+ const startStory = async () => {
+  try {
+    const session = await createSession({
+      characterName: "Hero",
+      characterDesign: { color: "blue" },
+      storyId: 1,
+    });
+    console.log("Created session:", session); // check session.sessionId
+    navigate(`/story/${session.sessionId}`); // use backend ID
+  } catch (err) {
+    console.error("Failed to start story", err);
+  }
+};
+
+
 
   return (
     <div className="home">

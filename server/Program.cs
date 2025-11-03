@@ -23,7 +23,11 @@ builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve; //tells the serializer to track object references and prevent infinite loops. Downside: that it returns a JSON string, not a JSON object. Frontend will get a string and may need to parse it.
+        options.JsonSerializerOptions.MaxDepth = 64; // 
     });
+    
+
 
 // Configure Entity Framework with SQLite (single database)
 builder.Services.AddDbContext<AppDbContext>(options =>
