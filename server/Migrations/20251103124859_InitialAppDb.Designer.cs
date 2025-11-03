@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DragonGame.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251103110322_InitialAppDb")]
+    [Migration("20251103124859_InitialAppDb")]
     partial class InitialAppDb
     {
         /// <inheritdoc />

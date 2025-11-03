@@ -27,7 +27,7 @@ builder.Services.AddControllers()
 
 // Configure Entity Framework with SQLite (single database)
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=App_Data/DragonGame.db")); // <-- database file in root
+    options.UseSqlite("Data Source=App_Data/DragonGame.db"));  // <-- database file in root
 
 // Register repositories
 builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
