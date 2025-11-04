@@ -19,18 +19,21 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
   const [characterDesign, setCharacterDesign] = useState<CharacterDesign>({});
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const navigate = useNavigate(); // For navigation to Home
+  const navigate = useNavigate();
 
   // Restart button handler
   const handleRestart = () => {
-    navigate("/"); // Redirect to home page
+    console.log("Restart clicked, navigating to home");
+    navigate("/");
   };
 
   // Load session info
   useEffect(() => {
     const loadSession = async () => {
+      console.log("Loading session", sessionId);
       try {
         const sessionData = await getSession(sessionId);
+        console.log("Loaded session:", sessionData);
         if (!sessionData) {
           setErrorMsg(`Session ${sessionId} not found.`);
           return;
@@ -47,31 +50,40 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
 
   // Load current act
   const loadAct = async () => {
+    console.log("Loading current act for session", sessionId);
     setLoading(true);
     setErrorMsg(null);
     try {
-      const result = await getCurrentAct(sessionId); // Returns { session, act }
+      const result = await getCurrentAct(sessionId);
+      console.log("getCurrentAct result:", result);
+
       if (!result || !result.act) {
         setErrorMsg(`No act found for session ${sessionId}.`);
         setCurrentAct(null);
+        setChoices([]);
         return;
       }
 
       const { session, act } = result;
 
+      console.log("Current act:", act);
+      console.log("Act choices:", act.choices);
+
       setCurrentAct(act);
-      setChoices(Array.isArray(act.choices) ? act.choices : []);
-      setStoryEnded(session?.isCompleted ?? false); // If completed, story ended
+      setChoices(act.choices || []);
+      setStoryEnded(session?.isCompleted ?? false);
 
       if (session) {
+        console.log("Updating player session state:", session);
         setPlayerSession(session);
-        setCharacterDesign(session.characterDesign);
+        setCharacterDesign(session.characterDesign || {});
       }
     } catch (error) {
       console.error("Error loading act:", error);
       setErrorMsg("Failed to load act.");
     } finally {
       setLoading(false);
+      console.log("Finished loading act");
     }
   };
 
@@ -81,28 +93,43 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
 
   // Handle choice selection
   const handleChoiceClick = async (nextActNumber: number) => {
+    console.log("Choice clicked, nextActNumber:", nextActNumber);
     setLoading(true);
     try {
-      await axios.post(`http://localhost:5151/api/story/nextAct/${sessionId}`, nextActNumber); // Match backend route
-      await loadAct(); // Reload after advancing act
+      await axios.post(`http://localhost:5151/api/story/nextAct/${sessionId}`, nextActNumber);
+      console.log("Advanced to next act, reloading act");
+      await loadAct();
     } catch (error) {
       console.error('Error advancing act:', error);
+      setErrorMsg("Failed to advance to next act.");
     } finally {
       setLoading(false);
     }
   };
 
   // Loading & error states
-  if (loading) return <div>Loading...</div>;
-  if (errorMsg) return <div className="error">{errorMsg}</div>;
-  if (!currentAct) return <div>No act data available.</div>;
+  if (loading) {
+    console.log("Rendering loading state");
+    return <div>Loading...</div>;
+  }
 
-  // Story vs Ending background color
+  if (errorMsg) {
+    console.log("Rendering error state:", errorMsg);
+    return <div className="error">{errorMsg}</div>;
+  }
+
+  if (!currentAct) {
+    console.log("No act data available to render");
+    return <div>No act data available.</div>;
+  }
+
+  console.log("Rendering story page for act", currentAct.actNumber);
+
   return (
     <div
       className="story-container"
       style={{
-        backgroundColor: storyEnded ? "#7c372fff" : "#f0f8ff", // Ending page vs Story page
+        backgroundColor: storyEnded ? "#7c372fff" : "#f0f8ff",
         minHeight: "100vh",
         padding: "20px",
       }}
@@ -115,15 +142,27 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
           <p>{currentAct.text}</p>
 
           <div className="choices">
-            {choices.map((choice) => (
-              <button
-                key={choice.id}
-                onClick={() => handleChoiceClick(choice.nextActNumber)}
-                style={{ margin: "5px" }}
-              >
-                {choice.text}
-              </button>
-            ))}
+            {choices.length > 0 ? (
+              choices.map((choice) => (
+                <button
+                  key={choice.choiceId}
+                  onClick={() => handleChoiceClick(choice.nextActNumber)}
+                  style={{
+                    margin: '5px',
+                    padding: '10px 20px',
+                    backgroundColor: '#007bff',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {choice.text}
+                </button>
+              ))
+            ) : (
+              <p>No choices available.</p>
+            )}
           </div>
 
           {playerSession && (

@@ -59,15 +59,29 @@ export const getAct = async (actNumber: number): Promise<Act> => {
 // -----------------------------------------
 // Fetch current act for a session
 // -----------------------------------------
+// src/services/storyApi.ts
 export const getCurrentAct = async (sessionId: number): Promise<{ session: PlayerSessionFromApi; act: Act } | null> => {
   try {
     const res = await axios.get(`http://localhost:5151/api/story/currentAct/${sessionId}`);
-    return res.data || null; 
+    let data = res.data;
+
+    console.log("Raw getCurrentAct data:", data);
+
+    if (!data) return null;
+
+    // Unwrap $values if needed
+    if (data.act && data.act.choices && '$values' in data.act.choices) {
+      data.act.choices = data.act.choices.$values;
+      console.log("Unwrapped choices array:", data.act.choices);
+    }
+
+    return data;
   } catch (error) {
     console.error("Error fetching current act:", error);
     return null;
   }
 };
+
 
 
 // -----------------------------------------

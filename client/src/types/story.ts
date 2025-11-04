@@ -1,15 +1,16 @@
 export interface Choice {
-  id: number;
+  choiceId: number;
   text: string;
+  actId: number;
   nextActNumber: number;
 }
 
 export interface Act {
-  id: number;
   actNumber: number;
   text: string;
   choices: Choice[];
 }
+
 
 export interface Story {
   id: number;

@@ -42,23 +42,43 @@ namespace DragonGame.Controllers
         }
 
         // Get current act for a session
-        [HttpGet("currentAct/{sessionId}")]
-        public async Task<ActionResult<object>> GetCurrentAct(int sessionId)
-        {
-            var session = await _context.PlayerSessions.FindAsync(sessionId);
-            if (session == null) return NotFound();
+[HttpGet("currentAct/{sessionId}")]
+public IActionResult GetCurrentAct(int sessionId)
+{
+    var session = _context.PlayerSessions
+        .FirstOrDefault(s => s.SessionId == sessionId);
 
-            var act = await _context.Acts
-                .Include(a => a.Choices)
-                .FirstOrDefaultAsync(a => a.ActNumber == session.CurrentActNumber);
+    if (session == null)
+        return NotFound();
 
-            if (act == null) return NotFound();
+    var act = _context.Acts
+        .Include(a => a.Choices)
+        .FirstOrDefault(a => a.StoryId == session.StoryId && a.ActNumber == session.CurrentActNumber);
 
-            // Make sure Choices is always an array
-            var choicesList = act.Choices.ToList();
+    if (act == null)
+        return NotFound();
 
-            return Ok(new { session, act = new { act.ActNumber, act.Text, choices = choicesList } });
-        }
+    // Map Choices to a simple array
+    var cleanChoices = act.Choices.Select(c => new {
+        c.ChoiceId,
+        c.Text,
+        c.ActId,
+        c.NextActNumber
+    }).ToList(); // This is already a plain array
+
+    var cleanAct = new {
+        act.ActNumber,
+        act.Text,
+        choices = cleanChoices // plain array
+    };
+
+    return Ok(new {
+        session,
+        act = cleanAct
+    });
+}
+
+
 
         // Move to next act
         [HttpPost("nextAct/{sessionId}")]
