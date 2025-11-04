@@ -42,58 +42,63 @@ namespace DragonGame.Controllers
         }
 
         // Get current act for a session
-[HttpGet("currentAct/{sessionId}")]
-public IActionResult GetCurrentAct(int sessionId)
-{
-    var session = _context.PlayerSessions
-        .FirstOrDefault(s => s.SessionId == sessionId);
+        [HttpGet("currentAct/{sessionId}")]
+        public IActionResult GetCurrentAct(int sessionId)
+        {
+            var session = _context.PlayerSessions
+                .FirstOrDefault(s => s.SessionId == sessionId);
 
-    if (session == null)
-        return NotFound();
+            if (session == null)
+                return NotFound();
 
-    var act = _context.Acts
-        .Include(a => a.Choices)
-        .FirstOrDefault(a => a.StoryId == session.StoryId && a.ActNumber == session.CurrentActNumber);
+            var act = _context.Acts
+                .Include(a => a.Choices)
+                .FirstOrDefault(a => a.StoryId == session.StoryId && a.ActNumber == session.CurrentActNumber);
 
-    if (act == null)
-        return NotFound();
+            if (act == null)
+                return NotFound();
 
-    // Map Choices to a simple array
-    var cleanChoices = act.Choices.Select(c => new {
-        c.ChoiceId,
-        c.Text,
-        c.ActId,
-        c.NextActNumber
-    }).ToList(); // This is already a plain array
+            // Map Choices to a simple array
+            var cleanChoices = act.Choices.Select(c => new
+            {
+                c.ChoiceId,
+                c.Text,
+                c.ActId,
+                c.NextActNumber
+            }).ToList(); // This is already a plain array
 
-    var cleanAct = new {
-        act.ActNumber,
-        act.Text,
-        choices = cleanChoices // plain array
-    };
+            var cleanAct = new
+            {
+                act.ActNumber,
+                act.Text,
+                choices = cleanChoices // plain array
+            };
 
-    return Ok(new {
-        session,
-        act = cleanAct
-    });
-}
+            return Ok(new
+            {
+                session,
+                act = cleanAct
+            });
+        }
 
 
 
         // Move to next act
+        public class NextActRequest { public int NextActNumber { get; set; } }
         [HttpPost("nextAct/{sessionId}")]
-        public async Task<ActionResult<PlayerSession>> NextAct(int sessionId, [FromBody] int nextActNumber)
+        public async Task<ActionResult<PlayerSession>> NextAct(int sessionId, [FromBody] NextActRequest request)
         {
             var session = await _context.PlayerSessions.FindAsync(sessionId);
             if (session == null) return NotFound();
 
-            if (nextActNumber <= 0)
-                session.IsCompleted = true; // Special ending
+            if (request.NextActNumber <= 0)
+                session.IsCompleted = true;
             else
-                session.CurrentActNumber = nextActNumber;
+                session.CurrentActNumber = request.NextActNumber;
 
             await _context.SaveChangesAsync();
             return Ok(session);
         }
+
     }
 }

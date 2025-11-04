@@ -96,16 +96,22 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
     console.log("Choice clicked, nextActNumber:", nextActNumber);
     setLoading(true);
     try {
-      await axios.post(`http://localhost:5151/api/story/nextAct/${sessionId}`, nextActNumber);
-      console.log("Advanced to next act, reloading act");
-      await loadAct();
+      // Wrap number in object so backend can bind it
+      await axios.post(
+        `http://localhost:5151/api/story/nextAct/${sessionId}`,
+        { nextActNumber }, // must be an object
+        { headers: { "Content-Type": "application/json" } }
+      );
+      console.log("POST successful, loading next act...");
+      await loadAct(); // Reload after advancing act
     } catch (error) {
-      console.error('Error advancing act:', error);
+      console.error("Error advancing act:", error);
       setErrorMsg("Failed to advance to next act.");
     } finally {
       setLoading(false);
     }
   };
+
 
   // Loading & error states
   if (loading) {
