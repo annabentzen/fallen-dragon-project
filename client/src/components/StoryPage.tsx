@@ -2,9 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import EndingScreen from './EndingScreen';
 import { getCurrentAct, getSession } from '../services/storyApi';
-import { Act, Choice, PlayerSessionFromApi, CharacterDesign } from '../types/story';
+import { Act, Choice, PlayerSessionFromApi, CharacterDesign, CharacterPose } from '../types/story';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
+import { getAllPoses } from '../services/characterApi';
 
 interface StoryPageProps {
   sessionId: number;
@@ -112,6 +113,37 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
     }
   };
 
+  // Add this at the top inside StoryPage component
+const [poses, setPoses] = useState<CharacterPose[]>([]);
+
+// Fetch poses on mount
+useEffect(() => {
+  const fetchPoses = async () => {
+    try {
+      const fetchedPoses = await getAllPoses();
+      console.log("Fetched poses for StoryPage:", fetchedPoses);
+      setPoses(fetchedPoses);
+    } catch (err) {
+      console.error("Failed to fetch poses:", err);
+    }
+  };
+  fetchPoses();
+}, []);
+
+
+  useEffect(() => {
+  const loadPoses = async () => {
+    try {
+      const res = await axios.get<CharacterPose[]>("http://localhost:5151/api/poses");
+      setPoses(res.data);
+      console.log("Loaded poses:", res.data);
+    } catch (err) {
+      console.error("Error loading poses:", err);
+    }
+  };
+  loadPoses();
+}, []);
+
 
   // Loading & error states
   if (loading) {
@@ -144,6 +176,7 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
         <EndingScreen onRestart={handleRestart} />
       ) : (
         <>
+        
           <h2>Act {currentAct.actNumber}</h2>
           <p>{currentAct.text}</p>
 
@@ -174,17 +207,61 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
           {playerSession && (
             <div className="character-corner" style={{ marginTop: "20px" }}>
               <p>{playerSession.characterName}</p>
+
               <div
-                className="character-visual"
                 style={{
-                  backgroundColor: characterDesign.color || "blue",
-                  width: "50px",
-                  height: "50px",
-                  borderRadius: "50%",
+                  width: '100px',
+                  height: '100px',
+                  position: 'relative',
+                  margin: '10px 0',
                 }}
-              />
+              >
+                {/* Base image */}
+                <img
+                  src="/images/base.png"
+                  alt="base"
+                  style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }}
+                />
+
+                {/* Hair */}
+                {characterDesign.hair && (
+                  <img
+                    src={`/images/hair/${characterDesign.hair}`}
+                    alt="hair"
+                    style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }}
+                  />
+                )}
+
+                {/* Face */}
+                {characterDesign.face && (
+                  <img
+                    src={`/images/faces/${characterDesign.face}`}
+                    alt="face"
+                    style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }}
+                  />
+                )}
+
+                {/* Clothing / Outfit */}
+                {characterDesign.outfit && (
+                  <img
+                    src={`/images/clothes/${characterDesign.outfit}`}
+                    alt="clothing"
+                    style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }}
+                  />
+                )}
+
+                {/* Pose */}
+                {characterDesign.poseId && playerSession.poses && (
+                  <img
+                    src={`/images/poses/${playerSession.poses.find(p => p.id === characterDesign.poseId)?.imageUrl}`}
+                    alt="pose"
+                    style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }}
+                  />
+                )}
+              </div>
             </div>
           )}
+
         </>
       )}
     </div>

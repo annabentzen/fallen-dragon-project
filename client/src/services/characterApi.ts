@@ -55,8 +55,23 @@ export const deleteCharacter = async (id: number): Promise<void> => {
 
 // Get all poses
 export const getAllPoses = async (): Promise<CharacterPose[]> => {
-  const response = await axios.get(`${API_BASE}/api/poses`);
-  return response.data;
+  try {
+    const response = await axios.get('http://localhost:5151/api/poses'); // adjust URL if needed
+    console.log('API response in getAllPoses():', response.data);
+
+    // Ensure we return an array
+    if (response.data && Array.isArray(response.data.poses)) {
+      return response.data.poses;
+    } else if (Array.isArray(response.data)) {
+      return response.data;
+    } else {
+      console.warn('getAllPoses(): Unexpected response, returning empty array');
+      return [];
+    }
+  } catch (err) {
+    console.error('getAllPoses() failed:', err);
+    return [];
+  }
 };
 
 // -----------------------------------------
