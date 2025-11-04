@@ -1,43 +1,54 @@
-hva mangler vi?
+forslag 1:
 
-- update på character entiteten
+- åpne spillet, kort introtekst + characterbuilder + pose-velger + må skrive inn hero-name. submit-knapp heter "begin mission"
+- endringer lagres og tas med videre i story mode
 
-krav til oblig 2:
+forslag 2:
 
-- .NET Core 8.0
-- MVC
-- basic design, dynamic content, friendly navigation
+- åpner spillet, introtekst hvor det står "to begin the mission, enter your hero-name"
+- menyfelt der det står "start page" og change character look
+- når man trykker change character åpnes pop-up vindu i midten av skjermen med character builder og pose-velger
+- når endringer lagres i dette vinduet lukker det seg og karakteren i spillet har endret utseende
+- kan gjøres når som helst under spillet
 
-code:
+Plan for spillet:
 
-- neat code, structured
-- with comments if not self explainatory
+1. åpner appen, går rett inn i "start page".
+   karakter i venstre hjørne med navn over(default: "your-name"?),
+   her vil det være en åpningstekst som sier noe sånt som... "you have been chosen to save the fallen dragon... will you make the right choices along the way? to begin you must enter your name."
 
-funksjonalitet:
+User experience, including:
+Basic design, not plain text and bare buttons
+Dynamic content
+Friendly navigation
+If the user experience is confusing or does not reflect the normal expectation of the given task, it will negatively affect the grade.
+Coding style, including:
+Neat code, structured, and modularised
+Understandable code, either self-explanatory or with suitable comments (in English)
+If the program is buggy or has warnings (use dotnet build, npm run build to verify), it will negatively affect the grade.
 
-- minst to tabeller i databasen som man kan gjøre CRUD på, dvs:
-  create, read, update, delete
+Functionality, including:
+Database operation with at least 2 types of entities (including component and CRUD). The entity used for users authentication does not count here.
 
-repository pattern and DAL:
+Conditional rendering and content filtering (client-side)
 
-- et ekstra lag mellom controller og databasen
+Forms (client-side)
 
-eksempel:
+Input validation (server and client-side)
 
----
+Error handling and logging (server-side and client-side)
 
-CharacterRepository.cs:
-public async Task<List<Character>> GetAllAsync()
-public async Task<Character> GetByIdAsync(int id)
-public async Task AddAsync(Character character)
+Repository pattern and DAL (server-side)
 
----
+Asynchronous database access (server-side)
 
-asynchronous database access:
+API service layer (separate http request handling from the business logic on client-side)
 
-- når man henter eller lagrer data skal async/await brukes
-- bruke async/await i repository eller controller
+Unit testing (server-side), at least 8 tests, including the complete positive tests and negative tests for each CRUD method (where testing is meaningful) of 1 entity/table
 
-error handling and logging (server-side)
+Authentication and authorisation (server and client-side). Note: for some tasks you may see that role-based authentication is very suitable. It is not a mandatory functionality but counts as an extra functionality.
 
-- bruk try/catch i controller eller repository
+You could assume all users as admins if you do not wish to program the role-based authentication.
+If the requirements are finished in a low quality, or incomplete (e.g., for the requirement error handling and logging, if only part of the code is covered by error handling and logging), it will negatively affect the grades.
+
+In addition, it will be taken into account in the evaluation if you have beautiful design, extra rich user experience, and extra functionality (be creative).
