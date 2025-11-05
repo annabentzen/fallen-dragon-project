@@ -1,147 +1,143 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using DragonGame.Data;       // For AppDbContext
-using DragonGame.Models;     // For PlayerSession, Story, Act
 using Microsoft.EntityFrameworkCore;
+using DragonGame.Data;
+using DragonGame.Models;
 using System.Text.Json;
 
-[Route("api/[controller]")]
-[ApiController]
-public class StoryController : ControllerBase
+namespace DragonGame.Controllers
 {
-    private readonly AppDbContext _context;
-
-    public StoryController(AppDbContext context)
+    [ApiController]
+    [Route("api/story")]
+    public class StoryController : ControllerBase
     {
-        _context = context;
-    }
+        private readonly AppDbContext _context;
 
-    // 1. Start a new session with character
-    [HttpPost("start")]
-    public async Task<IActionResult> StartSession([FromBody] CreateSessionRequest request)
-    {
-        var session = new PlayerSession
+        public StoryController(AppDbContext context)
         {
-            CharacterName = request.CharacterName,
-            CharacterDesignJson = request.CharacterDesignJson,
-            StoryId = request.StoryId,
-            CurrentActNumber = 1
-        };
+            _context = context;
+        }
 
-        _context.PlayerSessions.Add(session);
-        await _context.SaveChangesAsync();
-
-        // Return session info (frontend needs SessionId)
-        return Ok(new
+        // Start a new story session
+        [HttpPost("start")]
+        public async Task<ActionResult<PlayerSession>> StartStory([FromBody] PlayerSession session)
         {
-            sessionId = session.SessionId,
-            session.CharacterName,
-            session.CharacterDesignJson,
-            session.StoryId
-        });
-    }
+            if (session == null)
+                return BadRequest("Session data is required.");
 
-    // 2. Get session by ID
-    [HttpGet("session/{sessionId}")]
-    public async Task<IActionResult> GetSession(int sessionId)
-    {
-        var session = await _context.PlayerSessions
-            .FirstOrDefaultAsync(s => s.SessionId == sessionId);
+            // Ensure consistent initialization
+            session.CurrentActNumber = 1;
+            session.IsCompleted = false;
 
-        if (session == null) return NotFound();
+            // If CharacterDesign is an object, serialize it to JSON
+            if (session.CharacterDesign != null && string.IsNullOrEmpty(session.CharacterDesignJson))
+            {
+                session.CharacterDesignJson = JsonSerializer.Serialize(session.CharacterDesign);
+            }
 
-        return Ok(new
+            _context.PlayerSessions.Add(session);
+            await _context.SaveChangesAsync();
+
+            return Ok(session);
+        }
+
+        // Get session by ID
+        [HttpGet("session/{id}")]
+        public async Task<ActionResult<PlayerSession>> GetSession(int id)
         {
-            sessionId = session.SessionId,
-            session.CharacterName,
-            session.CharacterDesignJson,
-            session.StoryId,
-            session.CurrentActNumber,
-            session.IsCompleted
-        });
-    }
+            var session = await _context.PlayerSessions.FindAsync(id);
+            if (session == null) return NotFound();
+            return Ok(session);
+        }
 
-    // 3. Get current act for a session
-    [HttpGet("currentAct/{sessionId}")]
-    public async Task<IActionResult> GetCurrentAct(int sessionId)
-    {
-        try
+
+        // get current act for session
+        [HttpGet("currentAct/{sessionId}")]
+        public IActionResult GetCurrentAct(int sessionId)
         {
-            var session = await _context.PlayerSessions.FirstOrDefaultAsync(s => s.SessionId == sessionId);
-            if (session == null) return NotFound("Session not found");
+            var session = _context.PlayerSessions
+                //.Include(s => s.CharacterDesign) // ❌ REMOVE this, CharacterDesign is not an entity
+                .FirstOrDefault(s => s.SessionId == sessionId);
 
-            var act = await _context.Acts
+            if (session == null) return NotFound();
+
+            var act = _context.Acts
                 .Include(a => a.Choices)
-                .FirstOrDefaultAsync(a => a.StoryId == session.StoryId && a.ActNumber == session.CurrentActNumber);
+                .FirstOrDefault(a => a.ActNumber == session.CurrentActNumber && a.StoryId == session.StoryId);
 
-            if (act == null) return NotFound("Act not found for this story and act number");
-            
-            Console.WriteLine($"SessionId={session.SessionId}, StoryId={session.StoryId}, CurrentActNumber={session.CurrentActNumber}");
+            if (act == null) return NotFound();
 
-            return Ok(new { session, act });
+            // Parse CharacterDesignJson to object safely
+            CharacterDesign parsedDesign;
+            if (!string.IsNullOrEmpty(session.CharacterDesignJson))
+            {
+                try
+                {
+                    parsedDesign = JsonSerializer.Deserialize<CharacterDesign>(session.CharacterDesignJson);
+                }
+                catch
+                {
+                    parsedDesign = new CharacterDesign(); // fallback
+                }
+            }
+            else
+            {
+                parsedDesign = new CharacterDesign(); 
+            }
+
+            // Return session + act
+            return Ok(new
+            {
+                session = new
+                {
+                    session.SessionId,
+                    session.CharacterName,
+                    CharacterDesign = parsedDesign,
+                    session.StoryId,
+                    session.CurrentActNumber,
+                    session.IsCompleted
+                },
+                act = new
+                {
+                    act.ActNumber,
+                    act.Text,
+                    choices = act.Choices.Select(c => new {
+                        c.ChoiceId,
+                        c.Text,
+                        c.ActId,
+                        c.NextActNumber
+                    }).ToList()
+                }
+            });
         }
-        catch (Exception ex)
+
+
+        // Move to next act
+        public class NextActRequest
         {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
+            public int NextActNumber { get; set; }
+        }
+
+        [HttpPost("nextAct/{sessionId}")]
+        public async Task<ActionResult<PlayerSession>> NextAct(
+            int sessionId,
+            [FromBody] NextActRequest request)
+        {
+            var session = await _context.PlayerSessions.FindAsync(sessionId);
+            if (session == null)
+                return NotFound();
+
+            // Handle request correctly
+            if (request == null)
+                return BadRequest("Invalid request body.");
+
+            // Update act number or mark as completed
+            if (request.NextActNumber <= 0)
+                session.IsCompleted = true;
+            else
+                session.CurrentActNumber = request.NextActNumber;
+
+            await _context.SaveChangesAsync();
+            return Ok(session);
         }
     }
-
-
-    // 4. Advance to next act
-    [HttpPost("nextAct/{sessionId}")]
-    public async Task<IActionResult> NextAct(int sessionId, [FromBody] NextActRequest request)
-    {
-        var session = await _context.PlayerSessions.FirstOrDefaultAsync(s => s.SessionId == sessionId);
-        if (session == null) return NotFound();
-
-        session.CurrentActNumber = request.NextActNumber;
-        await _context.SaveChangesAsync();
-
-        return Ok(new
-        {
-            sessionId = session.SessionId,
-            session.CurrentActNumber
-        });
-    }
-
-    // 5. Update character mid-story
-    [HttpPost("updateCharacter/{sessionId}")]
-    public async Task<IActionResult> UpdateCharacter(int sessionId, [FromBody] UpdateCharacterRequest request)
-    {
-        var session = await _context.PlayerSessions.FirstOrDefaultAsync(s => s.SessionId == sessionId);
-        if (session == null) return NotFound();
-
-        session.CharacterName = request.CharacterName;
-        session.CharacterDesignJson = request.CharacterDesignJson;
-
-        await _context.SaveChangesAsync();
-
-        return Ok(new
-        {
-            sessionId = session.SessionId,
-            session.CharacterName,
-            session.CharacterDesignJson
-        });
-    }
-}
-
-// Request DTOs
-public class CreateSessionRequest
-{
-    public string CharacterName { get; set; } = "";
-    public string CharacterDesignJson { get; set; } = "{}";
-    public int StoryId { get; set; }
-}
-
-public class NextActRequest
-{
-    public int NextActNumber { get; set; }
-}
-
-public class UpdateCharacterRequest
-{
-    public string CharacterName { get; set; } = "";
-    public string CharacterDesignJson { get; set; } = "{}";
 }

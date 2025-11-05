@@ -2,38 +2,51 @@ using DragonGame.Data;
 using DragonGame.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
-
+using System.Text.Json.Serialization;
 
 /*
 Explanation of code:
-- Single DbContext (AppDbContext) and one SQLite file (Story.db) — avoids confusion.
+- Single DbContext (AppDbContext) with one SQLite file (DragonGame.db) — avoids confusion.
 - Migration first, then seeding — ensures tables exist before you insert data.
 - JSON serializer uses camelCase, matching your frontend TypeScript interfaces.
-- CORS is configured before middleware, allowing your React frontend on 5173 to call the API.
+- ReferenceHandler set to IgnoreCycles to prevent $id/$values serialization.
+- CORS is configured before middleware, allowing your React frontend (5173) to call the API.
 */
-
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
+// ---------------------- Services ----------------------
+
+// Add controllers with views
 builder.Services.AddControllersWithViews();
 
 // Configure JSON serialization
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
+        // Use camelCase in JSON, matching TypeScript frontend
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+
+        // Ignore object reference cycles instead of Preserve
+        // This ensures lists serialize as plain arrays
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+
+        // Optional: MaxDepth for safety
+        options.JsonSerializerOptions.MaxDepth = 64;
+
+        // Optional: pretty-print JSON (for debugging)
+        options.JsonSerializerOptions.WriteIndented = true;
     });
 
 // Configure Entity Framework with SQLite (single database)
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=App_Data/DragonGame.db"));  // <-- database file in root
+    options.UseSqlite("Data Source=App_Data/DragonGame.db")); // database file in root
 
 // Register repositories
 builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
 builder.Services.AddScoped<ICharacterPoseRepository, CharacterPoseRepository>();
 
-// Configure CORS
+// Configure CORS for React frontend
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -44,6 +57,8 @@ builder.Services.AddCors(options =>
     });
 });
 
+// ---------------------- Build app ----------------------
+
 var app = builder.Build();
 
 // Apply migrations and seed database
@@ -51,31 +66,30 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-    // Apply migrations
+    // Apply pending migrations
     context.Database.Migrate();
 
     // Seed initial data
     await DbSeeder.Seed(context);
 }
 
+// ---------------------- Middleware ----------------------
 
-
-
-
-// Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
-app.UseCors(); // use default CORS policy
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-app.UseRouting();
-app.UseAuthorization();
+app.UseCors();                // Apply default CORS policy
+app.UseHttpsRedirection();     // Redirect HTTP → HTTPS
+app.UseStaticFiles();          // Serve wwwroot files
+app.UseRouting();              // Route requests
+app.UseAuthorization();        // Authorization middleware
 
-// Default route: open character create view first
+// ---------------------- Default route ----------------------
+
+// Open Character Create view by default
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Character}/{action=Create}/{id?}");
