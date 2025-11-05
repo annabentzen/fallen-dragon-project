@@ -34,13 +34,14 @@ export interface CharacterPose {
   imageUrl: string;    // Filename or URL of the pose image (e.g., "pose1.png")
 }
 
+// API response model for active player session
 export interface PlayerSessionFromApi {
   sessionId: number;
   characterName: string;
-  characterDesign: CharacterDesign; // matches API response
+  characterDesign: CharacterDesign | string;   // sometimes the backend returns this as an object, sometimes as a JSON string --> thus union typed
+  characterDesignJson?: string;   // some older endpoints may still send this separately
   storyId: number;
   currentActNumber: number;
   isCompleted: boolean;
-  poses?: CharacterPose[]; // Available poses for the character
+  poses?: CharacterPose[]; // optional list of available poses for the session
 }
-

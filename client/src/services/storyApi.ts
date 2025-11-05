@@ -28,7 +28,13 @@ export const createSession = async (sessionData: {
     characterDesignJson: JSON.stringify(sessionData.characterDesign), // backend expects JSON string
     storyId: sessionData.storyId,
   });
-  return response.data;
+  return {
+    ...response.data,
+    characterDesign:
+      typeof response.data.characterDesign === "string"
+        ? JSON.parse(response.data.characterDesign || "{}")
+        : response.data.characterDesign,
+  };
 };
 
 // -----------------------------------------
@@ -55,26 +61,39 @@ export const getSession = async (
 // -----------------------------------------
 export const getAct = async (actNumber: number): Promise<Act> => {
   const response = await axios.get(`${API_BASE}/act/${actNumber}`);
-  return response.data;
+  let act = response.data;
+
+  // Unwrap choices if backend returns $values
+  if (act.choices && "$values" in act.choices) {
+    act.choices = act.choices.$values;
+  }
+
+  return act;
 };
 
 // -----------------------------------------
 // Fetch current act for a session
 // -----------------------------------------
-// src/services/storyApi.ts
-export const getCurrentAct = async (sessionId: number): Promise<{ session: PlayerSessionFromApi; act: Act } | null> => {
+export const getCurrentAct = async (
+  sessionId: number
+): Promise<{ session: PlayerSessionFromApi; act: Act } | null> => {
   try {
-    const res = await axios.get(`http://localhost:5151/api/story/currentAct/${sessionId}`);
+    const res = await axios.get(`${API_BASE}/currentAct/${sessionId}`);
     let data = res.data;
 
     console.log("Raw getCurrentAct data:", data);
 
     if (!data) return null;
 
-    // Unwrap $values if needed
-    if (data.act && data.act.choices && '$values' in data.act.choices) {
+    // Unwrap choices if backend returns $values
+    if (data.act && data.act.choices && "$values" in data.act.choices) {
       data.act.choices = data.act.choices.$values;
       console.log("Unwrapped choices array:", data.act.choices);
+    }
+
+    // Ensure characterDesign is parsed as object
+    if (data.session && typeof data.session.characterDesign === "string") {
+      data.session.characterDesign = JSON.parse(data.session.characterDesign || "{}");
     }
 
     return data;
@@ -83,8 +102,6 @@ export const getCurrentAct = async (sessionId: number): Promise<{ session: Playe
     return null;
   }
 };
-
-
 
 // -----------------------------------------
 // Fetch choices for an act

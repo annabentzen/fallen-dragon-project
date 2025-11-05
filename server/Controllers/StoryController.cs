@@ -49,63 +49,67 @@ namespace DragonGame.Controllers
             return Ok(session);
         }
 
-        // Get current act for a session (clean version)
+
+        // get current act for session
         [HttpGet("currentAct/{sessionId}")]
         public IActionResult GetCurrentAct(int sessionId)
         {
             var session = _context.PlayerSessions
+                //.Include(s => s.CharacterDesign) // ❌ REMOVE this, CharacterDesign is not an entity
                 .FirstOrDefault(s => s.SessionId == sessionId);
 
-            if (session == null)
-                return NotFound();
+            if (session == null) return NotFound();
 
             var act = _context.Acts
                 .Include(a => a.Choices)
-                .FirstOrDefault(a => a.StoryId == session.StoryId && a.ActNumber == session.CurrentActNumber);
+                .FirstOrDefault(a => a.ActNumber == session.CurrentActNumber && a.StoryId == session.StoryId);
 
-            if (act == null)
-                return NotFound();
+            if (act == null) return NotFound();
 
-            // Choices are returned as a plain array
-            var cleanChoices = act.Choices.Select(c => new
-            {
-                c.ChoiceId,
-                c.Text,
-                c.ActId,
-                c.NextActNumber
-            }).ToList();
-
-            var cleanAct = new
-            {
-                act.ActNumber,
-                act.Text,
-                choices = cleanChoices
-            };
-
-            // Include CharacterDesign as an object if JSON exists
-            object? designObj = null;
+            // Parse CharacterDesignJson to object safely
+            CharacterDesign parsedDesign;
             if (!string.IsNullOrEmpty(session.CharacterDesignJson))
             {
                 try
                 {
-                    designObj = JsonSerializer.Deserialize<object>(session.CharacterDesignJson);
+                    parsedDesign = JsonSerializer.Deserialize<CharacterDesign>(session.CharacterDesignJson);
                 }
                 catch
                 {
-                    designObj = session.CharacterDesignJson; // fallback
+                    parsedDesign = new CharacterDesign(); // fallback
                 }
             }
+            else
+            {
+                parsedDesign = new CharacterDesign(); 
+            }
 
+            // Return session + act
             return Ok(new
             {
-                session.SessionId,
-                session.CharacterName,
-                characterDesign = designObj,
-                session.CurrentActNumber,
-                session.IsCompleted,
-                act = cleanAct
+                session = new
+                {
+                    session.SessionId,
+                    session.CharacterName,
+                    CharacterDesign = parsedDesign,
+                    session.StoryId,
+                    session.CurrentActNumber,
+                    session.IsCompleted
+                },
+                act = new
+                {
+                    act.ActNumber,
+                    act.Text,
+                    choices = act.Choices.Select(c => new {
+                        c.ChoiceId,
+                        c.Text,
+                        c.ActId,
+                        c.NextActNumber
+                    }).ToList()
+                }
             });
         }
+
 
         // Move to next act
         public class NextActRequest

@@ -84,7 +84,7 @@ const loadPoses = async () => {
       // Create session on backend
      const session = await createSession({
       characterName,
-      characterDesign: { hair, face, outfit: clothing, color: 'default', poseId },
+      characterDesign: { hair, face, outfit: clothing, poseId },
       storyId: 1,
     });
       console.log('Session created:', session);
