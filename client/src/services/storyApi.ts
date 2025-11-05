@@ -9,8 +9,10 @@ const API_BASE = "http://localhost:5151/api/story";
 // -----------------------------------------
 export interface CharacterDesign {
   hair?: string;
+  face?: string;
   outfit?: string;
   color?: string;
+  poseId?: number;
 }
 
 // -----------------------------------------

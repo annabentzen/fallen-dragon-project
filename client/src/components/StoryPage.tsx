@@ -162,6 +162,16 @@ useEffect(() => {
   }
 
   console.log("Rendering story page for act", currentAct.actNumber);
+  
+  if (playerSession) {
+  const selectedPose = poses.find(p => p.id === characterDesign.poseId);
+  console.log("Rendering pose:", characterDesign.poseId, selectedPose, poses);
+}
+
+const selectedPose = poses.find(p => p.id === characterDesign.poseId);
+console.log("Rendering pose:", characterDesign.poseId, selectedPose, poses);
+
+
 
   return (
     <div
@@ -250,14 +260,14 @@ useEffect(() => {
                   />
                 )}
 
-                {/* Pose */}
-                {characterDesign.poseId && playerSession.poses && (
-                  <img
-                    src={`/images/poses/${playerSession.poses.find(p => p.id === characterDesign.poseId)?.imageUrl}`}
-                    alt="pose"
-                    style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }}
-                  />
-                )}
+                {/* Pose */}             
+                 {characterDesign.poseId && poses.length > 0 && (
+                    <img
+                      src={`/images/poses/${poses.find(p => p.id === characterDesign.poseId)?.imageUrl}`}
+                      alt="pose"
+                      style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }}
+                    />
+                  )}
               </div>
             </div>
           )}

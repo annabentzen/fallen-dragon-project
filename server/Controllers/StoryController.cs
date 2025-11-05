@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DragonGame.Data;
 using DragonGame.Models;
+using System.Text.Json;
 
 namespace DragonGame.Controllers
 {
@@ -23,8 +24,15 @@ namespace DragonGame.Controllers
             if (session == null)
                 return BadRequest("Session data is required.");
 
+            // Ensure consistent initialization
             session.CurrentActNumber = 1;
             session.IsCompleted = false;
+
+            // If CharacterDesign is an object, serialize it to JSON
+            if (session.CharacterDesign != null && string.IsNullOrEmpty(session.CharacterDesignJson))
+            {
+                session.CharacterDesignJson = JsonSerializer.Serialize(session.CharacterDesign);
+            }
 
             _context.PlayerSessions.Add(session);
             await _context.SaveChangesAsync();
@@ -41,7 +49,7 @@ namespace DragonGame.Controllers
             return Ok(session);
         }
 
-        // Get current act for a session
+        // Get current act for a session (clean version)
         [HttpGet("currentAct/{sessionId}")]
         public IActionResult GetCurrentAct(int sessionId)
         {
@@ -58,39 +66,67 @@ namespace DragonGame.Controllers
             if (act == null)
                 return NotFound();
 
-            // Map Choices to a simple array
+            // Choices are returned as a plain array
             var cleanChoices = act.Choices.Select(c => new
             {
                 c.ChoiceId,
                 c.Text,
                 c.ActId,
                 c.NextActNumber
-            }).ToList(); // This is already a plain array
+            }).ToList();
 
             var cleanAct = new
             {
                 act.ActNumber,
                 act.Text,
-                choices = cleanChoices // plain array
+                choices = cleanChoices
             };
+
+            // Include CharacterDesign as an object if JSON exists
+            object? designObj = null;
+            if (!string.IsNullOrEmpty(session.CharacterDesignJson))
+            {
+                try
+                {
+                    designObj = JsonSerializer.Deserialize<object>(session.CharacterDesignJson);
+                }
+                catch
+                {
+                    designObj = session.CharacterDesignJson; // fallback
+                }
+            }
 
             return Ok(new
             {
-                session,
+                session.SessionId,
+                session.CharacterName,
+                characterDesign = designObj,
+                session.CurrentActNumber,
+                session.IsCompleted,
                 act = cleanAct
             });
         }
 
-
-
         // Move to next act
-        public class NextActRequest { public int NextActNumber { get; set; } }
+        public class NextActRequest
+        {
+            public int NextActNumber { get; set; }
+        }
+
         [HttpPost("nextAct/{sessionId}")]
-        public async Task<ActionResult<PlayerSession>> NextAct(int sessionId, [FromBody] NextActRequest request)
+        public async Task<ActionResult<PlayerSession>> NextAct(
+            int sessionId,
+            [FromBody] NextActRequest request)
         {
             var session = await _context.PlayerSessions.FindAsync(sessionId);
-            if (session == null) return NotFound();
+            if (session == null)
+                return NotFound();
 
+            // Handle request correctly
+            if (request == null)
+                return BadRequest("Invalid request body.");
+
+            // Update act number or mark as completed
             if (request.NextActNumber <= 0)
                 session.IsCompleted = true;
             else
@@ -99,6 +135,5 @@ namespace DragonGame.Controllers
             await _context.SaveChangesAsync();
             return Ok(session);
         }
-
     }
 }

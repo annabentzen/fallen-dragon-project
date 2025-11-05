@@ -82,11 +82,11 @@ const loadPoses = async () => {
       console.log('Character saved to localStorage:', { hair, face, clothing, poseId });
 
       // Create session on backend
-      const session = await createSession({
-        characterName,
-        characterDesign: { hair, outfit: clothing, color: 'default' },
-        storyId: 1,
-      });
+     const session = await createSession({
+      characterName,
+      characterDesign: { hair, face, outfit: clothing, color: 'default', poseId },
+      storyId: 1,
+    });
       console.log('Session created:', session);
 
       // Navigate to story
