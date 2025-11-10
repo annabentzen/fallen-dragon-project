@@ -23,7 +23,6 @@ export interface CharacterDesign {
   hair?: string;       // Filename of hair image (e.g., "hair3.png")
   face?: string;       // Filename of face image (e.g., "face1.png")
   outfit?: string;     // Filename of clothing / outfit image (e.g., "clothing3.png")
-  color?: string;      // Background / placeholder color for the character
   poseId?: number;     // Selected pose ID
 }
 

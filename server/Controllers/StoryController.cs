@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using DragonGame.Data;
 using DragonGame.Models;
 using System.Text.Json;
+using DragonGame.Dtos;
 
 namespace DragonGame.Controllers
 {
@@ -19,26 +20,25 @@ namespace DragonGame.Controllers
 
         // Start a new story session
         [HttpPost("start")]
-        public async Task<ActionResult<PlayerSession>> StartStory([FromBody] PlayerSession session)
+        public async Task<ActionResult<PlayerSession>> StartStory([FromBody] CreateSessionDto dto)
         {
-            if (session == null)
-                return BadRequest("Session data is required.");
+            if (dto == null) return BadRequest("Session data is required.");
 
-            // Ensure consistent initialization
-            session.CurrentActNumber = 1;
-            session.IsCompleted = false;
-
-            // If CharacterDesign is an object, serialize it to JSON
-            if (session.CharacterDesign != null && string.IsNullOrEmpty(session.CharacterDesignJson))
+            var session = new PlayerSession
             {
-                session.CharacterDesignJson = JsonSerializer.Serialize(session.CharacterDesign);
-            }
+                CharacterName = dto.CharacterName,
+                StoryId = dto.StoryId,
+                CharacterDesignJson = JsonSerializer.Serialize(dto.CharacterDesign),
+                CurrentActNumber = 1,
+                IsCompleted = false
+            };
 
             _context.PlayerSessions.Add(session);
             await _context.SaveChangesAsync();
 
             return Ok(session);
         }
+
 
         // Get session by ID
         [HttpGet("session/{id}")]
@@ -55,7 +55,6 @@ namespace DragonGame.Controllers
         public IActionResult GetCurrentAct(int sessionId)
         {
             var session = _context.PlayerSessions
-                //.Include(s => s.CharacterDesign) // ❌ REMOVE this, CharacterDesign is not an entity
                 .FirstOrDefault(s => s.SessionId == sessionId);
 
             if (session == null) return NotFound();
@@ -72,7 +71,7 @@ namespace DragonGame.Controllers
             {
                 try
                 {
-                    parsedDesign = JsonSerializer.Deserialize<CharacterDesign>(session.CharacterDesignJson);
+                    parsedDesign = JsonSerializer.Deserialize<CharacterDesign>(session.CharacterDesignJson) ?? new CharacterDesign();
                 }
                 catch
                 {

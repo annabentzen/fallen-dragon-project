@@ -6,45 +6,44 @@
 <h2>Create/Edit Character</h2>
 
 <form asp-action="Create" method="post">
-@Html.AntiForgeryToken()
+    @Html.AntiForgeryToken()
 
-    <div class="avatar-preview" style="position: relative; width: 400px; height: 400px; margin: 2rem auto 3rem auto;"> @* Added 3rem bottom margin *@
+    <div class="avatar-preview" style="position: relative; width: 400px; height: 400px; margin: 2rem auto 3rem auto;">
         <img src="~/images/base.png" alt="Base" style="position:absolute; width:100%; height:100%;" />
         <img id="hair" src="~/images/hair/@Model.Hair" alt="Hair" style="position:absolute; width:100%; height:100%;" />
         <img id="face" src="~/images/faces/@Model.Face" alt="Face" style="position:absolute; width:100%; height:100%;" />
-        <img id="clothing" src="~/images/clothes/@Model.Clothing" alt="Clothing" style="position:absolute; width:100%; height:100%;" />
-        
+        <img id="outfit" src="~/images/clothes/@Model.Outfit" alt="Outfit" style="position:absolute; width:100%; height:100%;" />
+
         <input type="hidden" id="hairInput" name="Hair" value="@Model.Hair ?? "hair1.png"" />
         <input type="hidden" id="faceInput" name="Face" value="@Model.Face ?? "face1.png"" />
-        <input type="hidden" id="clothingInput" name="Clothing" value="@Model.Clothing ?? "clothing1.png"" />
+        <input type="hidden" id="outfitInput" name="Outfit" value="@Model.Outfit ?? "clothing1.png"" />
     </div>
 
-    @* Button controllers for carousels *@
+    <!-- Button controllers for carousels -->
     <div class="container mt-4">
         <div class="row justify-content-center">
-            <div class="col-auto"> @* Hair buttons *@
+            <div class="col-auto">
                 <div class="form-group text-center mb-3">
                     <label>Hair</label><br/>
                     <button type="button" class="btn btn-secondary prev" data-target="hair">Prev</button>
                     <button type="button" class="btn btn-secondary next" data-target="hair">Next</button>
                 </div>
             </div>
-            <div class="col-auto"> @* Face buttons *@
+            <div class="col-auto">
                 <div class="form-group text-center mb-3">
                     <label>Face</label><br/>
                     <button type="button" class="btn btn-secondary prev" data-target="face">Prev</button>
                     <button type="button" class="btn btn-secondary next" data-target="face">Next</button>
                 </div>
             </div>
-            <div class="col-auto"> @* Clothing buttons *@
+            <div class="col-auto">
                 <div class="form-group text-center mb-3">
-                    <label>Clothing</label><br/>
-                    <button type="button" class="btn btn-secondary prev" data-target="clothing">Prev</button>
-                    <button type="button" class="btn btn-secondary next" data-target="clothing">Next</button>
+                    <label>Outfit</label><br/>
+                    <button type="button" class="btn btn-secondary prev" data-target="outfit">Prev</button>
+                    <button type="button" class="btn btn-secondary next" data-target="outfit">Next</button>
                 </div>
             </div>
         </div>
-
 
         <div class="row justify-content-center mt-4">
             <div class="col-auto">
@@ -52,7 +51,6 @@
             </div>
         </div>
     </div>
-
 </form>
 
 @section Scripts {

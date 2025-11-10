@@ -1,35 +1,58 @@
-// src/components/StoryPage.tsx
-import React, { useEffect, useState } from 'react';
-import EndingScreen from './EndingScreen';
-import { getCurrentAct, getSession } from '../services/storyApi';
-import { Act, Choice, PlayerSessionFromApi, CharacterDesign, CharacterPose } from '../types/story';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import EndingScreen from "./EndingScreen";
+import { getCurrentAct, getSession } from "../services/storyApi";
+import {
+  Act,
+  Choice,
+  PlayerSessionFromApi,
+  CharacterDesign,
+  CharacterPose,
+} from "../types/story";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { getAllPoses } from '../services/characterApi';
+import { getAllPoses } from "../services/characterApi";
 
 interface StoryPageProps {
   sessionId: number;
 }
 
 // ---------- HELPER FUNCTION ----------
-const parseCharacterDesign = (data: string | CharacterDesign | undefined): CharacterDesign => {
+function safeParseCharacterDesign(
+  data: string | CharacterDesign | null | undefined
+): CharacterDesign {
   if (!data) return {};
+
   if (typeof data === "string") {
     try {
-      return JSON.parse(data);
+      const parsed = JSON.parse(data);
+      return {
+        hair: parsed.hair ?? undefined,
+        face: parsed.face ?? undefined,
+        outfit: parsed.outfit ?? undefined,
+        poseId: parsed.poseId ?? undefined,
+      };
     } catch {
+      console.warn("Failed to parse characterDesign JSON:", data);
       return {};
     }
   }
-  return data;
-};
+
+  // If already an object
+  return {
+    hair: data.hair ?? undefined,
+    face: data.face ?? undefined,
+    outfit: data.outfit ?? undefined,
+    poseId: data.poseId ?? undefined,
+  };
+}
 
 const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
   const [currentAct, setCurrentAct] = useState<Act | null>(null);
   const [choices, setChoices] = useState<Choice[]>([]);
   const [loading, setLoading] = useState(true);
   const [storyEnded, setStoryEnded] = useState(false);
-  const [playerSession, setPlayerSession] = useState<PlayerSessionFromApi | null>(null);
+  const [playerSession, setPlayerSession] =
+    useState<PlayerSessionFromApi | null>(null);
   const [characterDesign, setCharacterDesign] = useState<CharacterDesign>({});
   const [poses, setPoses] = useState<CharacterPose[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -55,11 +78,11 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
           return;
         }
 
-        // FIX: safely parse characterDesign
-        const parsedDesign = parseCharacterDesign(sessionData.characterDesign);
+        const parsedDesign = safeParseCharacterDesign(sessionData.characterDesign);
         setPlayerSession(sessionData);
         setCharacterDesign(parsedDesign);
-
+        console.log("Parsed character design (session):", parsedDesign);
+        console.log("Raw sessionData.characterDesign:", sessionData.characterDesign);
       } catch (error) {
         console.error("Error loading session:", error);
         setErrorMsg("Failed to load session data.");
@@ -92,8 +115,8 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
       setStoryEnded(session?.isCompleted ?? false);
 
       if (session) {
-        // FIX: safely parse characterDesign here too
-        const parsedDesign = parseCharacterDesign(session.characterDesign);
+        const parsedDesign = safeParseCharacterDesign(session.characterDesign);
+        console.log("Parsed character design (act):", parsedDesign);
         setPlayerSession(session);
         setCharacterDesign(parsedDesign);
       }
@@ -144,14 +167,32 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
     fetchPoses();
   }, []);
 
-  // ---------- LOADING / ERROR STATES ----------
+  // ---------- DEBUG CHARACTER IMAGES ----------
+  useEffect(() => {
+    if (characterDesign && poses.length > 0) {
+      console.log("Character Design in StoryPage:", characterDesign);
+      console.log(
+        "Pose lookup result:",
+        poses.find((p) => p.id === characterDesign.poseId)
+      );
+      console.log("Hair image URL:", `/images/hair/${characterDesign.hair}`);
+      console.log("Face image URL:", `/images/faces/${characterDesign.face}`);
+      console.log(
+        "Outfit image URL:",
+        `/images/clothes/${characterDesign.outfit}`
+      );
+    }
+  }, [characterDesign, poses]);
+
+  // ---------- RENDER ----------
   if (loading) return <div>Loading...</div>;
   if (errorMsg) return <div className="error">{errorMsg}</div>;
   if (!currentAct) return <div>No act data available.</div>;
 
-  const selectedPose = poses.find(p => p.id === characterDesign.poseId);
+  const selectedPose = poses.find(
+    (p) => Number(p.id) === Number(characterDesign.poseId)
+  );
 
-  // ---------- RENDER ----------
   return (
     <div
       className="story-container"
@@ -175,13 +216,13 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
                   key={choice.choiceId}
                   onClick={() => handleChoiceClick(choice.nextActNumber)}
                   style={{
-                    margin: '5px',
-                    padding: '10px 20px',
-                    backgroundColor: '#007bff',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '5px',
-                    cursor: 'pointer',
+                    margin: "5px",
+                    padding: "10px 20px",
+                    backgroundColor: "#007bff",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer",
                   }}
                 >
                   {choice.text}
@@ -195,16 +236,72 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
           {playerSession && (
             <div className="character-corner" style={{ marginTop: "20px" }}>
               <p>{playerSession.characterName}</p>
-              <div style={{ width: '100px', height: '100px', position: 'relative', margin: '10px 0' }}>
+              <div
+                style={{
+                  width: "100px",
+                  height: "100px",
+                  position: "relative",
+                  margin: "10px 0",
+                }}
+              >
                 <img
                   src="/images/base.png"
                   alt="base"
-                  style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }}
+                  style={{
+                    position: "absolute",
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                  }}
                 />
-                {characterDesign.hair && <img src={`/images/hair/${characterDesign.hair}`} alt="hair" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} />}
-                {characterDesign.face && <img src={`/images/faces/${characterDesign.face}`} alt="face" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} />}
-                {characterDesign.outfit && <img src={`/images/clothes/${characterDesign.outfit}`} alt="clothing" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} />}
-                {selectedPose && <img src={`/images/poses/${selectedPose.imageUrl}`} alt="pose" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} />}
+                {characterDesign.hair && (
+                  <img
+                    src={`/images/hair/${characterDesign.hair}`}
+                    alt="hair"
+                    style={{
+                      position: "absolute",
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
+                )}
+                {characterDesign.face && (
+                  <img
+                    src={`/images/faces/${characterDesign.face}`}
+                    alt="face"
+                    style={{
+                      position: "absolute",
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
+                )}
+                {characterDesign.outfit && (
+                  <img
+                    src={`/images/clothes/${characterDesign.outfit}`}
+                    alt="clothing"
+                    style={{
+                      position: "absolute",
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
+                )}
+                {selectedPose && (
+                  <img
+                    src={`/images/poses/${selectedPose.imageUrl}`}
+                    alt="pose"
+                    style={{
+                      position: "absolute",
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
+                )}
               </div>
             </div>
           )}
