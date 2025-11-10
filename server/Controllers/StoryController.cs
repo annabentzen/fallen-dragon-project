@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using DragonGame.Data;
 using DragonGame.Models;
 using System.Text.Json;
+using DragonGame.Dtos;
 
 namespace DragonGame.Controllers
 {
@@ -19,32 +20,15 @@ namespace DragonGame.Controllers
 
         // Start a new story session
         [HttpPost("start")]
-        public async Task<ActionResult<PlayerSession>> StartStory([FromBody] JsonElement sessionData)
+        public async Task<ActionResult<PlayerSession>> StartStory([FromBody] CreateSessionDto dto)
         {
-            if (sessionData.ValueKind != JsonValueKind.Object)
-                return BadRequest("Session data is required.");
-
-            // Character name
-            string characterName = sessionData.TryGetProperty("characterName", out var nameProp)
-                ? nameProp.GetString() ?? "Unnamed Hero"
-                : "Unnamed Hero";
-
-            // Story ID
-            int storyId = sessionData.TryGetProperty("storyId", out var storyProp)
-                ? storyProp.GetInt32()
-                : 1;
-
-            // CharacterDesign
-            if (!sessionData.TryGetProperty("characterDesign", out var charDesign))
-                return BadRequest("Character design is missing.");
-
-            string charDesignJson = charDesign.GetRawText(); // store JSON as string
+            if (dto == null) return BadRequest("Session data is required.");
 
             var session = new PlayerSession
             {
-                CharacterName = characterName,
-                StoryId = storyId,
-                CharacterDesignJson = charDesignJson,
+                CharacterName = dto.CharacterName,
+                StoryId = dto.StoryId,
+                CharacterDesignJson = JsonSerializer.Serialize(dto.CharacterDesign),
                 CurrentActNumber = 1,
                 IsCompleted = false
             };
@@ -54,8 +38,6 @@ namespace DragonGame.Controllers
 
             return Ok(session);
         }
-
-
 
 
         // Get session by ID
@@ -73,7 +55,6 @@ namespace DragonGame.Controllers
         public IActionResult GetCurrentAct(int sessionId)
         {
             var session = _context.PlayerSessions
-                //.Include(s => s.CharacterDesign) // ❌ REMOVE this, CharacterDesign is not an entity
                 .FirstOrDefault(s => s.SessionId == sessionId);
 
             if (session == null) return NotFound();
