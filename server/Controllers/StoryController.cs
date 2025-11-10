@@ -19,26 +19,44 @@ namespace DragonGame.Controllers
 
         // Start a new story session
         [HttpPost("start")]
-        public async Task<ActionResult<PlayerSession>> StartStory([FromBody] PlayerSession session)
+        public async Task<ActionResult<PlayerSession>> StartStory([FromBody] JsonElement sessionData)
         {
-            if (session == null)
+            if (sessionData.ValueKind != JsonValueKind.Object)
                 return BadRequest("Session data is required.");
 
-            // Ensure consistent initialization
-            session.CurrentActNumber = 1;
-            session.IsCompleted = false;
+            // Character name
+            string characterName = sessionData.TryGetProperty("characterName", out var nameProp)
+                ? nameProp.GetString() ?? "Unnamed Hero"
+                : "Unnamed Hero";
 
-            // If CharacterDesign is an object, serialize it to JSON
-            if (session.CharacterDesign != null && string.IsNullOrEmpty(session.CharacterDesignJson))
+            // Story ID
+            int storyId = sessionData.TryGetProperty("storyId", out var storyProp)
+                ? storyProp.GetInt32()
+                : 1;
+
+            // CharacterDesign
+            if (!sessionData.TryGetProperty("characterDesign", out var charDesign))
+                return BadRequest("Character design is missing.");
+
+            string charDesignJson = charDesign.GetRawText(); // store JSON as string
+
+            var session = new PlayerSession
             {
-                session.CharacterDesignJson = JsonSerializer.Serialize(session.CharacterDesign);
-            }
+                CharacterName = characterName,
+                StoryId = storyId,
+                CharacterDesignJson = charDesignJson,
+                CurrentActNumber = 1,
+                IsCompleted = false
+            };
 
             _context.PlayerSessions.Add(session);
             await _context.SaveChangesAsync();
 
             return Ok(session);
         }
+
+
+
 
         // Get session by ID
         [HttpGet("session/{id}")]

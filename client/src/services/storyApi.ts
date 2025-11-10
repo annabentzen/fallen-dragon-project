@@ -37,22 +37,20 @@ export function safeParseCharacterDesign(input: any) {
 // -----------------------------------------
 // Create new story session
 // -----------------------------------------
-export const createSession = async (sessionData: {
+// storyApi.ts
+export const createSession = async (data: {
   characterName: string;
   characterDesign: CharacterDesign;
   storyId: number;
-}): Promise<PlayerSessionFromApi> => {
-  const response = await axios.post(`${API_BASE}/start`, {
-    characterName: sessionData.characterName,
-    characterDesignJson: JSON.stringify(sessionData.characterDesign), // backend expects JSON string
-    storyId: sessionData.storyId,
-  });
-
-  return {
-    ...response.data,
-    characterDesign: safeParseCharacterDesign(response.data.characterDesign),
-  };
+}) => {
+  const response = await axios.post(
+    "http://localhost:5151/api/story/start",
+    data,
+    { headers: { "Content-Type": "application/json" } }
+  );
+  return response.data;
 };
+
 
 // -----------------------------------------
 // Fetch existing session by ID

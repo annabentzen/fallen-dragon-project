@@ -1,4 +1,3 @@
-// src/components/StoryPage.tsx
 import React, { useEffect, useState } from "react";
 import EndingScreen from "./EndingScreen";
 import { getCurrentAct, getSession } from "../services/storyApi";
@@ -18,20 +17,34 @@ interface StoryPageProps {
 }
 
 // ---------- HELPER FUNCTION ----------
-const parseCharacterDesign = (
-  data: string | CharacterDesign | undefined
-): CharacterDesign => {
+function safeParseCharacterDesign(
+  data: string | CharacterDesign | null | undefined
+): CharacterDesign {
   if (!data) return {};
+
   if (typeof data === "string") {
     try {
-      return JSON.parse(data);
+      const parsed = JSON.parse(data);
+      return {
+        hair: parsed.hair ?? undefined,
+        face: parsed.face ?? undefined,
+        outfit: parsed.outfit ?? undefined,
+        poseId: parsed.poseId ?? undefined,
+      };
     } catch {
-      console.warn("Failed to parse characterDesign string:", data);
+      console.warn("Failed to parse characterDesign JSON:", data);
       return {};
     }
   }
-  return data;
-};
+
+  // If already an object
+  return {
+    hair: data.hair ?? undefined,
+    face: data.face ?? undefined,
+    outfit: data.outfit ?? undefined,
+    poseId: data.poseId ?? undefined,
+  };
+}
 
 const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
   const [currentAct, setCurrentAct] = useState<Act | null>(null);
@@ -65,11 +78,11 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
           return;
         }
 
-        const parsedDesign = parseCharacterDesign(sessionData.characterDesign);
+        const parsedDesign = safeParseCharacterDesign(sessionData.characterDesign);
         setPlayerSession(sessionData);
         setCharacterDesign(parsedDesign);
         console.log("Parsed character design (session):", parsedDesign);
-
+        console.log("Raw sessionData.characterDesign:", sessionData.characterDesign);
       } catch (error) {
         console.error("Error loading session:", error);
         setErrorMsg("Failed to load session data.");
@@ -102,7 +115,7 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
       setStoryEnded(session?.isCompleted ?? false);
 
       if (session) {
-        const parsedDesign = parseCharacterDesign(session.characterDesign);
+        const parsedDesign = safeParseCharacterDesign(session.characterDesign);
         console.log("Parsed character design (act):", parsedDesign);
         setPlayerSession(session);
         setCharacterDesign(parsedDesign);
@@ -176,7 +189,9 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
   if (errorMsg) return <div className="error">{errorMsg}</div>;
   if (!currentAct) return <div>No act data available.</div>;
 
-  const selectedPose = poses.find(p => Number(p.id) === Number(characterDesign.poseId));
+  const selectedPose = poses.find(
+    (p) => Number(p.id) === Number(characterDesign.poseId)
+  );
 
   return (
     <div
