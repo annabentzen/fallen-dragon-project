@@ -27,30 +27,32 @@ export default function Home() {
 
   // Load poses and last character on mount
   useEffect(() => {
-    loadPoses();
+    const fetchPoses = async () => {
+      try {
+        const fetchedPoses = await getAllPoses();
+        console.log('Fetched poses for Home:', fetchedPoses);
+        setPoses(fetchedPoses);
+      } catch (err) {
+        console.error('Failed to fetch poses for Home:', err);
+      }
+    };
+
+    const loadLastCharacter = () => {
+      const lastCharacter = loadCharacterFromLocal();
+      console.log('Loaded last character from localStorage:', lastCharacter);
+
+      if (lastCharacter) {
+        const parsedDesign = safeParseCharacterDesign(lastCharacter);
+        if (parsedDesign.hair) setHair(parsedDesign.hair);
+        if (parsedDesign.face) setFace(parsedDesign.face);
+        if (parsedDesign.outfit) setOutfit(parsedDesign.outfit);
+        if (parsedDesign.poseId !== undefined) setPoseId(parsedDesign.poseId);
+      }
+    };
+
+    fetchPoses();
     loadLastCharacter();
   }, []);
-
-  // Fetch poses from backend
-  const loadPoses = async () => {
-    const fetchedPoses = await getAllPoses();
-    console.log('Fetched poses:', fetchedPoses);
-    setPoses(fetchedPoses);
-  };
-
-  // Load last character from localStorage
-  const loadLastCharacter = () => {
-    const lastCharacter = loadCharacterFromLocal();
-    console.log('Loaded last character from localStorage:', lastCharacter);
-
-    if (lastCharacter) {
-      const parsedDesign = safeParseCharacterDesign(lastCharacter);
-      if (parsedDesign.hair) setHair(parsedDesign.hair);
-      if (parsedDesign.face) setFace(parsedDesign.face);
-      if (parsedDesign.outfit) setOutfit(parsedDesign.outfit);
-      if (parsedDesign.poseId !== undefined) setPoseId(parsedDesign.poseId);
-    }
-  };
 
   // Reset character to defaults
   const resetCharacter = () => {
@@ -79,12 +81,10 @@ export default function Home() {
     setError(null);
 
     try {
-      // Save character to localStorage
       const character = { hair, face, outfit, poseId };
       saveCharacterToLocal(character);
       console.log('Character saved to localStorage:', character);
 
-      // Create session on backend
       const session = await createSession({
         characterName,
         characterDesign: character,
