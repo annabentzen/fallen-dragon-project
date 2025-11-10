@@ -52,14 +52,31 @@ export default function CharacterBuilder({
 
       {/* Character preview */}
       <div style={{ width: '200px', height: '200px', position: 'relative', margin: '20px auto', border: '2px solid #333', backgroundColor: '#fff' }}>
-        <img src="/images/base.png" alt="base" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} />
-        {selectedPose && (
-          <img src={`/images/poses/${selectedPose.imageUrl}`} alt={selectedPose.name} style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} />
-        )}
-        <img src={`/images/hair/${hair}`} alt="hair" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} />
-        <img src={`/images/faces/${face}`} alt="face" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} />
-        <img src={`/images/clothes/${outfit}`} alt="clothing" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} />
-      </div>
+  {/* Base image only shows if no pose is selected */}
+  {!poseId && (
+    <img
+      src="/images/base.png"
+      alt="base"
+      style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }}
+    />
+  )}
+
+  {/* Always show hair, face, and outfit */}
+  <img src={`/images/hair/${hair}`} alt="hair" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} />
+  <img src={`/images/faces/${face}`} alt="face" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} />
+  <img src={`/images/clothes/${outfit}`} alt="clothing" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} />
+
+  {/* Pose image overlays everything if selected */}
+  {poseId && (
+    <img
+      src={`/images/poses/${poses.find(p => p.id === poseId)?.imageUrl}`}
+      alt="pose"
+      style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }}
+    />
+  )}
+</div>
+
+
 
       {/* Hair selector */}
       <div style={{ marginBottom: '15px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
