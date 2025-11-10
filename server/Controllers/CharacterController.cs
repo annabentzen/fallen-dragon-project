@@ -33,7 +33,7 @@ namespace DragonGame.Controllers
             {
                 Hair = "hair1.png",
                 Face = "face1.png",
-                Clothing = "clothing1.png",
+                Outfit = "clothing1.png",
                 PoseId = null
             };
 
@@ -76,7 +76,7 @@ namespace DragonGame.Controllers
         // UPDATE CHARACTER POSE
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateCharacterPose(int id, int? poseId, string Hair, string Face, string Clothing)
+        public async Task<IActionResult> UpdateCharacterPose(int id, int? poseId, string Hair, string Face, string Outfit)
         {
             var character = await _characterRepository.GetByIdAsync(id);
             if (character == null)
@@ -87,10 +87,10 @@ namespace DragonGame.Controllers
             if (poseId.HasValue)
                 character.Pose = await _poseRepository.GetByIdAsync(poseId.Value);
 
-            // Update hair, face, clothing from hidden inputs
+            // Update hair, face, outfit from hidden inputs
             character.Hair = Hair ?? character.Hair;
             character.Face = Face ?? character.Face;
-            character.Clothing = Clothing ?? character.Clothing;
+            character.Outfit = Outfit ?? character.Outfit;
 
             await _characterRepository.UpdateAsync(character); // Save to db
 

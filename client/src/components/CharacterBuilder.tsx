@@ -3,28 +3,28 @@ import { CharacterPose } from '../services/characterApi';
 interface CharacterBuilderProps {
   hair: string;
   face: string;
-  clothing: string;
+  outfit: string;
   poseId: number | null;
   poses: CharacterPose[];
   onHairChange: (hair: string) => void;
   onFaceChange: (face: string) => void;
-  onClothingChange: (clothing: string) => void;
+  onOutfitChange: (outfit: string) => void;
   onPoseChange: (poseId: number | null) => void;
 }
 
 const hairOptions = ['hair1.png', 'hair2.png', 'hair3.png'];
 const faceOptions = ['face1.png', 'face2.png', 'face3.png'];
-const clothingOptions = ['clothing1.png', 'clothing2.png', 'clothing3.png'];
+const outfitOptions = ['clothing1.png', 'clothing2.png', 'clothing3.png'];
 
 export default function CharacterBuilder({
   hair,
   face,
-  clothing,
+  outfit,
   poseId,
   poses,
   onHairChange,
   onFaceChange,
-  onClothingChange,
+  onOutfitChange,
   onPoseChange,
 }: CharacterBuilderProps) {
 
@@ -51,7 +51,7 @@ export default function CharacterBuilder({
         <img src="/images/base.png" alt="base" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} />
         <img src={`/images/hair/${hair}`} alt="hair" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} />
         <img src={`/images/faces/${face}`} alt="face" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} />
-        <img src={`/images/clothes/${clothing}`} alt="clothing" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} />
+        <img src={`/images/clothes/${outfit}`} alt="clothing" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} />
       </div>
 
       {/* Hair selector */}
@@ -76,11 +76,11 @@ export default function CharacterBuilder({
 
       {/* Clothing selector */}
       <div style={{ marginBottom: '15px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <label style={{ fontWeight: 'bold', minWidth: '80px' }}>Clothing:</label>
+        <label style={{ fontWeight: 'bold', minWidth: '80px' }}>Outfit:</label>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <button onClick={() => cycleOption(clothing, clothingOptions, onClothingChange, 'prev')} style={{ padding: '5px 12px', cursor: 'pointer' }}>◀</button>
-          <span style={{ minWidth: '100px', textAlign: 'center' }}>{clothing}</span>
-          <button onClick={() => cycleOption(clothing, clothingOptions, onClothingChange, 'next')} style={{ padding: '5px 12px', cursor: 'pointer' }}>▶</button>
+          <button onClick={() => cycleOption(outfit, outfitOptions, onOutfitChange, 'prev')} style={{ padding: '5px 12px', cursor: 'pointer' }}>◀</button>
+          <span style={{ minWidth: '100px', textAlign: 'center' }}>{outfit}</span>
+          <button onClick={() => cycleOption(outfit, outfitOptions, onOutfitChange, 'next')} style={{ padding: '5px 12px', cursor: 'pointer' }}>▶</button>
         </div>
       </div>
 

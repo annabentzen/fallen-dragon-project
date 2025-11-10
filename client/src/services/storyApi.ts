@@ -2,18 +2,37 @@
 import axios from "axios";
 import { Act, PlayerSessionFromApi } from "../types/story";
 
+// ✅ REMOVED: circular import from StoryPage
+// import parseCharacterDesign from "../components/StoryPage";
+
 const API_BASE = "http://localhost:5151/api/story";
 
 // -----------------------------------------
-// Interfaces (frontend representation)
+// Interfaces
 // -----------------------------------------
 export interface CharacterDesign {
   hair?: string;
   face?: string;
   outfit?: string;
-  color?: string;
   poseId?: number;
 }
+
+// Parse a character design string or object safely
+export function safeParseCharacterDesign(input: any) {
+  if (!input) return {};
+  if (typeof input === "string") {
+    try {
+      const parsed = JSON.parse(input);
+      return parsed && typeof parsed === "object" ? parsed : {};
+    } catch {
+      console.warn("Failed to parse character design JSON:", input);
+      return {};
+    }
+  }
+  if (typeof input === "object") return input;
+  return {};
+}
+
 
 // -----------------------------------------
 // Create new story session
@@ -28,12 +47,10 @@ export const createSession = async (sessionData: {
     characterDesignJson: JSON.stringify(sessionData.characterDesign), // backend expects JSON string
     storyId: sessionData.storyId,
   });
+
   return {
     ...response.data,
-    characterDesign:
-      typeof response.data.characterDesign === "string"
-        ? JSON.parse(response.data.characterDesign || "{}")
-        : response.data.characterDesign,
+    characterDesign: safeParseCharacterDesign(response.data.characterDesign),
   };
 };
 
@@ -46,13 +63,9 @@ export const getSession = async (
   const response = await axios.get(`${API_BASE}/session/${sessionId}`);
   const data = response.data;
 
-  // Convert JSON string to object if needed
   return {
     ...data,
-    characterDesign:
-      typeof data.characterDesign === "string"
-        ? JSON.parse(data.characterDesign || "{}")
-        : data.characterDesign,
+    characterDesign: safeParseCharacterDesign(data.characterDesign),
   };
 };
 
@@ -63,7 +76,7 @@ export const getAct = async (actNumber: number): Promise<Act> => {
   const response = await axios.get(`${API_BASE}/act/${actNumber}`);
   let act = response.data;
 
-  // Unwrap choices if backend returns $values
+  // ✅ FIX unwrap array safely
   if (act.choices && "$values" in act.choices) {
     act.choices = act.choices.$values;
   }
@@ -85,15 +98,16 @@ export const getCurrentAct = async (
 
     if (!data) return null;
 
-    // Unwrap choices if backend returns $values
-    if (data.act && data.act.choices && "$values" in data.act.choices) {
-      data.act.choices = data.act.choices.$values;
-      console.log("Unwrapped choices array:", data.act.choices);
+    // ✅ FIX ensure session.characterDesign parsed
+    if (data.session) {
+      data.session.characterDesign = safeParseCharacterDesign(
+        data.session.characterDesignJson || data.session.characterDesign
+      );
     }
 
-    // Ensure characterDesign is parsed as object
-    if (data.session && typeof data.session.characterDesign === "string") {
-      data.session.characterDesign = JSON.parse(data.session.characterDesign || "{}");
+    // ✅ FIX unwrap choices
+    if (data.act && data.act.choices && "$values" in data.act.choices) {
+      data.act.choices = data.act.choices.$values;
     }
 
     return data;

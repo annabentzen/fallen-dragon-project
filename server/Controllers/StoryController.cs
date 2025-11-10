@@ -72,7 +72,7 @@ namespace DragonGame.Controllers
             {
                 try
                 {
-                    parsedDesign = JsonSerializer.Deserialize<CharacterDesign>(session.CharacterDesignJson);
+                    parsedDesign = JsonSerializer.Deserialize<CharacterDesign>(session.CharacterDesignJson) ?? new CharacterDesign();
                 }
                 catch
                 {
