@@ -18,11 +18,12 @@ namespace DragonGame.Controllers
             _context = context;
         }
 
-        // Start a new story session
+        // --- Start a new story session ---
         [HttpPost("start")]
         public async Task<ActionResult<PlayerSession>> StartStory([FromBody] CreateSessionDto dto)
         {
-            if (dto == null) return BadRequest("Session data is required.");
+            if (dto == null)
+                return BadRequest("Session data is required.");
 
             var session = new PlayerSession
             {
@@ -39,8 +40,7 @@ namespace DragonGame.Controllers
             return Ok(session);
         }
 
-
-        // Get session by ID
+        // --- Get session by ID ---
         [HttpGet("session/{id}")]
         public async Task<ActionResult<PlayerSession>> GetSession(int id)
         {
@@ -49,23 +49,20 @@ namespace DragonGame.Controllers
             return Ok(session);
         }
 
-
-        // get current act for session
+        // --- Get current act for a session ---
         [HttpGet("currentAct/{sessionId}")]
         public IActionResult GetCurrentAct(int sessionId)
         {
-            var session = _context.PlayerSessions
-                .FirstOrDefault(s => s.SessionId == sessionId);
-
-            if (session == null) return NotFound();
+            var session = _context.PlayerSessions.FirstOrDefault(s => s.SessionId == sessionId);
+            if (session == null) return NotFound($"Session {sessionId} not found.");
 
             var act = _context.Acts
                 .Include(a => a.Choices)
                 .FirstOrDefault(a => a.ActNumber == session.CurrentActNumber && a.StoryId == session.StoryId);
 
-            if (act == null) return NotFound();
+            if (act == null) return NotFound("Act not found for current session.");
 
-            // Parse CharacterDesignJson to object safely
+            // Parse CharacterDesignJson safely
             CharacterDesign parsedDesign;
             if (!string.IsNullOrEmpty(session.CharacterDesignJson))
             {
@@ -80,10 +77,9 @@ namespace DragonGame.Controllers
             }
             else
             {
-                parsedDesign = new CharacterDesign(); 
+                parsedDesign = new CharacterDesign();
             }
 
-            // Return session + act
             return Ok(new
             {
                 session = new
@@ -99,7 +95,8 @@ namespace DragonGame.Controllers
                 {
                     act.ActNumber,
                     act.Text,
-                    choices = act.Choices.Select(c => new {
+                    choices = act.Choices.Select(c => new
+                    {
                         c.ChoiceId,
                         c.Text,
                         c.ActId,
@@ -109,27 +106,22 @@ namespace DragonGame.Controllers
             });
         }
 
-
-        // Move to next act
+        // --- Move to next act ---
         public class NextActRequest
         {
             public int NextActNumber { get; set; }
         }
 
         [HttpPost("nextAct/{sessionId}")]
-        public async Task<ActionResult<PlayerSession>> NextAct(
-            int sessionId,
-            [FromBody] NextActRequest request)
+        public async Task<ActionResult<PlayerSession>> NextAct(int sessionId, [FromBody] NextActRequest request)
         {
             var session = await _context.PlayerSessions.FindAsync(sessionId);
             if (session == null)
                 return NotFound();
 
-            // Handle request correctly
             if (request == null)
                 return BadRequest("Invalid request body.");
 
-            // Update act number or mark as completed
             if (request.NextActNumber <= 0)
                 session.IsCompleted = true;
             else
@@ -137,6 +129,27 @@ namespace DragonGame.Controllers
 
             await _context.SaveChangesAsync();
             return Ok(session);
+        }
+
+        // --- Update character design mid-story ---
+        [HttpPut("updateCharacter/{sessionId}")]
+        public async Task<IActionResult> UpdateCharacterDesign(int sessionId, [FromBody] CharacterDesign newDesign)
+        {
+            if (newDesign == null)
+                return BadRequest("Character design data is required.");
+
+            var session = await _context.PlayerSessions.FindAsync(sessionId);
+            if (session == null)
+                return NotFound($"Session {sessionId} not found.");
+
+            session.CharacterDesignJson = JsonSerializer.Serialize(newDesign);
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Character design updated successfully.",
+                updatedDesign = newDesign
+            });
         }
     }
 }
