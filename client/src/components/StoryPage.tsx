@@ -12,6 +12,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { getAllPoses, saveCharacterToLocal } from "../services/characterApi";
 import CharacterBuilder from "./CharacterBuilder";
+import { updateCharacterDesign } from "../services/storyApi";
+
 
 interface StoryPageProps {
   sessionId: number;
@@ -362,16 +364,7 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
                   onClick={async () => {
                     setIsEditingCharacter(false);
                     try {
-                      await fetch(`/api/session/updateCharacterDesign`, {
-                        method: "POST",
-                        headers: {
-                          "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                          sessionId,
-                          characterDesign,
-                        }),
-                      });
+                      await updateCharacterDesign(sessionId, characterDesign);
                       console.log("Character design saved.");
                     } catch (err) {
                       console.error("Failed to save character:", err);

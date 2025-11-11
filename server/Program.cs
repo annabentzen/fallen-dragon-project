@@ -57,6 +57,17 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhost", policy =>
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyMethod()
+              .AllowAnyHeader());
+});
+
+app.UseCors("AllowLocalhost");
+
+
 // ---------------------- Build app ----------------------
 
 var app = builder.Build();

@@ -127,9 +127,8 @@ export const getChoicesForAct = async (actId: number) => {
 // -----------------------------------------
 // Fetch updated character design
 // -----------------------------------------
-// storyApi.ts
 export async function updateCharacterDesign(sessionId: number, characterDesign: any) {
-  const response = await fetch(`http://localhost:5173/api/session/updateCharacter/${sessionId}`, {
+  const response = await fetch(`http://localhost:5151/api/story/updateCharacter/${sessionId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(characterDesign),
