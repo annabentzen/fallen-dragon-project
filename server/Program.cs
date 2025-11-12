@@ -65,7 +65,6 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader());
 });
 
-app.UseCors("AllowLocalhost");
 
 
 // ---------------------- Build app ----------------------
@@ -92,7 +91,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseCors();                // Apply default CORS policy
+app.UseCors();                  // Enable CORS globally
+app.UseCors("AllowLocalhost");  // Enable specific CORS policy
 app.UseHttpsRedirection();     // Redirect HTTP → HTTPS
 app.UseStaticFiles();          // Serve wwwroot files
 app.UseRouting();              // Route requests
