@@ -19,8 +19,7 @@ namespace DragonGame.Controllers
         public async Task<ActionResult<IEnumerable<CharacterPose>>> GetAllPoses()
         {
             var poses = await _poseService.GetAllPosesAsync();
-            Console.WriteLine($"Returning {poses.Count()} poses"); //logging
-            return Ok(poses.ToList());
+            return Ok(poses);
         }
 
         [HttpGet("{id}")]
@@ -46,6 +45,7 @@ namespace DragonGame.Controllers
             var existing = await _poseService.GetPoseByIdAsync(id);
             if (existing == null) return NotFound();
 
+            // Copy properties
             existing.Name = pose.Name;
             existing.ImageUrl = pose.ImageUrl;
 
@@ -56,8 +56,8 @@ namespace DragonGame.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePose(int id)
         {
-            var pose = await _poseService.GetPoseByIdAsync(id);
-            if (pose == null) return NotFound();
+            var existing = await _poseService.GetPoseByIdAsync(id);
+            if (existing == null) return NotFound();
 
             await _poseService.DeletePoseAsync(id);
             return NoContent();

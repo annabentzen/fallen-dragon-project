@@ -11,5 +11,7 @@ namespace DragonGame.Repositories
         void Update(T entity);
         void Delete(T entity);
         Task SaveChangesAsync();
+        Task UpdateAsync(T entity);
+        Task DeleteAsync(int id);
     }
 }

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using DragonGame.Models;
 
-namespace YourNamespace.Models
+namespace DragonGame.Models
 {
     public class ChoiceHistory
     {

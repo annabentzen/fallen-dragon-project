@@ -1,6 +1,6 @@
 
 using DragonGame.Repositories;
-using YourNamespace.Models;
+using DragonGame.Models;
 
 namespace DragonGame.Services
 {

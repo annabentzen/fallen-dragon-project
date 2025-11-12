@@ -4,27 +4,27 @@ using DragonGame.Repositories;
 
 namespace DragonGame.Services
 {
-    public class PoseService : Repository<CharacterPose>, IPoseService
+    public class PoseService : IPoseService
+{
+    private readonly IRepository<CharacterPose> _repository;
+
+    public PoseService(IRepository<CharacterPose> repository)
     {
-        private readonly ICharacterPoseRepository _poseRepo;
+        _repository = repository;
+    }
 
-        public PoseService(ICharacterPoseRepository poseRepo)
-        {
-            _poseRepo = poseRepo;
-        }
+    public Task<IEnumerable<CharacterPose>> GetAllPosesAsync() => _repository.GetAllAsync();
+    public Task<CharacterPose?> GetPoseByIdAsync(int id) => _repository.GetByIdAsync(id);
+    public Task AddPoseAsync(CharacterPose pose) => _repository.AddAsync(pose);
+    public Task UpdatePoseAsync(CharacterPose pose) => _repository.UpdateAsync(pose);
+    public Task DeletePoseAsync(int id) => _repository.DeleteAsync(id);
 
-        public async Task<IEnumerable<CharacterPose>> GetAllPosesAsync() => await _poseRepo.GetAllPosesAsync();
-        public async Task<CharacterPose?> GetPoseByIdAsync(int id) => await _poseRepo.GetByIdAsync(id);
-        public async Task AddPoseAsync(CharacterPose pose) => await _poseRepo.AddAsync(pose);
-        public async Task UpdatePoseAsync(CharacterPose pose) => await _poseRepo.UpdateAsync(pose);
-        public async Task DeletePoseAsync(int id) => await _poseRepo.DeleteAsync(id);
-
-        Task<IEnumerable<CharacterPose>> IPoseService.GetAllAsync()
+        public Task<IEnumerable<CharacterPose>> GetAllAsync()
         {
             throw new NotImplementedException();
         }
 
-        Task<CharacterPose?> IPoseService.GetByIdAsync(int id)
+        public Task<CharacterPose?> GetByIdAsync(int id)
         {
             throw new NotImplementedException();
         }
@@ -44,4 +44,5 @@ namespace DragonGame.Services
             throw new NotImplementedException();
         }
     }
+
 }

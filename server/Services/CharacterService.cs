@@ -54,7 +54,7 @@ namespace server.Services
             var character = await _characterRepository.GetByIdAsync(id);
             if (character == null) return false;
 
-            await _characterRepository.DeleteAsync(character);
+            await _characterRepository.DeleteAsync(character.Id);
             return true;
         }
     }
