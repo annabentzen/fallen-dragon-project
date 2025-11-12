@@ -2,24 +2,32 @@
 import React from 'react';
 
 interface EndingScreenProps {
-  onRestart?: () => void; // optional callback to restart the story
+  onRestart: () => void;
 }
 
 const EndingScreen: React.FC<EndingScreenProps> = ({ onRestart }) => {
-  const handleRestart = () => {
-    if (onRestart) {
-      onRestart(); // call the callback if provided
-    } else {
-      // default: reload the page to restart the story
-      window.location.reload();
-    }
-  };
-
   return (
-    <div className="ending-screen">
-      <h1>The End</h1>
-      <p>Thank you for playing the story!</p>
-      <button onClick={handleRestart}>Restart Story</button>
+    <div
+      className="ending-screen"
+      style={{
+        textAlign: "center",
+        paddingTop: "50px",
+        minHeight: "100vh",
+        backgroundColor: "#ffe4e1", // Unique color for ending
+      }}
+    >
+      <h2>The End</h2>
+      <button
+        onClick={onRestart}
+        style={{
+          padding: "10px 20px",
+          fontSize: "16px",
+          cursor: "pointer",
+          marginTop: "20px",
+        }}
+      >
+        Restart
+      </button>
     </div>
   );
 };

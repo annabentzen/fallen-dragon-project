@@ -5,15 +5,16 @@
 namespace DragonGame.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdatePlayerSessionModel : Migration
+    public partial class AddValidationToCharacter : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<string>(
-                name: "CharacterName",
-                table: "PlayerSessions",
+                name: "Outfit",
+                table: "Characters",
                 type: "TEXT",
+                maxLength: 50,
                 nullable: false,
                 defaultValue: "",
                 oldClrType: typeof(string),
@@ -21,9 +22,21 @@ namespace DragonGame.Migrations
                 oldNullable: true);
 
             migrationBuilder.AlterColumn<string>(
-                name: "CharacterDesignJson",
-                table: "PlayerSessions",
+                name: "Hair",
+                table: "Characters",
                 type: "TEXT",
+                maxLength: 50,
+                nullable: false,
+                defaultValue: "",
+                oldClrType: typeof(string),
+                oldType: "TEXT",
+                oldNullable: true);
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Face",
+                table: "Characters",
+                type: "TEXT",
+                maxLength: 50,
                 nullable: false,
                 defaultValue: "",
                 oldClrType: typeof(string),
@@ -35,20 +48,31 @@ namespace DragonGame.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<string>(
-                name: "CharacterName",
-                table: "PlayerSessions",
+                name: "Outfit",
+                table: "Characters",
                 type: "TEXT",
                 nullable: true,
                 oldClrType: typeof(string),
-                oldType: "TEXT");
+                oldType: "TEXT",
+                oldMaxLength: 50);
 
             migrationBuilder.AlterColumn<string>(
-                name: "CharacterDesignJson",
-                table: "PlayerSessions",
+                name: "Hair",
+                table: "Characters",
                 type: "TEXT",
                 nullable: true,
                 oldClrType: typeof(string),
-                oldType: "TEXT");
+                oldType: "TEXT",
+                oldMaxLength: 50);
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Face",
+                table: "Characters",
+                type: "TEXT",
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "TEXT",
+                oldMaxLength: 50);
         }
     }
 }

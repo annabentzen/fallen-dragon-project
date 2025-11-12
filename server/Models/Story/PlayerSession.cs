@@ -38,8 +38,9 @@ namespace DragonGame.Models
     public class CharacterDesign
     {
         public string? Hair { get; set; }
+        public string? Face { get; set; }
         public string? Outfit { get; set; }
-        public string? Color { get; set; }
+        public int? PoseId { get; set; }
     }
 }
 

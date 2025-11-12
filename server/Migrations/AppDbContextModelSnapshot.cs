@@ -48,6 +48,76 @@ namespace DragonGame.Migrations
                         });
                 });
 
+            modelBuilder.Entity("DragonGame.Models.Character", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Face")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Hair")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Outfit")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("PoseId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PoseId");
+
+                    b.ToTable("Characters", (string)null);
+                });
+
+            modelBuilder.Entity("DragonGame.Models.CharacterPose", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CharacterPoses", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ImageUrl = "pose1.png",
+                            Name = "Standing"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ImageUrl = "pose2.png",
+                            Name = "Fighting"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ImageUrl = "pose3.png",
+                            Name = "Flying"
+                        });
+                });
+
             modelBuilder.Entity("DragonGame.Models.Choice", b =>
                 {
                     b.Property<int>("ChoiceId")
@@ -144,6 +214,15 @@ namespace DragonGame.Migrations
                         .HasForeignKey("StoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("DragonGame.Models.Character", b =>
+                {
+                    b.HasOne("DragonGame.Models.CharacterPose", "Pose")
+                        .WithMany()
+                        .HasForeignKey("PoseId");
+
+                    b.Navigation("Pose");
                 });
 
             modelBuilder.Entity("DragonGame.Models.Choice", b =>

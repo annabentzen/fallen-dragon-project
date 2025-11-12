@@ -22,8 +22,11 @@ namespace DragonGame.Controllers
         public async Task<ActionResult<IEnumerable<CharacterPose>>> GetAllPoses()
         {
             var poses = await _poseRepository.GetAllPosesAsync();
-            return Ok(poses);
+            Console.WriteLine($"Returning {poses.Count()} poses"); //logging
+            return Ok(poses.ToList());
         }
+
+
 
         // GET: api/poses/{id}
         [HttpGet("{id}")]

@@ -13,7 +13,7 @@
 
     <img id="hair" src="/images/hair/@Model.Hair" alt="Hair" style="position:absolute; width:100%; height:100%;" />
     <img id="face" src="/images/faces/@Model.Face" alt="Face" style="position:absolute; width:100%; height:100%;" />
-    <img id="clothing" src="/images/clothes/@Model.Clothing" alt="Clothing" style="position:absolute; width:100%; height:100%;" />
+    <img id="outfit" src="/images/clothes/@Model.Outfit" alt="Outfit" style="position:absolute; width:100%; height:100%;" />
 </div>
 
 <form asp-action="UpdateCharacterPose" asp-controller="Character" method="post">
@@ -24,15 +24,13 @@
         <option value="">Select a pose</option>
     </select>
 
-    <!-- Hidden inputs for hair, face, clothing -->
+    <!-- Hidden inputs for hair, face, outfit -->
     <input type="hidden" id="hairInput" name="Hair" value="@Model.Hair" />
     <input type="hidden" id="faceInput" name="Face" value="@Model.Face" />
-    <input type="hidden" id="clothingInput" name="Clothing" value="@Model.Clothing" />
-
+    <input type="hidden" id="outfitInput" name="Outfit" value="@Model.Outfit" />
 
     <button type="submit" class="btn btn-primary mt-2">Change Pose</button>
 </form>
-
 
 <form>
     <div class="row justify-content-center mt-4">
@@ -53,10 +51,10 @@
     <script>
         var initialCharacterData = {
             id: @Model.Id,
-            poseId: @(Model.PoseId.HasValue? Model.PoseId.Value.ToString() : "null"),
+            poseId: @(Model.PoseId.HasValue ? Model.PoseId.Value.ToString() : "null"),
             hair: "@Model.Hair",
             face: "@Model.Face",
-            clothing: "@Model.Clothing"
+            outfit: "@Model.Outfit"
         };
     </script>
     <script src="~/js/poseSelector.js"></script>
