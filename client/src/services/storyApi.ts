@@ -10,12 +10,13 @@ const API_BASE = "http://localhost:5151/api/story";
 // -----------------------------------------
 // Interfaces
 // -----------------------------------------
-export interface CharacterDesign {
+export interface CharacterDto {
   hair?: string;
   face?: string;
   outfit?: string;
   poseId?: number;
 }
+
 
 // Parse a character design string or object safely
 export function safeParseCharacterDesign(input: any) {
@@ -37,19 +38,19 @@ export function safeParseCharacterDesign(input: any) {
 // -----------------------------------------
 // Create new story session
 // -----------------------------------------
-// storyApi.ts
 export const createSession = async (data: {
   characterName: string;
-  characterDesign: CharacterDesign;
+  character: CharacterDto;
   storyId: number;
 }) => {
   const response = await axios.post(
-    "http://localhost:5151/api/story/start",
+    `${API_BASE}/start`,
     data,
     { headers: { "Content-Type": "application/json" } }
   );
   return response.data;
 };
+
 
 
 // -----------------------------------------

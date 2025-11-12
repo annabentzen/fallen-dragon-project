@@ -6,6 +6,6 @@ namespace DragonGame.Dtos
     {
         public int StoryId { get; set; }
         public string CharacterName { get; set; } = string.Empty;
-        public CharacterDesign CharacterDesign { get; set; } = new CharacterDesign();
+         public Character Character { get; set; } = new Character();
     }
 }

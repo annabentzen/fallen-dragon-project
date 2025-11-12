@@ -87,7 +87,7 @@ export default function Home() {
 
       const session = await createSession({
         characterName,
-        characterDesign: character,
+        character, // <-- updated field name
         storyId: 1,
       });
       console.log('Session created:', session);
@@ -100,6 +100,7 @@ export default function Home() {
       setLoading(false);
     }
   };
+
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
@@ -207,4 +208,4 @@ export default function Home() {
       </button>
     </div>
   );
-}
+};

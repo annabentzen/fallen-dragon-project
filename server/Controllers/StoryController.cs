@@ -19,11 +19,19 @@ namespace DragonGame.Controllers
         [HttpPost("start")]
         public async Task<IActionResult> StartStory([FromBody] CreateSessionDto dto)
         {
-            if (dto == null) return BadRequest("Session data is required.");
+            try
+            {
+                var session = await _storyService.StartStoryAsync(dto);
+                return Ok(session);
+            }
+            catch (Exception ex)
+            {
+                // log full exception to console
+                Console.WriteLine(ex);
+                return StatusCode(500, ex.Message);
+            }
+}
 
-            var session = await _storyService.StartStoryAsync(dto);
-            return Ok(session);
-        }
 
         [HttpGet("currentAct/{sessionId}")]
         public async Task<IActionResult> GetCurrentAct(int sessionId)
@@ -46,7 +54,7 @@ namespace DragonGame.Controllers
         }
 
         [HttpPut("updateCharacter/{sessionId}")]
-        public async Task<IActionResult> UpdateCharacterDesign(int sessionId, [FromBody] CharacterDesign newDesign)
+        public async Task<IActionResult> UpdateCharacterDesign(int sessionId, [FromBody] Character newDesign)
         {
             if (newDesign == null) return BadRequest("Character design data is required.");
 
