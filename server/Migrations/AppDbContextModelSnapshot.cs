@@ -37,15 +37,6 @@ namespace DragonGame.Migrations
                     b.HasIndex("StoryId");
 
                     b.ToTable("Acts", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            ActId = 1,
-                            ActNumber = 1,
-                            StoryId = 1,
-                            Text = "The dragon awakens..."
-                        });
                 });
 
             modelBuilder.Entity("DragonGame.Models.Character", b =>
@@ -96,26 +87,6 @@ namespace DragonGame.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CharacterPoses", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            ImageUrl = "pose1.png",
-                            Name = "Standing"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            ImageUrl = "pose2.png",
-                            Name = "Fighting"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            ImageUrl = "pose3.png",
-                            Name = "Flying"
-                        });
                 });
 
             modelBuilder.Entity("DragonGame.Models.Choice", b =>
@@ -139,22 +110,6 @@ namespace DragonGame.Migrations
                     b.HasIndex("ActId");
 
                     b.ToTable("Choices", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            ChoiceId = 1,
-                            ActId = 1,
-                            NextActNumber = 2,
-                            Text = "Go left"
-                        },
-                        new
-                        {
-                            ChoiceId = 2,
-                            ActId = 1,
-                            NextActNumber = 3,
-                            Text = "Go right"
-                        });
                 });
 
             modelBuilder.Entity("DragonGame.Models.PlayerSession", b =>
@@ -198,13 +153,6 @@ namespace DragonGame.Migrations
                     b.HasKey("StoryId");
 
                     b.ToTable("Stories", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            StoryId = 1,
-                            Title = "Fallen Dragon"
-                        });
                 });
 
             modelBuilder.Entity("DragonGame.Models.Act", b =>

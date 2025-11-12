@@ -29,6 +29,7 @@ namespace DragonGame.Data
             modelBuilder.Entity<Act>().HasKey(a => a.ActId);
             modelBuilder.Entity<Story>().HasKey(s => s.StoryId);
 
+            /*
             modelBuilder.Entity<Story>().HasData(
                 new Story { StoryId = 1, Title = "Fallen Dragon" }
             );
@@ -47,6 +48,7 @@ namespace DragonGame.Data
                 new CharacterPose { Id = 2, Name = "Fighting", ImageUrl = "pose2.png" },
                 new CharacterPose { Id = 3, Name = "Flying", ImageUrl = "pose3.png" }
             );
+            */
         }
     }
 }
