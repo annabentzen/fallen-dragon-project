@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import Home from './pages/Home';
 import StoryPage from './components/StoryPage';
 import EndingScreen from './components/EndingScreen';
@@ -15,10 +15,21 @@ const App: React.FC = () => {
         <Route path="/story/:sessionId" element={<StoryPageWrapper />} />
 
         {/* Optional direct ending screen */}
-        <Route path="/ending" element={<EndingScreen />} />
+        <Route path="/ending" element={<EndingScreenWrapper />} />
       </Routes>
     </Router>
   );
+};
+
+// Wrapper for Endingscreen to handle navigation
+const EndingScreenWrapper: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleRestart = () => {
+    navigate('/'); // Navigate back to home to start a new session
+  };
+
+  return <EndingScreen onRestart={handleRestart} />;
 };
 
 // Wrapper to pass sessionId from URL to StoryPage
