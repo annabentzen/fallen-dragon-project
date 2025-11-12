@@ -10,7 +10,10 @@ import {
 } from "../types/story";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { getAllPoses } from "../services/characterApi";
+import { getAllPoses, saveCharacterToLocal } from "../services/characterApi";
+import CharacterBuilder from "./CharacterBuilder";
+import { updateCharacterDesign } from "../services/storyApi";
+
 
 interface StoryPageProps {
   sessionId: number;
@@ -37,7 +40,6 @@ function safeParseCharacterDesign(
     }
   }
 
-  // If already an object
   return {
     hair: data.hair ?? undefined,
     face: data.face ?? undefined,
@@ -56,6 +58,7 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
   const [characterDesign, setCharacterDesign] = useState<CharacterDesign>({});
   const [poses, setPoses] = useState<CharacterPose[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isEditingCharacter, setIsEditingCharacter] = useState(false);
 
   const navigate = useNavigate();
 
@@ -71,8 +74,6 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
       console.log("Loading session", sessionId);
       try {
         const sessionData = await getSession(sessionId);
-        console.log("Loaded session:", sessionData);
-
         if (!sessionData) {
           setErrorMsg(`Session ${sessionId} not found.`);
           return;
@@ -82,7 +83,6 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
         setPlayerSession(sessionData);
         setCharacterDesign(parsedDesign);
         console.log("Parsed character design (session):", parsedDesign);
-        console.log("Raw sessionData.characterDesign:", sessionData.characterDesign);
       } catch (error) {
         console.error("Error loading session:", error);
         setErrorMsg("Failed to load session data.");
@@ -99,8 +99,6 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
 
     try {
       const result = await getCurrentAct(sessionId);
-      console.log("getCurrentAct result:", result);
-
       if (!result || !result.act) {
         setErrorMsg(`No act found for session ${sessionId}.`);
         setCurrentAct(null);
@@ -109,14 +107,12 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
       }
 
       const { session, act } = result;
-
       setCurrentAct(act);
       setChoices(act.choices || []);
       setStoryEnded(session?.isCompleted ?? false);
 
       if (session) {
         const parsedDesign = safeParseCharacterDesign(session.characterDesign);
-        console.log("Parsed character design (act):", parsedDesign);
         setPlayerSession(session);
         setCharacterDesign(parsedDesign);
       }
@@ -125,7 +121,6 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
       setErrorMsg("Failed to load act.");
     } finally {
       setLoading(false);
-      console.log("Finished loading act");
     }
   };
 
@@ -135,7 +130,6 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
 
   // ---------- HANDLE CHOICE ----------
   const handleChoiceClick = async (nextActNumber: number) => {
-    console.log("Choice clicked, nextActNumber:", nextActNumber);
     setLoading(true);
     try {
       await axios.post(
@@ -143,7 +137,6 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
         { nextActNumber },
         { headers: { "Content-Type": "application/json" } }
       );
-      console.log("POST successful, loading next act...");
       await loadAct();
     } catch (error) {
       console.error("Error advancing act:", error);
@@ -158,7 +151,6 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
     const fetchPoses = async () => {
       try {
         const fetchedPoses = await getAllPoses();
-        console.log("Fetched poses for StoryPage:", fetchedPoses);
         setPoses(fetchedPoses);
       } catch (err) {
         console.error("Failed to fetch poses:", err);
@@ -166,23 +158,6 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
     };
     fetchPoses();
   }, []);
-
-  // ---------- DEBUG CHARACTER IMAGES ----------
-  useEffect(() => {
-    if (characterDesign && poses.length > 0) {
-      console.log("Character Design in StoryPage:", characterDesign);
-      console.log(
-        "Pose lookup result:",
-        poses.find((p) => p.id === characterDesign.poseId)
-      );
-      console.log("Hair image URL:", `/images/hair/${characterDesign.hair}`);
-      console.log("Face image URL:", `/images/faces/${characterDesign.face}`);
-      console.log(
-        "Outfit image URL:",
-        `/images/clothes/${characterDesign.outfit}`
-      );
-    }
-  }, [characterDesign, poses]);
 
   // ---------- RENDER ----------
   if (loading) return <div>Loading...</div>;
@@ -195,13 +170,42 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
 
   return (
     <div
-      className="story-container"
       style={{
-        backgroundColor: storyEnded ? "#7c372fff" : "#f0f8ff",
         minHeight: "100vh",
-        padding: "20px",
+        backgroundColor: storyEnded ? "#7c372fff" : "#f0f8ff",
       }}
     >
+      {/* --- NAVBAR --- */}
+      <nav
+        style={{
+          width: "100%",
+          padding: "10px 20px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          backgroundColor: "#333",
+          color: "white",
+          position: "sticky",
+          top: 0,
+          zIndex: 1000,
+        }}
+      >
+        <span style={{ fontWeight: "bold" }}>The Fallen Dragon</span>
+        <button
+          onClick={() => setIsEditingCharacter(true)}
+          style={{
+            padding: "6px 12px",
+            backgroundColor: "#4caf50",
+            color: "white",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
+        >
+          Edit Character
+        </button>
+      </nav>
+
       {storyEnded ? (
         <EndingScreen onRestart={handleRestart} />
       ) : (
@@ -233,8 +237,9 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
             )}
           </div>
 
+          {/* --- Character Corner --- */}
           {playerSession && (
-            <div className="character-corner" style={{ marginTop: "20px" }}>
+            <div style={{ marginTop: "20px" }}>
               <p>{playerSession.characterName}</p>
               <div
                 style={{
@@ -302,6 +307,81 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
                     }}
                   />
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* --- Character Edit Modal --- */}
+          {isEditingCharacter && (
+            <div
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                backgroundColor: "rgba(0,0,0,0.6)",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                zIndex: 2000,
+              }}
+              onClick={() => setIsEditingCharacter(false)}
+            >
+              <div
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  backgroundColor: "white",
+                  padding: "20px",
+                  borderRadius: "8px",
+                  maxWidth: "500px",
+                  width: "90%",
+                }}
+              >
+                <CharacterBuilder
+                  hair={characterDesign.hair || "hair1.png"}
+                  face={characterDesign.face || "face1.png"}
+                  outfit={characterDesign.outfit || "clothing1.png"}
+                  poseId={characterDesign.poseId ?? null}
+                  poses={poses}
+                  onHairChange={(hair) =>
+                    setCharacterDesign((prev) => ({ ...prev, hair }))
+                  }
+                  onFaceChange={(face) =>
+                    setCharacterDesign((prev) => ({ ...prev, face }))
+                  }
+                  onOutfitChange={(outfit) =>
+                    setCharacterDesign((prev) => ({ ...prev, outfit }))
+                  }
+                  onPoseChange={(poseId) =>
+                    setCharacterDesign((prev) => ({
+                      ...prev,
+                      poseId: poseId ?? undefined,
+                    }))
+                  }
+                />
+                <button
+                  onClick={async () => {
+                    setIsEditingCharacter(false);
+                    try {
+                      await updateCharacterDesign(sessionId, characterDesign);
+                      console.log("Character design saved.");
+                    } catch (err) {
+                      console.error("Failed to save character:", err);
+                    }
+                  }}
+                  style={{
+                    marginTop: "10px",
+                    padding: "8px 12px",
+                    backgroundColor: "#333",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                  }}
+                >
+                  Close & Save
+                </button>
               </div>
             </div>
           )}

@@ -122,3 +122,23 @@ export const getChoicesForAct = async (actId: number) => {
   const response = await axios.get(`${API_BASE}/choices/${actId}`);
   return response.data;
 };
+
+
+// -----------------------------------------
+// Fetch updated character design
+// -----------------------------------------
+export async function updateCharacterDesign(sessionId: number, characterDesign: any) {
+  const response = await fetch(`http://localhost:5151/api/story/updateCharacter/${sessionId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(characterDesign),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Failed to update character design: ${text}`);
+  }
+
+  return response.json();
+}
+
