@@ -1,18 +1,15 @@
 using DragonGame.Data;
 using DragonGame.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace DragonGame.Repositories
 {
-    public class CharacterPoseRepository : ICharacterPoseRepository
+    public class CharacterPoseRepository : Repository<CharacterPose>, ICharacterPoseRepository
     {
         private readonly AppDbContext _context;
 
-        public CharacterPoseRepository(AppDbContext context)
+        public CharacterPoseRepository(AppDbContext context) : base(context)
         {
-            _context = context;
         }
 
         // Get all poses
@@ -52,6 +49,31 @@ namespace DragonGame.Repositories
                 _context.CharacterPoses.Remove(pose);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public Task<IEnumerable<CharacterPose>> GetAllAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Update(CharacterPose entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Delete(CharacterPose entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SaveChangesAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<CharacterPose?> GetByNameAsync(string name)
+        {
+            throw new NotImplementedException();
         }
     }
 }

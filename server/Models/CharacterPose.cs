@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace DragonGame.Models
 {
     public class CharacterPose

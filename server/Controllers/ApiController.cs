@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using System.IO;
-using System.Linq;
+using DragonGame.Services;
 
 namespace DragonGame.Controllers
 {
@@ -8,33 +7,31 @@ namespace DragonGame.Controllers
     [Route("api")]
     public class ApiController : ControllerBase
     {
+        private readonly ICharacterAssetsService _assetsService;
+
+        public ApiController(ICharacterAssetsService assetsService)
+        {
+            _assetsService = assetsService;
+        }
+
         [HttpGet("hair")]
         public IActionResult GetHairOptions()
         {
-            var hairOptions = Directory.GetFiles("wwwroot/images/hair")
-                .Select(Path.GetFileName)
-                .ToList();
-
+            var hairOptions = _assetsService.GetHairOptions();
             return Ok(hairOptions);
         }
 
         [HttpGet("faces")]
         public IActionResult GetFaceOptions()
         {
-            var faceOptions = Directory.GetFiles("wwwroot/images/faces")
-                .Select(Path.GetFileName)
-                .ToList();
-
+            var faceOptions = _assetsService.GetFaceOptions();
             return Ok(faceOptions);
         }
 
         [HttpGet("clothes")]
         public IActionResult GetClothingOptions()
         {
-            var clothesOptions = Directory.GetFiles("wwwroot/images/clothes")
-                .Select(Path.GetFileName)
-                .ToList();
-
+            var clothesOptions = _assetsService.GetClothingOptions();
             return Ok(clothesOptions);
         }
     }

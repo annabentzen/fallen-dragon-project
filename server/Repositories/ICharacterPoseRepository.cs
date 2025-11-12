@@ -1,15 +1,9 @@
 using DragonGame.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace DragonGame.Repositories
 {
-    public interface ICharacterPoseRepository
+    public interface ICharacterPoseRepository : IRepository<CharacterPose>
     {
-        Task<List<CharacterPose>> GetAllPosesAsync();
-        Task<CharacterPose?> GetByIdAsync(int id);
-        Task AddAsync(CharacterPose pose);
-        Task UpdateAsync(CharacterPose pose);
-        Task DeleteAsync(int id);
+        Task<CharacterPose?> GetByNameAsync(string name);
     }
 }

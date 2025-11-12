@@ -1,6 +1,9 @@
 using DragonGame.Data;
 using DragonGame.Repositories;
+using DragonGame.Services;
 using Microsoft.EntityFrameworkCore;
+using server.Services;
+using server.Services.Interfaces;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -45,6 +48,17 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Register repositories
 builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
 builder.Services.AddScoped<ICharacterPoseRepository, CharacterPoseRepository>();
+builder.Services.AddScoped<IPlayerSessionRepository, PlayerSessionRepository>();
+builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
+builder.Services.AddScoped<ICharacterPoseRepository, CharacterPoseRepository>();
+builder.Services.AddScoped<IStoryRepository, StoryRepository>();
+builder.Services.AddScoped<IStoryService, StoryService>();
+builder.Services.AddScoped<IPlayerSessionService, PlayerSessionService>();
+builder.Services.AddScoped<ICharacterService, CharacterService>();
+builder.Services.AddScoped<IPoseService, PoseService>();
+builder.Services.AddScoped<IChoiceHistoryService, ChoiceHistoryService>();
+
+
 
 // Configure CORS for React frontend
 builder.Services.AddCors(options =>
