@@ -9,6 +9,7 @@ namespace DragonGame.Services
     {
         private readonly IPlayerSessionRepository _sessionRepo;
         private readonly IStoryRepository _storyRepo;
+        private readonly ICharacterRepository _characterRepo;
 
         public StoryService(IPlayerSessionRepository sessionRepo, IStoryRepository storyRepo)
         {
@@ -18,19 +19,34 @@ namespace DragonGame.Services
 
         public async Task<PlayerSession> StartStoryAsync(CreateSessionDto dto)
         {
+            // Create Character
+            var character = new Character
+            {
+                Hair = dto.Character.Hair,
+                Face = dto.Character.Face,
+                Outfit = dto.Character.Outfit,
+                PoseId = dto.Character.PoseId
+            };
+
+            await _characterRepo.AddAsync(character);
+            await _characterRepo.SaveChangesAsync(); // Save to get the generated Id
+
+            // Create PlayerSession
             var session = new PlayerSession
             {
                 CharacterName = dto.CharacterName,
+                CharacterId = character.Id,  // Link to the new character
                 StoryId = dto.StoryId,
-                CharacterDesignJson = JsonSerializer.Serialize(dto.CharacterDesign),
                 CurrentActNumber = 1,
                 IsCompleted = false
             };
 
             await _sessionRepo.AddAsync(session);
+            await _sessionRepo.SaveChangesAsync();
 
             return session;
-        }
+}
+
 
         public async Task<object?> GetCurrentActAsync(int sessionId)
         {

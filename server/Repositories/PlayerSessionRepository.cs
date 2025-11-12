@@ -38,10 +38,13 @@ public class PlayerSessionRepository : Repository<PlayerSession>, IPlayerSession
     public async Task SaveAsync()
         => await _context.SaveChangesAsync();
 
-    public Task<PlayerSession?> GetSessionWithCharacterAsync(int sessionId)
+    public async Task<PlayerSession?> GetSessionWithCharacterAsync(int sessionId)
     {
-        throw new NotImplementedException();
+        return await _context.PlayerSessions
+            .Include(s => s.Character)
+            .FirstOrDefaultAsync(s => s.SessionId == sessionId);
     }
+
 
     public Task<PlayerSession?> GetSessionByIdWithChoicesAsync(int sessionId)
     {

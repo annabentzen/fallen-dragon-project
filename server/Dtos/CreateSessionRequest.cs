@@ -1,9 +1,11 @@
+using DragonGame.Models;
 
-namespace DragonGame.Dtos
+namespace DragonGame.Models.DTOs
 {
-    public class CreateSessionRequest
+    public class CreateSessionDto
     {
-        public int StoryId { get; set; }
         public string CharacterName { get; set; } = string.Empty;
+        public Character Character { get; set; } = new Character();
+        public int StoryId { get; set; }
     }
 }
