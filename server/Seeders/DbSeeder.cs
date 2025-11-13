@@ -1,19 +1,21 @@
 using DragonGame.Data;
 using DragonGame.Models;
+using Microsoft.EntityFrameworkCore;
 
 public static class DbSeeder
 {
     public static async Task Seed(AppDbContext context)
     {
-        // Only seed the story if it doesn't exist
-        if (!context.Stories.Any(s => s.StoryId == 1))
-        {
-            var story = new Story
+         // Ensure foreign keys are enforced
+            context.Database.ExecuteSqlRaw("PRAGMA foreign_keys = ON");
+
+            // Desired story data
+            var storyId = 1;
+            var storyTitle = "The Fallen Dragon";
+
+            // Full list of acts and choices
+            var allActs = new List<Act>
             {
-                StoryId = 1, // fixed ID to check existence
-                Title = "The Fallen Dragon",
-                Acts = new List<Act>
-                {
                     // Round 1
                     new Act
                     {
@@ -230,23 +232,81 @@ public static class DbSeeder
                             new Choice { Text = "Dragon dies", NextActNumber = -3 } // Bad
                         }
                     }
-                }
             };
 
-            // Add story and all child objects (acts + choices) in a single SaveChanges
-            context.Stories.Add(story);
-            await context.SaveChangesAsync();
-        }
+           // Load existing story if it exists
+            var story = await context.Stories
+                .Include(s => s.Acts)
+                    .ThenInclude(a => a.Choices)
+                .FirstOrDefaultAsync(s => s.StoryId == storyId);
 
-        // Optional: Seed characters / poses if they don't exist
-        if (!context.CharacterPoses.Any())
-        {
-            context.CharacterPoses.AddRange(
-                new CharacterPose { Id = 1, Name = "Standing", ImageUrl = "pose1.png" },
-                new CharacterPose { Id = 2, Name = "Fighting", ImageUrl = "pose2.png" },
-                new CharacterPose { Id = 3, Name = "Flying", ImageUrl = "pose3.png" }
-            );
-            await context.SaveChangesAsync();
+            if (story == null)
+            {
+                Console.WriteLine("Seeding new story...");
+                story = new Story
+                {
+                    StoryId = storyId,
+                    Title = storyTitle,
+                    Acts = allActs
+                };
+                context.Stories.Add(story);
+                await context.SaveChangesAsync();
+                Console.WriteLine($"Inserted {allActs.Count} acts and their choices.");
+            }
+            else
+            {
+                Console.WriteLine("Story exists, checking for missing acts/choices...");
+
+                foreach (var act in allActs)
+                {
+                    var existingAct = story.Acts.FirstOrDefault(a => a.ActNumber == act.ActNumber);
+                    if (existingAct == null)
+                    {
+                        story.Acts.Add(act);
+                        Console.WriteLine($"Added missing act {act.ActNumber}");
+                    }
+                    else
+                    {
+                        // Check for missing choices
+                        foreach (var choice in act.Choices)
+                        {
+                            if (!existingAct.Choices.Any(c => c.Text == choice.Text))
+                            {
+                                existingAct.Choices.Add(choice);
+                                Console.WriteLine($"Added missing choice '{choice.Text}' for act {act.ActNumber}");
+                            }
+                        }
+                    }
+                }
+                await context.SaveChangesAsync();
+                Console.WriteLine("Seeding complete: all acts and choices present.");
+            }
+
+            // Seed character poses if missing
+            if (!context.CharacterPoses.Any())
+            {
+                context.CharacterPoses.AddRange(
+                    new CharacterPose { Id = 1, Name = "Standing", ImageUrl = "pose1.png" },
+                    new CharacterPose { Id = 2, Name = "Fighting", ImageUrl = "pose2.png" },
+                    new CharacterPose { Id = 3, Name = "Flying", ImageUrl = "pose3.png" }
+                );
+                await context.SaveChangesAsync();
+                Console.WriteLine("Character poses seeded.");
+            }
+
+            // Optional: Seed default character for testing
+            if (!context.Characters.Any())
+            {
+                var defaultCharacter = new Character
+                {
+                    Hair = "Black",
+                    Face = "Normal",
+                    Outfit = "Adventurer",
+                    PoseId = 1
+                };
+                context.Characters.Add(defaultCharacter);
+                await context.SaveChangesAsync();
+                Console.WriteLine("Default character seeded.");
+            }
         }
     }
-}

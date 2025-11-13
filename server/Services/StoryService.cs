@@ -2,7 +2,6 @@ using DragonGame.Data;
 using DragonGame.Dtos;
 using DragonGame.Models;
 using DragonGame.Repositories;
-using System.Text.Json;
 
 namespace DragonGame.Services
 {
@@ -55,53 +54,59 @@ namespace DragonGame.Services
             return session;
         }
 
+        public async Task<PlayerSession?> GetSessionByIdAsync(int id)
+        {
+            return await _sessionRepo.GetByIdAsync(id);
+        }
+
+
 
         public async Task<object?> GetCurrentActAsync(int sessionId)
-    {
-        var session = await _sessionRepo.GetByIdAsync(sessionId);
-        if (session == null) return null;
-
-        // Load related Character entity
-        await _context.Entry(session).Reference(s => s.Character).LoadAsync();
-
-        var act = await _storyRepo.GetActWithChoicesAsync(session.StoryId, session.CurrentActNumber);
-        if (act == null) return null;
-
-        var character = session.Character;
-
-        return new
         {
-            session = new
-            {
-                session.SessionId,
-                session.CharacterName,
-                Character = new
-                {
-                    character.Hair,
-                    character.Face,
-                    character.Outfit,
-                    character.PoseId
-                },
-                session.StoryId,
-                session.CurrentActNumber,
-                session.IsCompleted
-            },
-            act = new
-            {
-                act.ActNumber,
-                act.Text,
-                choices = act.Choices.Select(c => new
-                {
-                    c.ChoiceId,
-                    c.Text,
-                    c.ActId,
-                    c.NextActNumber
-                }).ToList()
-            }
-        };
-    }
+            var session = await _sessionRepo.GetByIdAsync(sessionId);
+            if (session == null) return null;
 
-            public async Task<PlayerSession?> MoveToNextActAsync(int sessionId, int nextActNumber)
+            // Load related Character entity
+            await _context.Entry(session).Reference(s => s.Character).LoadAsync();
+
+            var act = await _storyRepo.GetActWithChoicesAsync(session.StoryId, session.CurrentActNumber);
+            if (act == null) return null;
+
+            var character = session.Character;
+
+            return new
+            {
+                session = new
+                {
+                    session.SessionId,
+                    session.CharacterName,
+                    Character = new
+                    {
+                        character.Hair,
+                        character.Face,
+                        character.Outfit,
+                        character.PoseId
+                    },
+                    session.StoryId,
+                    session.CurrentActNumber,
+                    session.IsCompleted
+                },
+                act = new
+                {
+                    act.ActNumber,
+                    act.Text,
+                    choices = act.Choices.Select(c => new
+                    {
+                        c.ChoiceId,
+                        c.Text,
+                        c.ActId,
+                        c.NextActNumber
+                    }).ToList()
+                }
+            };
+        }
+
+        public async Task<PlayerSession?> MoveToNextActAsync(int sessionId, int nextActNumber)
     {
         var session = await _sessionRepo.GetByIdAsync(sessionId);
         if (session == null) return null;

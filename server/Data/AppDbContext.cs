@@ -8,6 +8,16 @@ namespace DragonGame.Data
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options) { }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder
+                .UseSqlite("Data Source=App_Data/DragonGame.db")
+                .LogTo(Console.WriteLine, LogLevel.Information); //log SQL and EF operations
+        }
+    }
+
         public DbSet<PlayerSession> PlayerSessions { get; set; }
         public DbSet<Story> Stories { get; set; }
         public DbSet<Act> Acts { get; set; }

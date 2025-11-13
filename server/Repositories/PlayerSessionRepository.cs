@@ -5,30 +5,33 @@ using Microsoft.EntityFrameworkCore;
 
 public class PlayerSessionRepository : Repository<PlayerSession>, IPlayerSessionRepository
 {
-    private readonly AppDbContext _context;
 
     public PlayerSessionRepository(AppDbContext context) : base(context)
     {
     }
 
-    public async Task<PlayerSession?> GetByIdAsync(int id)
+    public override async Task<PlayerSession?> GetByIdAsync(int id)
         => await _context.PlayerSessions.FindAsync(id);
 
-    public async Task<IEnumerable<PlayerSession>> GetAllAsync()
+    public override async Task<IEnumerable<PlayerSession>> GetAllAsync()
         => await _context.PlayerSessions.ToListAsync();
 
-    public async Task AddAsync(PlayerSession session)
-        => await _context.PlayerSessions.AddAsync(session);
+    public override async Task AddAsync(PlayerSession session)
+    {
+        Console.WriteLine($"_context is null? {_context == null}");
+        await _context.PlayerSessions.AddAsync(session);
+    }
 
-    public async Task UpdateAsync(PlayerSession session)
+
+    public override async Task UpdateAsync(PlayerSession session)
         => _context.PlayerSessions.Update(session);
 
-    public async Task SaveChangesAsync()
+    public override async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();
     }
 
-    public async Task DeleteAsync(int id)
+    public override async Task DeleteAsync(int id)
     {
         var entity = await _context.PlayerSessions.FindAsync(id);
         if (entity != null)
@@ -51,12 +54,12 @@ public class PlayerSessionRepository : Repository<PlayerSession>, IPlayerSession
         throw new NotImplementedException();
     }
 
-    public void Update(PlayerSession entity)
+    public override void Update(PlayerSession entity)
     {
         throw new NotImplementedException();
     }
 
-    public void Delete(PlayerSession entity)
+    public override void Delete(PlayerSession entity)
     {
         throw new NotImplementedException();
     }

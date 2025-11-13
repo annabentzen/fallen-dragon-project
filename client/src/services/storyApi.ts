@@ -10,7 +10,7 @@ const API_BASE = "http://localhost:5151/api/story";
 // -----------------------------------------
 // Interfaces
 // -----------------------------------------
-export interface CharacterDto {
+export interface Character {
   hair?: string;
   face?: string;
   outfit?: string;
@@ -40,16 +40,23 @@ export function safeParseCharacterDesign(input: any) {
 // -----------------------------------------
 export const createSession = async (data: {
   characterName: string;
-  character: CharacterDto;
+  character: Character;
   storyId: number;
 }) => {
-  const response = await axios.post(
-    `${API_BASE}/start`,
-    data,
-    { headers: { "Content-Type": "application/json" } }
-  );
-  return response.data;
+  console.log("[storyApi] Creating new session:", data);
+  try {
+    const response = await axios.post(`${API_BASE}/start`, data, {
+      headers: { "Content-Type": "application/json" },
+    });
+    console.log("[storyApi] Session created:", response.data);
+    return response.data;
+  } catch (err: any) {
+    console.error("[storyApi] Error creating session:", err.response?.data || err.message);
+    throw err;
+  }
 };
+
+
 
 
 
@@ -59,14 +66,16 @@ export const createSession = async (data: {
 export const getSession = async (
   sessionId: number
 ): Promise<PlayerSessionFromApi> => {
+  console.log(`[storyApi] Fetching session ${sessionId}`);
   const response = await axios.get(`${API_BASE}/session/${sessionId}`);
   const data = response.data;
-
+  console.log("[storyApi] Received session data:", data);
   return {
     ...data,
     characterDesign: safeParseCharacterDesign(data.characterDesign),
   };
 };
+
 
 // -----------------------------------------
 // Fetch an act by number
@@ -90,21 +99,22 @@ export const getCurrentAct = async (
   sessionId: number
 ): Promise<{ session: PlayerSessionFromApi; act: Act } | null> => {
   try {
+    console.log(`[storyApi] Fetching current act for session ${sessionId}`);
     const res = await axios.get(`${API_BASE}/currentAct/${sessionId}`);
     let data = res.data;
+    console.log("[storyApi] Raw getCurrentAct data:", data);
 
-    console.log("Raw getCurrentAct data:", data);
 
     if (!data) return null;
 
-    // ✅ FIX ensure session.characterDesign parsed
+    //ensure session.characterDesign parsed
     if (data.session) {
       data.session.characterDesign = safeParseCharacterDesign(
         data.session.characterDesignJson || data.session.characterDesign
       );
     }
 
-    // ✅ FIX unwrap choices
+    //unwrap choices
     if (data.act && data.act.choices && "$values" in data.act.choices) {
       data.act.choices = data.act.choices.$values;
     }
@@ -115,6 +125,7 @@ export const getCurrentAct = async (
     return null;
   }
 };
+
 
 // -----------------------------------------
 // Fetch choices for an act
