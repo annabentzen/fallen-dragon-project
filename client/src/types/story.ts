@@ -37,10 +37,14 @@ export interface CharacterPose {
 export interface PlayerSessionFromApi {
   sessionId: number;
   characterName: string;
-  characterDesign: CharacterDesign | string;   // sometimes the backend returns this as an object, sometimes as a JSON string --> thus union typed
-  characterDesignJson?: string;   // some older endpoints may still send this separately
+  characterId: number;
+  hair?: string;
+  face?: string;
+  outfit?: string;
+  poseId?: number;
   storyId: number;
   currentActNumber: number;
   isCompleted: boolean;
-  poses?: CharacterPose[]; // optional list of available poses for the session
 }
+
+

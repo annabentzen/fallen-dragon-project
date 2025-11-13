@@ -1,6 +1,8 @@
+using DragonGame.Data;
 using DragonGame.Dtos;
 using DragonGame.Models;
 using DragonGame.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace DragonGame.Services
 {
@@ -9,16 +11,70 @@ namespace DragonGame.Services
         private readonly IPlayerSessionRepository _sessionRepo;
         private readonly ICharacterRepository _characterRepo;
 
-        public PlayerSessionService(IPlayerSessionRepository sessionRepo)
+        public PlayerSessionService(
+            IPlayerSessionRepository sessionRepo,
+            ICharacterRepository characterRepo)
         {
-            _sessionRepo = sessionRepo;
+            _sessionRepo = sessionRepo ?? throw new ArgumentNullException(nameof(sessionRepo));
+            _characterRepo = characterRepo ?? throw new ArgumentNullException(nameof(characterRepo));
         }
 
+
+        // ---------- GET SESSION DTO WITH CHARACTER DESIGN ----------
+        public async Task<PlayerSessionDto?> GetSessionDtoAsync(int sessionId)
+        {
+            var session = await _sessionRepo.Query()
+                .Include(ps => ps.Character)
+                .FirstOrDefaultAsync(ps => ps.SessionId == sessionId);
+
+            if (session == null) return null;
+
+            return new PlayerSessionDto
+            {
+                SessionId = session.SessionId,
+                CharacterName = session.CharacterName,
+                CharacterId = session.CharacterId,
+                Hair = session.Character.Hair,
+                Face = session.Character.Face,
+                Outfit = session.Character.Outfit,
+                PoseId = session.Character.PoseId,
+                StoryId = session.StoryId,
+                CurrentActNumber = session.CurrentActNumber,
+                IsCompleted = session.IsCompleted
+            };
+        }
+
+
+        // ---------- UPDATE CHARACTER DESIGN ----------
+       public async Task UpdateCharacterAsync(int sessionId, Character updatedCharacter)
+        {
+            var session = await _sessionRepo.GetByIdAsync(sessionId);
+            if (session == null) throw new Exception("Session not found");
+
+            var character = await _characterRepo.GetByIdAsync(session.CharacterId);
+            if (character == null) throw new Exception("Character not found");
+
+            // Update character fields
+            character.Hair = updatedCharacter.Hair;
+            character.Face = updatedCharacter.Face;
+            character.Outfit = updatedCharacter.Outfit;
+            character.PoseId = updatedCharacter.PoseId;
+
+            await _characterRepo.SaveChangesAsync();
+        }
+
+
+
+
+        // ---------- GET SESSION ENTITY ----------
         public async Task<PlayerSession?> GetSessionAsync(int sessionId)
         {
-            return await _sessionRepo.GetByIdAsync(sessionId);
+            return await _sessionRepo.Query()
+                .Include(ps => ps.Character)
+                .FirstOrDefaultAsync(ps => ps.SessionId == sessionId);
         }
 
+        // ---------- CREATE SESSION WITH CHARACTER ----------
         public async Task<PlayerSession> CreateSessionAsync(CreateSessionDto dto)
         {
             // 1. Create character
@@ -37,31 +93,31 @@ namespace DragonGame.Services
             {
                 CharacterId = character.Id,
                 Character = character,
+                CharacterName = dto.CharacterName ?? "Hero",
                 StoryId = dto.StoryId,
                 CurrentActNumber = 1,
                 IsCompleted = false
             };
-
             await _sessionRepo.AddAsync(session);
             await _sessionRepo.SaveChangesAsync();
 
             return session;
         }
 
-
-        public Task<PlayerSession?> GetByIdAsync(int id)
+        // ---------- ADDITIONAL REPOSITORY METHODS ----------
+        public async Task<PlayerSession?> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            return await _sessionRepo.GetByIdAsync(id);
         }
 
-        public Task AddAsync(PlayerSession session)
+        public async Task AddAsync(PlayerSession session)
         {
-            throw new NotImplementedException();
+            await _sessionRepo.AddAsync(session);
         }
 
-        public Task SaveChangesAsync()
+        public async Task SaveChangesAsync()
         {
-            throw new NotImplementedException();
+            await _sessionRepo.SaveChangesAsync();
         }
     }
 }

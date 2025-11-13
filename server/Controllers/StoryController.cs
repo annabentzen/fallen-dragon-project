@@ -90,19 +90,33 @@ namespace DragonGame.Controllers
         }
 
         [HttpPut("updateCharacter/{sessionId}")]
-        public async Task<IActionResult> UpdateCharacterDesign(int sessionId, [FromBody] Character newDesign)
+        public async Task<IActionResult> UpdateCharacter(int sessionId, [FromBody] UpdateCharacterDto dto)
         {
-            Console.WriteLine($"[StoryController] UpdateCharacterDesign called for session {sessionId}");
-            if (newDesign == null) return BadRequest("Character design data is required.");
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            var updated = await _storyService.UpdateCharacterAsync(sessionId, newDesign);
-            if (updated == null) return NotFound($"Session {sessionId} not found.");
-
-            return Ok(new
+            // Map DTO to Character entity
+            var character = new Character
             {
-                message = "Character design updated successfully.",
-                updatedDesign = newDesign
-            });
+                Hair = dto.Hair,
+                Face = dto.Face,
+                Outfit = dto.Outfit,
+                PoseId = dto.PoseId
+            };
+
+            try
+            {
+                await _storyService.UpdateCharacterAsync(sessionId, character);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
+
+
+
+
     }
 }

@@ -63,4 +63,7 @@ public class PlayerSessionRepository : Repository<PlayerSession>, IPlayerSession
     {
         throw new NotImplementedException();
     }
+
+    public IQueryable<PlayerSession> Query()
+        => _context.PlayerSessions.AsQueryable();
 }

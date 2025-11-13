@@ -74,19 +74,22 @@ namespace DragonGame.Services
 
             var character = session.Character;
 
+            // Build the response
             return new
             {
                 session = new
                 {
                     session.SessionId,
                     session.CharacterName,
-                    Character = new
-                    {
-                        character.Hair,
-                        character.Face,
-                        character.Outfit,
-                        character.PoseId
-                    },
+                    Character = character != null
+                        ? new
+                        {
+                            character.Hair,
+                            character.Face,
+                            character.Outfit,
+                            character.PoseId
+                        }
+                        : null,
                     session.StoryId,
                     session.CurrentActNumber,
                     session.IsCompleted
@@ -105,6 +108,7 @@ namespace DragonGame.Services
                 }
             };
         }
+
 
         public async Task<PlayerSession?> MoveToNextActAsync(int sessionId, int nextActNumber)
     {

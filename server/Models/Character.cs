@@ -19,6 +19,6 @@ namespace DragonGame.Models
         public CharacterPose? Pose { get; set; }
 
         // Navigation property for sessions
-        public ICollection<PlayerSession> Sessions { get; set; } = new List<PlayerSession>();
+        public ICollection<PlayerSession> PlayerSessions { get; set; } = new List<PlayerSession>();
     }
 }

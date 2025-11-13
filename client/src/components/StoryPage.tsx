@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import EndingScreen from "./EndingScreen";
-import { getCurrentAct, getSession } from "../services/storyApi";
+import { getCurrentAct, getSession, updateCharacterDesign } from "../services/storyApi";
+import { getAllPoses } from "../services/characterApi";
 import {
   Act,
   Choice,
@@ -8,12 +9,9 @@ import {
   CharacterDesign,
   CharacterPose,
 } from "../types/story";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { getAllPoses, saveCharacterToLocal } from "../services/characterApi";
 import CharacterBuilder from "./CharacterBuilder";
-import { updateCharacterDesign } from "../services/storyApi";
-
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 interface StoryPageProps {
   sessionId: number;
@@ -21,25 +19,9 @@ interface StoryPageProps {
 
 // ---------- HELPER FUNCTION ----------
 function safeParseCharacterDesign(
-  data: string | CharacterDesign | null | undefined
+  data: CharacterDesign | null | undefined
 ): CharacterDesign {
   if (!data) return {};
-
-  if (typeof data === "string") {
-    try {
-      const parsed = JSON.parse(data);
-      return {
-        hair: parsed.hair ?? undefined,
-        face: parsed.face ?? undefined,
-        outfit: parsed.outfit ?? undefined,
-        poseId: parsed.poseId ?? undefined,
-      };
-    } catch {
-      console.warn("Failed to parse characterDesign JSON:", data);
-      return {};
-    }
-  }
-
   return {
     hair: data.hair ?? undefined,
     face: data.face ?? undefined,
@@ -53,8 +35,7 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
   const [choices, setChoices] = useState<Choice[]>([]);
   const [loading, setLoading] = useState(true);
   const [storyEnded, setStoryEnded] = useState(false);
-  const [playerSession, setPlayerSession] =
-    useState<PlayerSessionFromApi | null>(null);
+  const [playerSession, setPlayerSession] = useState<PlayerSessionFromApi | null>(null);
   const [characterDesign, setCharacterDesign] = useState<CharacterDesign>({});
   const [poses, setPoses] = useState<CharacterPose[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -64,27 +45,23 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
 
   // ---------- RESTART ----------
   const handleRestart = () => {
-    console.log("Restart clicked, navigating to home");
     navigate("/");
   };
 
   // ---------- LOAD SESSION ----------
   useEffect(() => {
     const loadSession = async () => {
-      console.log("Loading session", sessionId);
       try {
         const sessionData = await getSession(sessionId);
-        if (!sessionData) {
-          setErrorMsg(`Session ${sessionId} not found.`);
-          return;
-        }
-
-        const parsedDesign = safeParseCharacterDesign(sessionData.characterDesign);
         setPlayerSession(sessionData);
-        setCharacterDesign(parsedDesign);
-        console.log("Parsed character design (session):", parsedDesign);
-      } catch (error) {
-        console.error("Error loading session:", error);
+        setCharacterDesign({
+          hair: sessionData.hair,
+          face: sessionData.face,
+          outfit: sessionData.outfit,
+          poseId: sessionData.poseId,
+        });
+      } catch (err) {
+        console.error("Failed to load session", err);
         setErrorMsg("Failed to load session data.");
       }
     };
@@ -93,10 +70,8 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
 
   // ---------- LOAD CURRENT ACT ----------
   const loadAct = async () => {
-    console.log("Loading current act for session", sessionId);
     setLoading(true);
     setErrorMsg(null);
-
     try {
       const result = await getCurrentAct(sessionId);
       if (!result || !result.act) {
@@ -112,7 +87,12 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
       setStoryEnded(session?.isCompleted ?? false);
 
       if (session) {
-        const parsedDesign = safeParseCharacterDesign(session.characterDesign);
+        const parsedDesign = safeParseCharacterDesign({
+          hair: session.hair,
+          face: session.face,
+          outfit: session.outfit,
+          poseId: session.poseId,
+        });
         setPlayerSession(session);
         setCharacterDesign(parsedDesign);
       }
@@ -164,9 +144,7 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
   if (errorMsg) return <div className="error">{errorMsg}</div>;
   if (!currentAct) return <div>No act data available.</div>;
 
-  const selectedPose = poses.find(
-    (p) => Number(p.id) === Number(characterDesign.poseId)
-  );
+  const selectedPose = poses.find((p) => Number(p.id) === Number(characterDesign.poseId));
 
   return (
     <div
@@ -252,59 +230,34 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
                 <img
                   src="/images/base.png"
                   alt="base"
-                  style={{
-                    position: "absolute",
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "contain",
-                  }}
+                  style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
                 />
                 {characterDesign.hair && (
                   <img
                     src={`/images/hair/${characterDesign.hair}`}
                     alt="hair"
-                    style={{
-                      position: "absolute",
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "contain",
-                    }}
+                    style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
                   />
                 )}
                 {characterDesign.face && (
                   <img
                     src={`/images/faces/${characterDesign.face}`}
                     alt="face"
-                    style={{
-                      position: "absolute",
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "contain",
-                    }}
+                    style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
                   />
                 )}
                 {characterDesign.outfit && (
                   <img
                     src={`/images/clothes/${characterDesign.outfit}`}
                     alt="clothing"
-                    style={{
-                      position: "absolute",
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "contain",
-                    }}
+                    style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
                   />
                 )}
                 {selectedPose && (
                   <img
                     src={`/images/poses/${selectedPose.imageUrl}`}
                     alt="pose"
-                    style={{
-                      position: "absolute",
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "contain",
-                    }}
+                    style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
                   />
                 )}
               </div>
@@ -344,20 +297,11 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
                   outfit={characterDesign.outfit || "clothing1.png"}
                   poseId={characterDesign.poseId ?? null}
                   poses={poses}
-                  onHairChange={(hair) =>
-                    setCharacterDesign((prev) => ({ ...prev, hair }))
-                  }
-                  onFaceChange={(face) =>
-                    setCharacterDesign((prev) => ({ ...prev, face }))
-                  }
-                  onOutfitChange={(outfit) =>
-                    setCharacterDesign((prev) => ({ ...prev, outfit }))
-                  }
+                  onHairChange={(hair) => setCharacterDesign((prev) => ({ ...prev, hair }))}
+                  onFaceChange={(face) => setCharacterDesign((prev) => ({ ...prev, face }))}
+                  onOutfitChange={(outfit) => setCharacterDesign((prev) => ({ ...prev, outfit }))}
                   onPoseChange={(poseId) =>
-                    setCharacterDesign((prev) => ({
-                      ...prev,
-                      poseId: poseId ?? undefined,
-                    }))
+                    setCharacterDesign((prev) => ({ ...prev, poseId: poseId ?? undefined }))
                   }
                 />
                 <button
@@ -366,6 +310,12 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
                     try {
                       await updateCharacterDesign(sessionId, characterDesign);
                       console.log("Character design saved.");
+                      // Update session state after save
+                      setPlayerSession((prev) =>
+                        prev
+                          ? { ...prev, ...characterDesign }
+                          : prev
+                      );
                     } catch (err) {
                       console.error("Failed to save character:", err);
                     }
