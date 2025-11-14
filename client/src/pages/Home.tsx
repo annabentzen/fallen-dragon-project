@@ -108,8 +108,8 @@ export default function Home() {
 
       <div className={styles.introSection}>
         <p className={styles.introText}>
-          A dragon has fallen and landed in your village. Hero, will you save
-          it? Your choices will determine its fate.
+          A dragon has fallen and landed in your village. Hero, will you use your special powers to save
+          it? The village is depending on you. Your choices will determine its fate.
         </p>
         <p className={styles.introText}>
           <span className={styles.introHighlight}>
@@ -121,10 +121,10 @@ export default function Home() {
       {error && <div className={styles.errorMessage}>{error}</div>}
 
       <div className={styles.heroNameSection}>
-        <label className={styles.label}>Hero Name:</label>
+        <label className={styles.label}>Hero name:</label>
         <input
           type="text"
-          placeholder="Enter your hero's name"
+          placeholder="Enter your hero-name"
           value={characterName}
           onChange={(e) => setCharacterName(e.target.value)}
           className={styles.input}

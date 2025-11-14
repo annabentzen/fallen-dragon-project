@@ -1,4 +1,5 @@
 import { CharacterPose } from '../services/characterApi';
+import styles from '../styles/CharacterBuilder.module.css';
 
 interface CharacterBuilderProps {
   hair: string;
@@ -47,74 +48,120 @@ export default function CharacterBuilder({
   console.log('Rendering CharacterBuilder, poses:', poses, 'selectedPose:', selectedPose);
 
   return (
-    <div style={{ padding: '20px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: '#fafafa' }}>
-      <h3 style={{ marginTop: 0 }}>Customize Your Character</h3>
+    <div className={styles.container}>
+      <h3 className={styles.header}>Customize Your Character</h3>
 
       {/* Character preview */}
-      <div style={{ width: '200px', height: '200px', position: 'relative', margin: '20px auto', border: '2px solid #333', backgroundColor: '#fff' }}>
+      <div className={styles.previewContainer}>
   {/* Base image only shows if no pose is selected */}
   {!poseId && (
-    <img
-      src="/images/base.png"
-      alt="base"
-      style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }}
-    />
+    <img src="/images/base.png" alt="base" className={styles.characterImage} />
   )}
 
   {/* Always show hair, face, and outfit */}
-  <img src={`/images/hair/${hair}`} alt="hair" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} />
-  <img src={`/images/faces/${face}`} alt="face" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} />
-  <img src={`/images/clothes/${outfit}`} alt="clothing" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} />
+   <img 
+          src={`/images/hair/${hair}`} 
+          alt="hair" 
+          className={styles.characterImage}
+        />
+        <img 
+          src={`/images/faces/${face}`} 
+          alt="face" 
+          className={styles.characterImage}
+        />
+        <img 
+          src={`/images/clothes/${outfit}`} 
+          alt="clothing" 
+          className={styles.characterImage}
+        />
+
 
   {/* Pose image overlays everything if selected */}
-  {poseId && (
-    <img
-      src={`/images/poses/${poses.find(p => p.id === poseId)?.imageUrl}`}
-      alt="pose"
-      style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }}
-    />
-  )}
-</div>
+      {poseId && selectedPose && (
+          <img
+            src={`/images/poses/${selectedPose.imageUrl}`}
+            alt="pose"
+            className={styles.characterImage}
+          />
+        )}
+      </div>
 
 
 
       {/* Hair selector */}
-      <div style={{ marginBottom: '15px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <label style={{ fontWeight: 'bold', minWidth: '80px' }}>Hair:</label>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <button onClick={() => cycleOption(hair, hairOptions, onHairChange, 'prev')} style={{ padding: '5px 12px', cursor: 'pointer' }}>◀</button>
-          <span style={{ minWidth: '100px', textAlign: 'center' }}>{hair}</span>
-          <button onClick={() => cycleOption(hair, hairOptions, onHairChange, 'next')} style={{ padding: '5px 12px', cursor: 'pointer' }}>▶</button>
+         <div className={styles.selectorRow}>
+        <label className={`${styles.label} ${styles.labelHair}`}>Hair:</label>
+        <div className={styles.controls}>
+          <button 
+            onClick={() => cycleOption(hair, hairOptions, onHairChange, 'prev')} 
+            className={styles.arrowButton}
+            aria-label="Previous hair"
+          >
+            ◀
+          </button>
+          <span className={styles.currentValue}>{hair}</span>
+          <button 
+            onClick={() => cycleOption(hair, hairOptions, onHairChange, 'next')} 
+            className={styles.arrowButton}
+            aria-label="Next hair"
+          >
+            ▶
+          </button>
         </div>
       </div>
 
       {/* Face selector */}
-      <div style={{ marginBottom: '15px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <label style={{ fontWeight: 'bold', minWidth: '80px' }}>Face:</label>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <button onClick={() => cycleOption(face, faceOptions, onFaceChange, 'prev')} style={{ padding: '5px 12px', cursor: 'pointer' }}>◀</button>
-          <span style={{ minWidth: '100px', textAlign: 'center' }}>{face}</span>
-          <button onClick={() => cycleOption(face, faceOptions, onFaceChange, 'next')} style={{ padding: '5px 12px', cursor: 'pointer' }}>▶</button>
+         <div className={styles.selectorRow}>
+        <label className={`${styles.label} ${styles.labelFace}`}>Face:</label>
+        <div className={styles.controls}>
+          <button 
+            onClick={() => cycleOption(face, faceOptions, onFaceChange, 'prev')} 
+            className={styles.arrowButton}
+            aria-label="Previous face"
+          >
+            ◀
+          </button>
+          <span className={styles.currentValue}>{face}</span>
+          <button 
+            onClick={() => cycleOption(face, faceOptions, onFaceChange, 'next')} 
+            className={styles.arrowButton}
+            aria-label="Next face"
+          >
+            ▶
+          </button>
         </div>
       </div>
 
       {/* Clothing selector */}
-      <div style={{ marginBottom: '15px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <label style={{ fontWeight: 'bold', minWidth: '80px' }}>Outfit:</label>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <button onClick={() => cycleOption(outfit, outfitOptions, onOutfitChange, 'prev')} style={{ padding: '5px 12px', cursor: 'pointer' }}>◀</button>
-          <span style={{ minWidth: '100px', textAlign: 'center' }}>{outfit}</span>
-          <button onClick={() => cycleOption(outfit, outfitOptions, onOutfitChange, 'next')} style={{ padding: '5px 12px', cursor: 'pointer' }}>▶</button>
+        <div className={styles.selectorRow}>
+        <label className={`${styles.label} ${styles.labelOutfit}`}>Outfit:</label>
+        <div className={styles.controls}>
+          <button 
+            onClick={() => cycleOption(outfit, outfitOptions, onOutfitChange, 'prev')} 
+            className={styles.arrowButton}
+            aria-label="Previous outfit"
+          >
+            ◀
+          </button>
+          <span className={styles.currentValue}>{outfit}</span>
+          <button 
+            onClick={() => cycleOption(outfit, outfitOptions, onOutfitChange, 'next')} 
+            className={styles.arrowButton}
+            aria-label="Next outfit"
+          >
+            ▶
+          </button>
         </div>
       </div>
 
       {/* Pose selector */}
-      <div style={{ marginBottom: '15px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <label style={{ fontWeight: 'bold', minWidth: '80px' }}>Pose:</label>
+     <div className={styles.selectorRow}>
+        <label className={`${styles.label} ${styles.labelPose}`}>Pose:</label>
         <select
           value={poseId || ''}
           onChange={(e) => onPoseChange(e.target.value ? Number(e.target.value) : null)}
-          style={{ flex: 1, marginLeft: '10px', padding: '8px', fontSize: '14px', cursor: 'pointer' }}
+          className={styles.select}
+          aria-label="Select character pose"
         >
           <option value="">Select a pose</option>
           {Array.isArray(poses) && poses.map(pose => (
