@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Act } from "../types/story";
-import { getAct, makeChoice } from "../services/storyApi";
+import { getAct, getChoicesForAct, getCurrentAct, moveToNextAct } from "../services/storyApi";
 import ChoiceButton from "./ChoiceButton";
 import "../styles/story.css";
 
@@ -23,15 +23,22 @@ const StoryView: React.FC<StoryViewProps> = ({ onEnd }) => {
   }, [actNumber]);
 
   const handleChoice = async (nextActNumber: number) => {
-    const nextAct = await makeChoice(storyId, nextActNumber);
-    setCurrentAct(nextAct);
-    setActNumber(nextAct.actNumber);
+  try {
+    // 1. Tell backend to move to next act
+    await moveToNextAct(sessionId, nextActNumber);
 
-    // Example of triggering end (optional)
-    if (nextAct.isEnding) {
-      onEnd();
-    }
-  };
+    // 2. Fetch updated act from backend
+    const updatedAct = await getCurrentAct(sessionId);
+
+    // 3. Update state
+    setCurrentAct(updatedAct.act);
+    setActNumber(updatedAct.act.ActNumber);
+  } catch (error) {
+    console.error("Failed to move to next act:", error);
+  }
+};
+
+
 
   if (!currentAct) return <p>Loading story...</p>;
 

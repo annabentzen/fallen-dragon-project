@@ -2,6 +2,7 @@ using DragonGame.Data;
 using DragonGame.Dtos;
 using DragonGame.Models;
 using DragonGame.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace DragonGame.Services
 {
@@ -111,19 +112,29 @@ namespace DragonGame.Services
 
 
         public async Task<PlayerSession?> MoveToNextActAsync(int sessionId, int nextActNumber)
+        {
+            var session = await _sessionRepo.GetByIdAsync(sessionId);
+            if (session == null) return null;
+
+            if (nextActNumber <= 0)
+                session.IsCompleted = true;
+            else
+                session.CurrentActNumber = nextActNumber;
+
+            await _sessionRepo.UpdateAsync(session);
+            await _sessionRepo.SaveChangesAsync();
+            return session;
+        }
+    
+    public async Task<Character?> GetCharacterForSessionAsync(int sessionId)
     {
-        var session = await _sessionRepo.GetByIdAsync(sessionId);
-        if (session == null) return null;
+        var session = await _context.PlayerSessions
+            .Include(s => s.Character)
+            .FirstOrDefaultAsync(s => s.SessionId == sessionId);
 
-        if (nextActNumber <= 0)
-            session.IsCompleted = true;
-        else
-            session.CurrentActNumber = nextActNumber;
-
-        await _sessionRepo.UpdateAsync(session);
-        await _sessionRepo.SaveChangesAsync();
-        return session;
+        return session?.Character;
     }
+
 
 
         public async Task<PlayerSession?> UpdateCharacterAsync(int sessionId, Character newDesign)
@@ -147,6 +158,9 @@ namespace DragonGame.Services
         return session;
     }
 
-    
+        Task<PlayerSession> IStoryService.GetCharacterForSessionAsync(int sessionId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

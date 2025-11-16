@@ -13,5 +13,6 @@ namespace DragonGame.Models
         public Story Story { get; set; } = null!;
 
         public List<Choice> Choices { get; set; } = new();
+    
     }
 }

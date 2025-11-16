@@ -9,6 +9,8 @@ namespace DragonGame.Services
         Task<PlayerSession?> GetSessionByIdAsync(int id);
         Task<object?> GetCurrentActAsync(int sessionId);
         Task<PlayerSession?> MoveToNextActAsync(int sessionId, int nextActNumber);
+        Task<PlayerSession> GetCharacterForSessionAsync(int sessionId);
         Task<PlayerSession?> UpdateCharacterAsync(int sessionId, Character newDesign);
+
     }
 }

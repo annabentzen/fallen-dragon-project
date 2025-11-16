@@ -104,6 +104,22 @@ namespace DragonGame.Services
             return session;
         }
 
+
+        // ---------- GET CHARACTER FOR SESSION ----------
+        public async Task<Character> GetCharacterForSessionAsync(int sessionId)
+        {
+            var session = await _sessionRepo.GetByIdAsync(sessionId);
+            if (session == null)
+                throw new Exception($"No session found with id {sessionId}");
+
+            var character = await _characterRepo.GetByIdAsync(session.CharacterId);
+            if (character == null)
+                throw new Exception($"No character found with id {session.CharacterId}");
+
+            return character;
+        }
+
+
         // ---------- ADDITIONAL REPOSITORY METHODS ----------
         public async Task<PlayerSession?> GetByIdAsync(int id)
         {

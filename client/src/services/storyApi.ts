@@ -1,156 +1,64 @@
-// src/services/storyApi.ts
+
 import axios from "axios";
-import { Act, PlayerSessionFromApi } from "../types/story";
+import { Act, PlayerSessionFromApi, Choice } from "../types/story";
+import { Character } from "../types/character";
 
-// ✅ REMOVED: circular import from StoryPage
-// import parseCharacterDesign from "../components/StoryPage";
-
-const API_BASE = "http://localhost:5151/api/story";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5151/api/story";
 
 // -----------------------------------------
-// Interfaces
-// -----------------------------------------
-export interface Character {
-  hair?: string;
-  face?: string;
-  outfit?: string;
-  poseId?: number;
-}
-
-
-// Parse a character design string or object safely
-export function safeParseCharacterDesign(input: any) {
-  if (!input) return {};
-  if (typeof input === "string") {
-    try {
-      const parsed = JSON.parse(input);
-      return parsed && typeof parsed === "object" ? parsed : {};
-    } catch {
-      console.warn("Failed to parse character design JSON:", input);
-      return {};
-    }
-  }
-  if (typeof input === "object") return input;
-  return {};
-}
-
-
-// -----------------------------------------
-// Create new story session
+// Sessions & Acts
 // -----------------------------------------
 export const createSession = async (data: {
   characterName: string;
-  character: Character;
+  character: Character; // now using entity
   storyId: number;
-}) => {
-  console.log("[storyApi] Creating new session:", data);
-  try {
-    const response = await axios.post(`${API_BASE}/start`, data, {
-      headers: { "Content-Type": "application/json" },
-    });
-    console.log("[storyApi] Session created:", response.data);
-    return response.data;
-  } catch (err: any) {
-    console.error("[storyApi] Error creating session:", err.response?.data || err.message);
-    throw err;
-  }
+}): Promise<PlayerSessionFromApi> => {
+  const res = await axios.post(`${API_BASE}/start`, data);
+  return res.data; // res.data.character is full Character object
 };
 
-
-
-
-
-// -----------------------------------------
-// Fetch existing session by ID
-// -----------------------------------------
-export const getSession = async (
-  sessionId: number
-): Promise<PlayerSessionFromApi> => {
-  console.log(`[storyApi] Fetching session ${sessionId}`);
-  const response = await axios.get(`${API_BASE}/session/${sessionId}`);
-  const data = response.data;
-  console.log("[storyApi] Received session data:", data);
-  return {
-    ...data,
-    characterDesign: safeParseCharacterDesign(data.characterDesign),
-  };
-};
-
-
-// -----------------------------------------
-// Fetch an act by number
-// -----------------------------------------
-export const getAct = async (actNumber: number): Promise<Act> => {
-  const response = await axios.get(`${API_BASE}/act/${actNumber}`);
-  let act = response.data;
-
-  // ✅ FIX unwrap array safely
-  if (act.choices && "$values" in act.choices) {
-    act.choices = act.choices.$values;
-  }
-
-  return act;
+export const getSession = async (sessionId: number): Promise<PlayerSessionFromApi> => {
+  const res = await axios.get(`${API_BASE}/session/${sessionId}`);
+  return res.data; // res.data.character is Character entity
 };
 
 // -----------------------------------------
-// Fetch current act for a session
+// Character for a session
+// -----------------------------------------
+export const getCharacterForSession = async (sessionId: number): Promise<Character> => {
+  const res = await axios.get<Character>(`${API_BASE}/${sessionId}/character`);
+  return res.data; // directly mapped from Character entity
+};
+
+export const updateCharacter = async (
+  sessionId: number,
+  character: Character
+) => {
+  const res = await axios.put(`${API_BASE}/updateCharacter/${sessionId}`, character);
+  return res.data;
+};
+
+// -----------------------------------------
+// Acts / Choices
 // -----------------------------------------
 export const getCurrentAct = async (
   sessionId: number
 ): Promise<{ session: PlayerSessionFromApi; act: Act } | null> => {
   try {
-    console.log(`[storyApi] Fetching current act for session ${sessionId}`);
     const res = await axios.get(`${API_BASE}/currentAct/${sessionId}`);
-    let data = res.data;
-    console.log("[storyApi] Raw getCurrentAct data:", data);
-
-
-    if (!data) return null;
-
-    //ensure session.characterDesign parsed
-    if (data.session) {
-      data.session.characterDesign = safeParseCharacterDesign(
-        data.session.characterDesignJson || data.session.characterDesign
-      );
-    }
-
-    //unwrap choices
-    if (data.act && data.act.choices && "$values" in data.act.choices) {
-      data.act.choices = data.act.choices.$values;
-    }
-
-    return data;
+    return res.data; // session.character is Character entity
   } catch (error) {
     console.error("Error fetching current act:", error);
     return null;
   }
 };
 
-
-// -----------------------------------------
-// Fetch choices for an act
-// -----------------------------------------
-export const getChoicesForAct = async (actId: number) => {
-  const response = await axios.get(`${API_BASE}/choices/${actId}`);
-  return response.data;
+export const moveToNextAct = async (sessionId: number, nextActNumber: number) => {
+  const res = await axios.post(`${API_BASE}/nextAct/${sessionId}`, { nextActNumber });
+  return res.data;
 };
 
-
-// -----------------------------------------
-// Fetch updated character design
-// -----------------------------------------
-export async function updateCharacterDesign(sessionId: number, characterDesign: any) {
-  const response = await fetch(`http://localhost:5151/api/story/updateCharacter/${sessionId}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(characterDesign),
-  });
-
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Failed to update character design: ${text}`);
-  }
-
-  return response.json();
-}
-
+export const getChoicesForAct = async (actId: number): Promise<Choice[]> => {
+  const res = await axios.get(`${API_BASE}/choices/${actId}`);
+  return res.data;
+};

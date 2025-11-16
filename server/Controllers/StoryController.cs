@@ -89,6 +89,25 @@ namespace DragonGame.Controllers
             return Ok(session);
         }
 
+
+        [HttpGet("{sessionId}/character")]
+        public async Task<IActionResult> GetCharacter(int sessionId)
+        {
+            try
+            {
+                var character = await _storyService.GetCharacterForSessionAsync(sessionId);
+                return Ok(character);
+            }
+            catch (Exception e)
+            {
+                return NotFound(e.Message);
+            }
+        }
+
+
+
+
+
         [HttpPut("updateCharacter/{sessionId}")]
         public async Task<IActionResult> UpdateCharacter(int sessionId, [FromBody] UpdateCharacterDto dto)
         {
