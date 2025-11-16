@@ -65,10 +65,13 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod();
     });
 
-    options.AddPolicy("AllowLocalhost", policy =>
-        policy.WithOrigins("http://localhost:5173")
-              .AllowAnyMethod()
-              .AllowAnyHeader());
+    options.AddPolicy("AllowReactDev",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5173") // React dev server
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
 });
 
 // ---------------------- Build app ----------------------

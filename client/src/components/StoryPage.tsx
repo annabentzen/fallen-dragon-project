@@ -1,16 +1,18 @@
+// src/components/StoryPage.tsx
 import React, { useEffect, useState } from "react";
 import EndingScreen from "./EndingScreen";
-import {
-  getCurrentAct,
-  getSession,
-  getCharacterForSession,
-  updateCharacter,
-  Character
-} from "../services/storyApi";
-import { getAllPoses, CharacterPose } from "../services/characterApi";
-import { Act, Choice, PlayerSessionFromApi } from "../types/story";
 import CharacterBuilder from "./CharacterBuilder";
 import { useNavigate } from "react-router-dom";
+
+import {
+  getCharacterForSession,
+  getCurrentAct,
+  getSession,
+  updateCharacter,
+} from "../services/storyApi";
+import { getAllPoses } from "../services/characterApi";
+import { Act, Choice, PlayerSessionFromApi } from "../types/story";
+import { Character, CharacterPose } from "../types/character";
 
 interface StoryPageProps {
   sessionId: number;
@@ -29,14 +31,12 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
 
   const navigate = useNavigate();
 
-  // ---------- RESTART ----------
-  const handleRestart = () => {
-    navigate("/");
-  };
+  // ---------------- RESTART ----------------
+  const handleRestart = () => navigate("/");
 
-  // ---------- LOAD SESSION & CHARACTER ----------
+  // ---------------- LOAD SESSION & CHARACTER ----------------
   useEffect(() => {
-    const load = async () => {
+    const loadSession = async () => {
       try {
         const sessionData = await getSession(sessionId);
         setPlayerSession(sessionData);
@@ -50,10 +50,10 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
         setErrorMsg("Failed to load session or character data.");
       }
     };
-    load();
+    loadSession();
   }, [sessionId]);
 
-  // ---------- LOAD CURRENT ACT ----------
+  // ---------------- LOAD CURRENT ACT ----------------
   const loadAct = async () => {
     setLoading(true);
     setErrorMsg(null);
@@ -69,8 +69,8 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
       setCurrentAct(result.act);
       setChoices(result.act.choices || []);
       setStoryEnded(result.session?.isCompleted ?? false);
-    } catch (error) {
-      console.error("Error loading act:", error);
+    } catch (err) {
+      console.error("Error loading act:", err);
       setErrorMsg("Failed to load act.");
     } finally {
       setLoading(false);
@@ -81,7 +81,7 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
     loadAct();
   }, [sessionId]);
 
-  // ---------- FETCH POSES ----------
+  // ---------------- FETCH POSES ----------------
   useEffect(() => {
     const fetchPoses = async () => {
       try {
@@ -94,7 +94,7 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
     fetchPoses();
   }, []);
 
-  // ---------- HANDLE CHOICE ----------
+  // ---------------- HANDLE CHOICE ----------------
   const handleChoiceClick = async (nextActNumber: number) => {
     setLoading(true);
     try {
@@ -104,8 +104,8 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
         body: JSON.stringify({ nextActNumber }),
       });
       await loadAct();
-    } catch (error) {
-      console.error("Error advancing act:", error);
+    } catch (err) {
+      console.error("Error advancing act:", err);
       setErrorMsg("Failed to advance to next act.");
     } finally {
       setLoading(false);
@@ -120,6 +120,7 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: storyEnded ? "#7c372fff" : "#f0f8ff" }}>
+      {/* Navbar */}
       <nav
         style={{
           width: "100%",
@@ -135,28 +136,32 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
         }}
       >
         <span style={{ fontWeight: "bold" }}>The Fallen Dragon</span>
-        <button
-          onClick={() => setIsEditingCharacter(true)}
-          style={{
-            padding: "6px 12px",
-            backgroundColor: "#4caf50",
-            color: "white",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-          }}
-        >
-          Edit Character
-        </button>
+        {character && (
+          <button
+            onClick={() => setIsEditingCharacter(true)}
+            style={{
+              padding: "6px 12px",
+              backgroundColor: "#4caf50",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+          >
+            Edit Character
+          </button>
+        )}
       </nav>
 
       {storyEnded ? (
         <EndingScreen onRestart={handleRestart} />
       ) : (
         <>
+          {/* Story content */}
           <h2>Act {currentAct.actNumber}</h2>
           <p>{currentAct.text}</p>
 
+          {/* Choices */}
           <div className="choices">
             {choices.length > 0 ? (
               choices.map((choice) => (
@@ -181,7 +186,7 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
             )}
           </div>
 
-          {/* Character Corner */}
+          {/* Character preview */}
           {playerSession && character && (
             <div style={{ marginTop: "20px" }}>
               <p>{playerSession.characterName}</p>
@@ -191,10 +196,34 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
                   alt="base"
                   style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
                 />
-                {character.hair && <img src={`/images/hair/${character.hair}`} alt="hair" style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }} />}
-                {character.face && <img src={`/images/faces/${character.face}`} alt="face" style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }} />}
-                {character.outfit && <img src={`/images/clothes/${character.outfit}`} alt="clothing" style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }} />}
-                {selectedPose && <img src={`/images/poses/${selectedPose.imageUrl}`} alt="pose" style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }} />}
+                {character.hair && (
+                  <img
+                    src={`/images/hair/${character.hair}`}
+                    alt="hair"
+                    style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
+                  />
+                )}
+                {character.face && (
+                  <img
+                    src={`/images/faces/${character.face}`}
+                    alt="face"
+                    style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
+                  />
+                )}
+                {character.outfit && (
+                  <img
+                    src={`/images/clothes/${character.outfit}`}
+                    alt="clothing"
+                    style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
+                  />
+                )}
+                {selectedPose && (
+                  <img
+                    src={`/images/poses/${selectedPose.imageUrl}`}
+                    alt="pose"
+                    style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
+                  />
+                )}
               </div>
             </div>
           )}
@@ -221,16 +250,22 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
                 style={{ backgroundColor: "white", padding: "20px", borderRadius: "8px", maxWidth: "500px", width: "90%" }}
               >
                 <CharacterBuilder
-                  hair={character.hair ?? "hair1.png"}
-                  face={character.face ?? "face1.png"}
-                  outfit={character.outfit ?? "clothing1.png"}
-                  poseId={character.poseId ?? null}
+                  character={character}
                   poses={poses}
-                  onHairChange={(hair) => setCharacter((prev) => prev ? { ...prev, hair } : prev)}
-                  onFaceChange={(face) => setCharacter((prev) => prev ? { ...prev, face } : prev)}
-                  onOutfitChange={(outfit) => setCharacter((prev) => prev ? { ...prev, outfit } : prev)}
-                  onPoseChange={(poseId) => setCharacter((prev) => prev ? { ...prev, poseId: poseId ?? undefined } : prev)}
+                  onHairChange={(hair) =>
+                    setCharacter((prev) => (prev ? { ...prev, hair } : prev))
+                  }
+                  onFaceChange={(face) =>
+                    setCharacter((prev) => (prev ? { ...prev, face } : prev))
+                  }
+                  onOutfitChange={(outfit) =>
+                    setCharacter((prev) => (prev ? { ...prev, outfit } : prev))
+                  }
+                  onPoseChange={(poseId) =>
+                    setCharacter((prev) => (prev ? { ...prev, poseId: poseId ?? null } : prev))
+                  }
                 />
+
                 <button
                   onClick={async () => {
                     setIsEditingCharacter(false);

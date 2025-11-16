@@ -1,10 +1,7 @@
-import { CharacterPose } from '../services/characterApi';
+import { Character, CharacterPose } from "../types/character";
 
 interface CharacterBuilderProps {
-  hair: string;
-  face: string;
-  outfit: string;
-  poseId: number | null;
+  character: Character;
   poses: CharacterPose[];
   onHairChange: (hair: string) => void;
   onFaceChange: (face: string) => void;
@@ -12,39 +9,33 @@ interface CharacterBuilderProps {
   onPoseChange: (poseId: number | null) => void;
 }
 
-const hairOptions = ['hair1.png', 'hair2.png', 'hair3.png'];
-const faceOptions = ['face1.png', 'face2.png', 'face3.png'];
-const outfitOptions = ['clothing1.png', 'clothing2.png', 'clothing3.png'];
-
 export default function CharacterBuilder({
-  hair,
-  face,
-  outfit,
-  poseId,
+  character,
   poses,
   onHairChange,
   onFaceChange,
   onOutfitChange,
-  onPoseChange,
+  onPoseChange
 }: CharacterBuilderProps) {
+
+  const { hair, face, outfit, poseId } = character;
+
+  const hairOptions = ["hair1.png", "hair2.png", "hair3.png"];
+  const faceOptions = ["face1.png", "face2.png", "face3.png"];
+  const outfitOptions = ["clothing1.png", "clothing2.png", "clothing3.png"];
 
   const cycleOption = (
     currentValue: string,
     options: string[],
-    onChange: (value: string) => void,
+    setter: (val: string) => void,
     direction: 'next' | 'prev'
   ) => {
-    const currentIndex = options.indexOf(currentValue);
-    let newIndex = direction === 'next'
-      ? (currentIndex + 1) % options.length
-      : (currentIndex - 1 + options.length) % options.length;
-    onChange(options[newIndex]);
+    const index = options.indexOf(currentValue);
+    const newIndex = direction === 'next' 
+      ? (index + 1) % options.length
+      : (index - 1 + options.length) % options.length;
+    setter(options[newIndex]);
   };
-
-  // Find the selected pose object
-  const selectedPose = poses.find(p => p.id === poseId);
-
-  console.log('Rendering CharacterBuilder, poses:', poses, 'selectedPose:', selectedPose);
 
   return (
     <div style={{ padding: '20px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: '#fafafa' }}>
@@ -52,31 +43,26 @@ export default function CharacterBuilder({
 
       {/* Character preview */}
       <div style={{ width: '200px', height: '200px', position: 'relative', margin: '20px auto', border: '2px solid #333', backgroundColor: '#fff' }}>
-  {/* Base image only shows if no pose is selected */}
-  {!poseId && (
-    <img
-      src="/images/base.png"
-      alt="base"
-      style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }}
-    />
-  )}
+        {!poseId && (
+          <img
+            src="/images/base.png"
+            alt="base"
+            style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }}
+          />
+        )}
 
-  {/* Always show hair, face, and outfit */}
-  <img src={`/images/hair/${hair}`} alt="hair" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} />
-  <img src={`/images/faces/${face}`} alt="face" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} />
-  <img src={`/images/clothes/${outfit}`} alt="clothing" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} />
+        <img src={`/images/hair/${hair}`} alt="hair" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} />
+        <img src={`/images/faces/${face}`} alt="face" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} />
+        <img src={`/images/clothes/${outfit}`} alt="clothing" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }} />
 
-  {/* Pose image overlays everything if selected */}
-  {poseId && (
-    <img
-      src={`/images/poses/${poses.find(p => p.id === poseId)?.imageUrl}`}
-      alt="pose"
-      style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }}
-    />
-  )}
-</div>
-
-
+        {poseId && (
+          <img
+            src={`/images/poses/${poses.find(p => p.id === poseId)?.imageUrl}`}
+            alt="pose"
+            style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'contain' }}
+          />
+        )}
+      </div>
 
       {/* Hair selector */}
       <div style={{ marginBottom: '15px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -117,8 +103,8 @@ export default function CharacterBuilder({
           style={{ flex: 1, marginLeft: '10px', padding: '8px', fontSize: '14px', cursor: 'pointer' }}
         >
           <option value="">Select a pose</option>
-          {Array.isArray(poses) && poses.map(pose => (
-            <option key={pose.id} value={pose.id}>{pose.name}</option>
+          {poses.map(p => (
+            <option key={p.id} value={p.id}>{p.name}</option>
           ))}
         </select>
       </div>
