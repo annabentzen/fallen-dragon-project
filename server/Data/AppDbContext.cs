@@ -12,9 +12,10 @@ namespace DragonGame.Data
     {
         if (!optionsBuilder.IsConfigured)
         {
-            optionsBuilder
-                .UseSqlite("Data Source=App_Data/DragonGame.db")
-                .LogTo(Console.WriteLine, LogLevel.Information); //log SQL and EF operations
+                optionsBuilder
+                    .UseSqlite("Data Source=App_Data/DragonGame.db")
+                    .LogTo(Console.WriteLine, LogLevel.Information); //log SQL and EF operations
+                optionsBuilder.EnableSensitiveDataLogging();
         }
     }
 

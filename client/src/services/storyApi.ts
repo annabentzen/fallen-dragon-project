@@ -26,9 +26,18 @@ export const getSession = async (sessionId: number): Promise<PlayerSessionFromAp
 // Character for a session
 // -----------------------------------------
 export const getCharacterForSession = async (sessionId: number): Promise<Character> => {
-  const res = await axios.get<Character>(`${API_BASE}/${sessionId}/character`);
-  return res.data; // directly mapped from Character entity
+  try {
+    console.log(`Calling API for character of session ${sessionId}`);
+    const res = await axios.get<Character>(`${API_BASE}/${sessionId}/character`);
+    console.log(`Character received:`, res.data);
+    return res.data;
+  } catch (err) {
+    console.error(`Failed to fetch character for session ${sessionId}`, err);
+    throw err;
+  }
 };
+
+
 
 export const updateCharacter = async (
   sessionId: number,

@@ -7,43 +7,75 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DragonGame.Controllers
 {
-
     [ApiController]
-    [Route("api/[controller]")]
-    public class PlayerSessionController : ControllerBase
+[Route("api/[controller]")]
+public class PlayerSessionController : ControllerBase
+{
+    private readonly PlayerSessionService _service;
+    private readonly AppDbContext _context;
+
+    public PlayerSessionController(PlayerSessionService service, AppDbContext context)
     {
-        private readonly PlayerSessionService _service;
+        _service = service;
+        _context = context;
+    }
 
-        private readonly AppDbContext _context;
-
-        public PlayerSessionController(PlayerSessionService service)
+    [HttpGet("{sessionId}")]
+    public async Task<ActionResult<PlayerSessionDto>> GetSession(int sessionId)
+    {
+        try
         {
-            _service = service;
-        }
+            Console.WriteLine($"[PlayerSessionController][GetSession] Request for sessionId={sessionId}");
 
-        // GET api/playersession/{id}
-        [HttpGet("{id}")]
-        public async Task<ActionResult<PlayerSessionDto>> GetSession(int id)
-        {
-            var dto = await _service.GetSessionDtoAsync(id);
-            if (dto == null) return NotFound();
+            var session = await _context.PlayerSessions
+                .Include(s => s.Character)
+                .FirstOrDefaultAsync(s => s.SessionId == sessionId);
+
+            if (session == null)
+            {
+                Console.WriteLine($"[GetSession] Session not found: {sessionId}");
+                return NotFound();
+            }
+
+            var dto = await _service.GetSessionDtoAsync(sessionId);
+            if (dto == null)
+            {
+                Console.WriteLine($"[GetSession] DTO null for sessionId={sessionId}");
+                return NotFound();
+            }
 
             return Ok(dto);
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[PlayerSessionController][GetSession] Error for sessionId={sessionId}: {ex}");
+            return StatusCode(500, ex.Message);
+        }
+    }
 
-        // GET api/playersession/{sessionId}/character
-        [HttpGet("{sessionId}/character")]
-        public async Task<ActionResult<Character>> GetCharacterForSession(int sessionId)
+    [HttpGet("{sessionId}/character")]
+    public async Task<ActionResult<Character>> GetCharacterForSession(int sessionId)
+    {
+        try
         {
             var session = await _context.PlayerSessions
-                .Include(s => s.Character)  
+                .Include(s => s.Character)
                 .FirstOrDefaultAsync(s => s.SessionId == sessionId);
 
-            if (session == null || session.Character == null)
+            if (session?.Character == null)
+            {
+                Console.WriteLine($"[GetCharacterForSession] No session or character found: sessionId={sessionId}");
                 return NotFound();
+            }
 
             return Ok(session.Character);
         }
-
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[PlayerSessionController][GetCharacterForSession] Error: {ex}");
+            return StatusCode(500, ex.Message);
+        }
     }
+}
+
 }

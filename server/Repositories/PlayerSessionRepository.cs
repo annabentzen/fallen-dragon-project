@@ -1,47 +1,65 @@
 using DragonGame.Data;
 using DragonGame.Models;
-using DragonGame.Repositories;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-public class PlayerSessionRepository : Repository<PlayerSession>, IPlayerSessionRepository
+namespace DragonGame.Repositories
 {
-
-    public PlayerSessionRepository(AppDbContext context) : base(context)
+    public class PlayerSessionRepository : Repository<PlayerSession>, IPlayerSessionRepository
     {
-    }
+        private readonly new AppDbContext _context;
 
-    public override async Task<PlayerSession?> GetByIdAsync(int id)
-        => await _context.PlayerSessions.FindAsync(id);
+        public PlayerSessionRepository(AppDbContext context) : base(context)
+        {
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+        }
 
-    public override async Task<IEnumerable<PlayerSession>> GetAllAsync()
-        => await _context.PlayerSessions.ToListAsync();
+        public override async Task<PlayerSession?> GetByIdAsync(int id)
+            => await _context.PlayerSessions
+                .Include(s => s.Character)
+                .FirstOrDefaultAsync(s => s.SessionId == id);
 
-    public override async Task AddAsync(PlayerSession session)
-    {
-        Console.WriteLine($"_context is null? {_context == null}");
-        await _context.PlayerSessions.AddAsync(session);
-    }
+        public override async Task<IEnumerable<PlayerSession>> GetAllAsync()
+            => await _context.PlayerSessions
+                .Include(s => s.Character)
+                .ToListAsync();
 
+        public override async Task AddAsync(PlayerSession session)
+        {
+            if (session == null) throw new ArgumentNullException(nameof(session));
+            await _context.PlayerSessions.AddAsync(session);
+            await SaveChangesAsync();
+        }
 
-    public override async Task UpdateAsync(PlayerSession session)
-        => _context.PlayerSessions.Update(session);
+        public override async Task UpdateAsync(PlayerSession session)
+        {
+            if (session == null) throw new ArgumentNullException(nameof(session));
+            _context.PlayerSessions.Update(session);
+            await SaveChangesAsync();
+        }
 
-    public override async Task SaveChangesAsync()
-    {
-        await _context.SaveChangesAsync();
-    }
+        public override async Task DeleteAsync(int id)
+        {
+            var entity = await _context.PlayerSessions.FindAsync(id);
+            if (entity != null)
+            {
+                _context.PlayerSessions.Remove(entity);
+                await SaveChangesAsync();
+            }
+        }
 
-    public override async Task DeleteAsync(int id)
-    {
-        var entity = await _context.PlayerSessions.FindAsync(id);
-        if (entity != null)
-            _context.PlayerSessions.Remove(entity);
-    }
+        public override async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
 
-    public async Task SaveAsync()
-        => await _context.SaveChangesAsync();
+        public IQueryable<PlayerSession> Query()
+            => _context.PlayerSessions.AsQueryable();
 
-    public async Task<PlayerSession?> GetSessionWithCharacterAsync(int sessionId)
+        public async Task<PlayerSession?> GetSessionWithCharacterAsync(int sessionId)
     {
         return await _context.PlayerSessions
             .Include(s => s.Character)
@@ -49,21 +67,10 @@ public class PlayerSessionRepository : Repository<PlayerSession>, IPlayerSession
     }
 
 
-    public Task<PlayerSession?> GetSessionByIdWithChoicesAsync(int sessionId)
-    {
-        throw new NotImplementedException();
+        public Task<PlayerSession?> GetSessionByIdWithChoicesAsync(int sessionId)
+        {
+            throw new NotImplementedException();
+        }
     }
-
-    public override void Update(PlayerSession entity)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void Delete(PlayerSession entity)
-    {
-        throw new NotImplementedException();
-    }
-
-    public IQueryable<PlayerSession> Query()
-        => _context.PlayerSessions.AsQueryable();
 }
+

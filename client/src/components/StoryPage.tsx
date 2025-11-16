@@ -1,4 +1,3 @@
-// src/components/StoryPage.tsx
 import React, { useEffect, useState } from "react";
 import EndingScreen from "./EndingScreen";
 import CharacterBuilder from "./CharacterBuilder";
@@ -41,8 +40,8 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
         const sessionData = await getSession(sessionId);
         setPlayerSession(sessionData);
 
-        if (sessionData?.characterId) {
-          const charData = await getCharacterForSession(sessionData.characterId);
+        if (sessionData?.sessionId) {
+          const charData = await getCharacterForSession(sessionData.sessionId);
           setCharacter(charData);
         }
       } catch (err) {
