@@ -20,6 +20,7 @@ export default function CharacterBuilder({
 }: CharacterBuilderProps) {
 
   const { hair, face, outfit, poseId } = character;
+  const selectedPose = poses.find(pose => pose.id === character.poseId);
 
   const hairOptions = ["hair1.png", "hair2.png", "hair3.png"];
   const faceOptions = ["face1.png", "face2.png", "face3.png"];

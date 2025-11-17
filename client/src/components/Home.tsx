@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createSession, safeParseCharacterDesign } from "../services/storyApi";
+import { createSession } from "../services/storyApi";
 import {
-  getAllPoses,
-  saveCharacterToLocal,
-  clearSavedCharacter,
-  loadCharacterFromLocal,
+  getAllPoses
 } from "../services/characterApi";
 import CharacterBuilder from "./CharacterBuilder";
 import { Character, CharacterPose } from "../types/character";
@@ -26,7 +23,6 @@ export default function Home() {
 
   // UI state
   const [poses, setPoses] = useState<CharacterPose[]>([]);
-  const selectedPose = poses.find(pose => pose.id === character.poseId);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,20 +37,6 @@ export default function Home() {
         console.error("Failed to fetch poses for Home:", err);
       }
     };
-
-    const loadLastCharacter = () => {
-      const lastCharacter = loadCharacterFromLocal();
-      console.log("Loaded last character from localStorage:", lastCharacter);
-
-      if (lastCharacter) {
-        const parsedDesign = safeParseCharacterDesign(lastCharacter);
-        if (parsedDesign.hair) setHair(parsedDesign.hair);
-        if (parsedDesign.face) setFace(parsedDesign.face);
-        if (parsedDesign.outfit) setOutfit(parsedDesign.outfit);
-        if (parsedDesign.poseId !== undefined) setPoseId(parsedDesign.poseId);
-      }
-    };
-
     fetchPoses();
   }, []);
 
@@ -68,8 +50,6 @@ export default function Home() {
       poseId: null,
       id: 0,
     });
-    console.log("Resetting character...");
-    clearSavedCharacter();
     setError(null);
   };
 
@@ -89,7 +69,7 @@ const startStory = async () => {
 
   try {
     // Only send the name — backend creates character from builder state
-    const session = await createSession(characterName.trim());
+    const session = await createSession(characterName.trim(), character);
     console.log("Session created:", session);
     navigate(`/story/${session.sessionId}`);
   } catch (err) {
@@ -145,7 +125,6 @@ const startStory = async () => {
         className={styles.buttonPrimary}
       >
         {loading ? "Starting..." : "Start Mission"}
-        {loading ? "Starting..." : "Start Mission"}
       </button>
 
       <button
@@ -158,4 +137,3 @@ const startStory = async () => {
     </div>
   );
 }
-

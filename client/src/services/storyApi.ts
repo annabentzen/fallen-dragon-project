@@ -1,15 +1,17 @@
+import { Character, CharacterPose } from "../types/character";
+
 const API_BASE = "http://localhost:5151"; 
 
 export interface ChoiceDto {
-  Text: string;          
-  NextActNumber: number;
+  text: string;          
+  nextActNumber: number;
 }
 
 export interface ActDto {
-  ActNumber: number;     
-  Text: string;         
-  Choices: ChoiceDto[];  
-  IsEnding: boolean;     
+  actNumber: number;     
+  text: string;         
+  choices: ChoiceDto[];  
+  isEnding: boolean;     
 }
 
 export interface PlayerSessionDto {
@@ -22,11 +24,18 @@ export interface PlayerSessionDto {
 }
 
 // Create new game session
-export const createSession = async (characterName: string) => {
+export const createSession = async (characterName: string, character: Character) => {
   const response = await fetch(`${API_BASE}/api/story/start`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ characterName }),
+    body: JSON.stringify({ characterName, character: {
+        hair: character.hair,
+        face: character.face,
+        outfit: character.outfit,
+        poseId: character.poseId 
+      },
+      storyId: 1
+    }),
   });
   if (!response.ok) throw new Error("Failed to create session");
   return response.json();
@@ -50,10 +59,11 @@ export const getCurrentAct = async (sessionId: number): Promise<ActDto> => {
 // Make a choice → go to next act
 export const makeChoice = async (sessionId: number, nextActNumber: number): Promise<ActDto> => {
   console.log("[storyApi] Choosing next act:", nextActNumber);
-  const response = await fetch(`${API_BASE}/api/story/choose`, {
+
+  const response = await fetch(`${API_BASE}/api/story/nextAct/${sessionId}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ sessionId, nextActNumber }),
+    body: JSON.stringify({ nextActNumber }),
   });
 
   if (!response.ok) throw new Error("Failed to make choice");
@@ -88,10 +98,10 @@ export const getCharacterForSession = async (sessionId: number) => {
 
 // Move to next act when a choice is made
 export const moveToNextAct = async (sessionId: number, nextActNumber: number): Promise<void> => {
-  const response = await fetch(`${API_BASE}/api/story/choose`, {
+  const response = await fetch(`${API_BASE}/api/story/nextAct/${sessionId}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ sessionId, nextActNumber }),
+    body: JSON.stringify({ nextActNumber }),
   });
   if (!response.ok) {
     const err = await response.text();

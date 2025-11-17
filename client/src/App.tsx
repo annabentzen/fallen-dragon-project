@@ -15,7 +15,7 @@ const App: React.FC = () => {
         <Route path="/story/:sessionId" element={<StoryPageWrapper />} />
 
         {/* Optional direct ending screen */}
-        <Route path="/ending" element={<EndingScreenWrapper />} />
+        <Route path="/ending/:sessionId" element={<EndingScreenWrapper />} />
       </Routes>
     </Router>
   );
@@ -24,6 +24,7 @@ const App: React.FC = () => {
 // Wrapper for Endingscreen to handle navigation
 const EndingScreenWrapper: React.FC = () => {
   const navigate = useNavigate();
+  const { sessionId } = useParams<{ sessionId: string }>();
 
   const handleRestart = () => {
     navigate('/'); // Navigate back to home to start a new session

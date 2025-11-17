@@ -64,7 +64,7 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
     try {
       const actDto: ActDto = await getCurrentAct(sessionId);
 
-      if (!actDto?.Text) {
+      if (!actDto?.text) {
         setErrorMsg(`No act found for session ${sessionId}.`);
         setCurrentAct(null);
         setChoices([]);
@@ -73,21 +73,21 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
 
       // Map C# PascalCase → your frontend camelCase
       const mappedAct: Act = {
-        actNumber: actDto.ActNumber,
-        text: actDto.Text,
-        choices: actDto.Choices.map(c => ({
-          choiceId: 0,
-          text: c.Text,
-          nextActNumber: c.NextActNumber
+        actNumber: actDto.actNumber,
+        text: actDto.text,
+        choices: actDto.choices.map((c, index) => ({
+          choiceId: index,
+          text: c.text,
+          nextActNumber: c.nextActNumber
         })),
-        isEnding: actDto.IsEnding
+        isEnding: actDto.isEnding
       };
 
       setCurrentAct(mappedAct);
       setChoices(mappedAct.choices);
 
       // Perfect ending detection
-      if (actDto.IsEnding || actDto.Choices.length === 0) {
+      if (actDto.isEnding || actDto.choices.length === 0) {
         setTimeout(() => navigate(`/ending/${sessionId}`), 800);
       }
 
