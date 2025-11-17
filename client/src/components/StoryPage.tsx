@@ -187,11 +187,14 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
             <div style={{ marginTop: "20px" }}>
               <p>{playerSession.characterName}</p>
               <div style={{ width: "100px", height: "100px", position: "relative", margin: "10px 0" }}>
+                {/* always show base image */}
                 <img
                   src="/images/base.png"
                   alt="base"
                   style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
                 />
+                
+                {/* Layer character parts */}
                 {character.hair && (
                   <img
                     src={`/images/hair/${character.hair}`}
@@ -213,7 +216,9 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
                     style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
                   />
                 )}
-                {selectedPose && (
+                
+                {/* only show pose if selected */}
+                {character.poseId && selectedPose && (
                   <img
                     src={`/images/poses/${selectedPose.imageUrl}`}
                     alt="pose"
