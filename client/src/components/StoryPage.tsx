@@ -7,6 +7,7 @@ import {
   getCharacterForSession,
   getCurrentAct,
   getSession,
+  moveToNextAct,
   updateCharacter,
 } from "../services/storyApi";
 import { getAllPoses } from "../services/characterApi";
@@ -95,21 +96,17 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
 
   // ---------------- HANDLE CHOICE ----------------
   const handleChoiceClick = async (nextActNumber: number) => {
-    setLoading(true);
-    try {
-      await fetch(`http://localhost:5151/api/story/nextAct/${sessionId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nextActNumber }),
-      });
-      await loadAct();
-    } catch (err) {
-      console.error("Error advancing act:", err);
-      setErrorMsg("Failed to advance to next act.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  setLoading(true);
+  try {
+    await moveToNextAct(sessionId, nextActNumber);
+    await loadAct();
+  } catch (err) {
+    console.error("Error advancing act:", err);
+    setErrorMsg("Failed to advance to next act.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   if (loading) return <div>Loading...</div>;
   if (errorMsg) return <div className="error">{errorMsg}</div>;

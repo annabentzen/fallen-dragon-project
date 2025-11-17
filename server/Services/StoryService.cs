@@ -1,3 +1,4 @@
+// Services/StoryService.cs
 using DragonGame.Data;
 using DragonGame.Dtos;
 using DragonGame.Models;
@@ -25,142 +26,225 @@ namespace DragonGame.Services
             _context = context;
         }
 
+        // Starts a new game session with character creation
         public async Task<PlayerSession> StartStoryAsync(CreateSessionDto dto)
         {
-            // Create Character
-            var character = new Character
+            try
             {
-                Hair = dto.Character.Hair,
-                Face = dto.Character.Face,
-                Outfit = dto.Character.Outfit,
-                PoseId = dto.Character.PoseId
-            };
+                Console.WriteLine($"[StoryService] Starting new story for hero: '{dto.CharacterName}'");
 
-            await _characterRepo.AddAsync(character);
-            await _characterRepo.SaveChangesAsync(); // Save to get the generated Id
+                // Step 1: Create the Character entity first (so we get an ID)
+                var character = new Character
+                {
+                    Hair = dto.Character.Hair,
+                    Face = dto.Character.Face,
+                    Outfit = dto.Character.Outfit,
+                    PoseId = dto.Character.PoseId
+                };
 
-            // Create PlayerSession
-            var session = new PlayerSession
+                await _characterRepo.AddAsync(character);
+                await _characterRepo.SaveChangesAsync(); // Generates character.Id
+
+                Console.WriteLine($"[StoryService] Character created with ID: {character.Id}");
+
+                // Step 2: Create the PlayerSession linked to the character
+                var session = new PlayerSession
+                {
+                    CharacterName = dto.CharacterName,
+                    CharacterId = character.Id,
+                    StoryId = dto.StoryId,
+                    CurrentActNumber = 1,
+                    IsCompleted = false
+                };
+
+                await _sessionRepo.AddAsync(session);
+                await _sessionRepo.SaveChangesAsync();
+
+                Console.WriteLine($"[StoryService] Session created! SessionId = {session.SessionId}");
+                return session;
+            }
+            catch (Exception ex)
             {
-                CharacterName = dto.CharacterName,
-                CharacterId = character.Id,  // Link to the new character
-                StoryId = dto.StoryId,
-                CurrentActNumber = 1,
-                IsCompleted = false
-            };
-
-            await _sessionRepo.AddAsync(session);
-            await _sessionRepo.SaveChangesAsync();
-
-            return session;
+                Console.WriteLine($"[StoryService][ERROR] Failed to start story: {ex.Message}\n{ex.StackTrace}");
+                throw; // Re-throw so controller can return 500
+            }
         }
 
+        // Gets session by ID
         public async Task<PlayerSession?> GetSessionByIdAsync(int id)
         {
-            return await _sessionRepo.GetByIdAsync(id);
+            try
+            {
+                Console.WriteLine($"[StoryService] Fetching session {id}");
+                return await _sessionRepo.GetByIdAsync(id);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[StoryService][ERROR] GetSessionByIdAsync({id}) failed: {ex.Message}");
+                throw;
+            }
         }
 
-
-
+        // Returns current act + choices + session data (with character design)
         public async Task<object?> GetCurrentActAsync(int sessionId)
         {
-            var session = await _sessionRepo.GetByIdAsync(sessionId);
-            if (session == null) return null;
-
-            // Load related Character entity
-            await _context.Entry(session).Reference(s => s.Character).LoadAsync();
-
-            var act = await _storyRepo.GetActWithChoicesAsync(session.StoryId, session.CurrentActNumber);
-            if (act == null) return null;
-
-            var character = session.Character;
-
-            // Build the response
-            return new
+            try
             {
-                session = new
+                Console.WriteLine($"[StoryService] Loading current act for session {sessionId}");
+
+                var session = await _sessionRepo.GetByIdAsync(sessionId);
+                if (session == null)
                 {
-                    session.SessionId,
-                    session.CharacterName,
-                    Character = character != null
-                        ? new
-                        {
-                            character.Hair,
-                            character.Face,
-                            character.Outfit,
-                            character.PoseId
-                        }
-                        : null,
-                    session.StoryId,
-                    session.CurrentActNumber,
-                    session.IsCompleted
-                },
-                act = new
-                {
-                    act.ActNumber,
-                    act.Text,
-                    choices = act.Choices.Select(c => new
-                    {
-                        c.ChoiceId,
-                        c.Text,
-                        c.ActId,
-                        c.NextActNumber
-                    }).ToList()
+                    Console.WriteLine($"[StoryService] Session {sessionId} not found");
+                    return null;
                 }
-            };
+
+                // Load character navigation property
+                await _context.Entry(session).Reference(s => s.Character).LoadAsync();
+
+                var act = await _storyRepo.GetActWithChoicesAsync(session.StoryId, session.CurrentActNumber);
+                if (act == null)
+                {
+                    Console.WriteLine($"[StoryService] No act found for StoryId {session.StoryId}, Act {session.CurrentActNumber}");
+                    return null;
+                }
+
+                Console.WriteLine($"[StoryService] Returning Act {act.ActNumber} with {act.Choices.Count} choices");
+                return new
+                {
+                    session = new
+                    {
+                        session.SessionId,
+                        session.CharacterName,
+                        Character = session.Character != null ? new
+                        {
+                            session.Character.Hair,
+                            session.Character.Face,
+                            session.Character.Outfit,
+                            session.Character.PoseId
+                        } : null,
+                        session.StoryId,
+                        session.CurrentActNumber,
+                        session.IsCompleted
+                    },
+                    act = new
+                    {
+                        act.ActNumber,
+                        act.Text,
+                        choices = act.Choices.Select(c => new
+                        {
+                            c.ChoiceId,
+                            c.Text,
+                            c.NextActNumber
+                        }).ToList()
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[StoryService][ERROR] GetCurrentActAsync({sessionId}) failed: {ex.Message}\n{ex.StackTrace}");
+                throw;
+            }
         }
 
-
+        // Moves player to next act (or ends game if nextActNumber <= 0)
         public async Task<PlayerSession?> MoveToNextActAsync(int sessionId, int nextActNumber)
         {
-            var session = await _sessionRepo.GetByIdAsync(sessionId);
-            if (session == null) return null;
+            try
+            {
+                Console.WriteLine($"[StoryService] Moving session {sessionId} → Act {nextActNumber}");
 
-            if (nextActNumber <= 0)
-                session.IsCompleted = true;
-            else
-                session.CurrentActNumber = nextActNumber;
+                var session = await _sessionRepo.GetByIdAsync(sessionId);
+                if (session == null)
+                {
+                    Console.WriteLine($"[StoryService] Session {sessionId} not found");
+                    return null;
+                }
 
-            await _sessionRepo.UpdateAsync(session);
-            await _sessionRepo.SaveChangesAsync();
-            return session;
+                if (nextActNumber <= 0)
+                {
+                    session.IsCompleted = true;
+                    Console.WriteLine($"[StoryService] Story completed! Session {sessionId}");
+                }
+                else
+                {
+                    session.CurrentActNumber = nextActNumber;
+                }
+
+                await _sessionRepo.UpdateAsync(session);
+                await _sessionRepo.SaveChangesAsync();
+
+                return session;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[StoryService][ERROR] MoveToNextAct failed: {ex.Message}");
+                throw;
+            }
         }
-    
-    public async Task<Character?> GetCharacterForSessionAsync(int sessionId)
-    {
-        var session = await _context.PlayerSessions
-            .Include(s => s.Character)
-            .FirstOrDefaultAsync(s => s.SessionId == sessionId);
 
-        return session?.Character;
-    }
+        // Gets just the Character entity for a session (used in edit mode)
+        public async Task<Character?> GetCharacterForSessionAsync(int sessionId)
+        {
+            try
+            {
+                Console.WriteLine($"[StoryService] Fetching character for session {sessionId}");
+                var session = await _context.PlayerSessions
+                    .Include(s => s.Character)
+                    .FirstOrDefaultAsync(s => s.SessionId == sessionId);
 
+                if (session?.Character == null)
+                    Console.WriteLine($"[StoryService] No character found for session {sessionId}");
 
+                return session?.Character;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[StoryService][ERROR] GetCharacterForSessionAsync failed: {ex.Message}");
+                throw;
+            }
+        }
 
+        // Updates character appearance mid-game
         public async Task<PlayerSession?> UpdateCharacterAsync(int sessionId, Character newDesign)
-    {
-        var session = await _sessionRepo.GetByIdAsync(sessionId);
-        if (session == null) return null;
-
-        await _context.Entry(session).Reference(s => s.Character).LoadAsync();
-        var character = session.Character;
-
-        if (character != null)
         {
-            character.Hair = newDesign.Hair;
-            character.Face = newDesign.Face;
-            character.Outfit = newDesign.Outfit;
-            character.PoseId = newDesign.PoseId;
-            await _characterRepo.UpdateAsync(character);
-            await _characterRepo.SaveChangesAsync();
-        }
+            try
+            {
+                Console.WriteLine($"[StoryService] Updating character design for session {sessionId}");
 
-        return session;
-    }
+                var session = await _sessionRepo.GetByIdAsync(sessionId);
+                if (session == null)
+                {
+                    Console.WriteLine($"[StoryService] Session {sessionId} not found");
+                    return null;
+                }
 
-        Task<PlayerSession> IStoryService.GetCharacterForSessionAsync(int sessionId)
-        {
-            throw new NotImplementedException();
+                await _context.Entry(session).Reference(s => s.Character).LoadAsync();
+                var character = session.Character;
+
+                if (character == null)
+                {
+                    Console.WriteLine($"[StoryService] Character not found for session {sessionId}");
+                    return session;
+                }
+
+                // Apply new design
+                character.Hair = newDesign.Hair;
+                character.Face = newDesign.Face;
+                character.Outfit = newDesign.Outfit;
+                character.PoseId = newDesign.PoseId;
+
+                await _characterRepo.UpdateAsync(character);
+                await _characterRepo.SaveChangesAsync();
+
+                Console.WriteLine($"[StoryService] Character updated successfully!");
+                return session;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[StoryService][ERROR] UpdateCharacterAsync failed: {ex.Message}\n{ex.StackTrace}");
+                throw;
+            }
         }
     }
 }
