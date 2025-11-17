@@ -26,6 +26,7 @@ export default function Home() {
 
   // UI state
   const [poses, setPoses] = useState<CharacterPose[]>([]);
+  const selectedPose = poses.find(pose => pose.id === character.poseId);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

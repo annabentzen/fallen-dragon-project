@@ -93,7 +93,7 @@ export default function CharacterBuilder({
           />
 
           {/* Pose image overlays everything if selected */}
-          {poseId && selectedPose && (
+          {character.poseId && selectedPose && (
             <img
               src={`/images/poses/${selectedPose.imageUrl}`}
               alt="pose"
