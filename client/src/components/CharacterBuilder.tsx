@@ -51,102 +51,95 @@ export default function CharacterBuilder({
     <div className={styles.container}>
       <h3 className={styles.header}>Customize Your Character</h3>
 
-      {/* Character preview */}
-      <div className={styles.previewContainer}>
-  {/* Base image only shows if no pose is selected */}
-  {!poseId && (
-    <img src="/images/base.png" alt="base" className={styles.characterImage} />
-  )}
-
-  {/* Always show hair, face, and outfit */}
-   <img 
-          src={`/images/hair/${hair}`} 
-          alt="hair" 
-          className={styles.characterImage}
-        />
-        <img 
-          src={`/images/faces/${face}`} 
-          alt="face" 
-          className={styles.characterImage}
-        />
-        <img 
-          src={`/images/clothes/${outfit}`} 
-          alt="clothing" 
-          className={styles.characterImage}
-        />
-
-
-  {/* Pose image overlays everything if selected */}
-      {poseId && selectedPose && (
-          <img
-            src={`/images/poses/${selectedPose.imageUrl}`}
-            alt="pose"
-            className={styles.characterImage}
-          />
-        )}
-      </div>
-
-
-
-      {/* Hair selector */}
-         <div className={styles.selectorRow}>
-        <label className={`${styles.label} ${styles.labelHair}`}>Hair:</label>
-        <div className={styles.controls}>
+     {/* Character preview with side arrows */}
+      <div className={styles.characterSection}>
+        
+        {/* Hair arrows - TOP */}
+        <div className={styles.arrowRow}>
           <button 
             onClick={() => cycleOption(hair, hairOptions, onHairChange, 'prev')} 
-            className={styles.arrowButton}
+            className={styles.arrowButtonLeft}
             aria-label="Previous hair"
           >
             ◀
           </button>
-          <span className={styles.currentValue}>{hair}</span>
+          <div className={styles.spacer}></div>
           <button 
             onClick={() => cycleOption(hair, hairOptions, onHairChange, 'next')} 
-            className={styles.arrowButton}
+            className={styles.arrowButtonRight}
             aria-label="Next hair"
           >
             ▶
           </button>
         </div>
-      </div>
 
-      {/* Face selector */}
-         <div className={styles.selectorRow}>
-        <label className={`${styles.label} ${styles.labelFace}`}>Face:</label>
-        <div className={styles.controls}>
+        {/* Character preview */}
+        <div className={styles.previewContainer}>
+          {/* Base image only shows if no pose is selected */}
+          {!poseId && (
+            <img
+              src="/images/base.png"
+              alt="base"
+              className={styles.characterImage}
+            />
+          )}
+
+          {/* Always show hair, face, and outfit */}
+          <img 
+            src={`/images/hair/${hair}`} 
+            alt="hair" 
+            className={styles.characterImage}
+          />
+          <img 
+            src={`/images/faces/${face}`} 
+            alt="face" 
+            className={styles.characterImage}
+          />
+          <img 
+            src={`/images/clothes/${outfit}`} 
+            alt="clothing" 
+            className={styles.characterImage}
+          />
+
+          {/* Pose image overlays everything if selected */}
+          {poseId && selectedPose && (
+            <img
+              src={`/images/poses/${selectedPose.imageUrl}`}
+              alt="pose"
+              className={styles.characterImage}
+            />
+          )}
+
+          {/* Face arrows - MIDDLE (overlaid on character) */}
           <button 
             onClick={() => cycleOption(face, faceOptions, onFaceChange, 'prev')} 
-            className={styles.arrowButton}
+            className={`${styles.arrowButtonOverlay} ${styles.arrowLeft}`}
             aria-label="Previous face"
           >
             ◀
           </button>
-          <span className={styles.currentValue}>{face}</span>
           <button 
             onClick={() => cycleOption(face, faceOptions, onFaceChange, 'next')} 
-            className={styles.arrowButton}
+            className={`${styles.arrowButtonOverlay} ${styles.arrowRight}`}
             aria-label="Next face"
           >
             ▶
           </button>
         </div>
-      </div>
 
-      {/* Clothing selector */}
-        <div className={styles.selectorRow}>
-        <label className={`${styles.label} ${styles.labelOutfit}`}>Outfit:</label>
-        <div className={styles.controls}>
+        {/* Outfit arrows - BOTTOM */}
+        <div className={styles.arrowRow}>
           <button 
             onClick={() => cycleOption(outfit, outfitOptions, onOutfitChange, 'prev')} 
-            className={styles.arrowButton}
+            className={styles.arrowButtonLeft}
             aria-label="Previous outfit"
           >
             ◀
           </button>
-          <span className={styles.currentValue}>{outfit}</span>
+          <div className={styles.spacer}></div>
           <button 
             onClick={() => cycleOption(outfit, outfitOptions, onOutfitChange, 'next')} 
-            className={styles.arrowButton}
+            className={styles.arrowButtonRight}
             aria-label="Next outfit"
           >
             ▶
@@ -154,9 +147,9 @@ export default function CharacterBuilder({
         </div>
       </div>
 
-      {/* Pose selector */}
-     <div className={styles.selectorRow}>
-        <label className={`${styles.label} ${styles.labelPose}`}>Pose:</label>
+      {/* Pose selector - traditional dropdown */}
+      <div className={styles.poseSection}>
+        <label className={styles.poseLabel}>Pose:</label>
         <select
           value={poseId || ''}
           onChange={(e) => onPoseChange(e.target.value ? Number(e.target.value) : null)}

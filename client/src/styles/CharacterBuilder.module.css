@@ -14,27 +14,8 @@
   margin-bottom: var(--spacing-xl);
   box-shadow: var(--shadow-lg);
   position: relative;
-  overflow: hidden;
-}
-
-/* Decorative corner elements */
-.container::before,
-.container::after {
-  content: "✨";
-  position: absolute;
-  font-size: var(--font-size-xl);
-  opacity: 0.3;
-  animation: pulse 2s infinite;
-}
-
-.container::before {
-  top: var(--spacing-md);
-  left: var(--spacing-md);
-}
-
-.container::after {
-  bottom: var(--spacing-md);
-  right: var(--spacing-md);
+  overflow: visible;
+  /*overflow: hidden; */
 }
 
 /* ========================================
@@ -345,4 +326,14 @@
 .previewContainer:hover {
   transform: scale(1.02);
   transition: transform var(--transition-normal);
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
