@@ -1,80 +1,106 @@
 using Microsoft.AspNetCore.Mvc;
 using DragonGame.Models;
-using DragonGame.Repositories;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using DragonGame.Services;
 
 namespace DragonGame.Controllers
 {
     [ApiController]
-    [Route("api/poses")]
-    public class PoseController : ControllerBase
+[Route("api/poses")]
+public class PoseController : ControllerBase
+{
+    private readonly IPoseService _poseService;
+
+    public PoseController(IPoseService poseService)
     {
-        private readonly ICharacterPoseRepository _poseRepository;
+        _poseService = poseService;
+    }
 
-        public PoseController(ICharacterPoseRepository poseRepository)
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<CharacterPose>>> GetAllPoses()
+    {
+        try
         {
-            _poseRepository = poseRepository;
+            var poses = await _poseService.GetAllPosesAsync();
+            return Ok(poses);
         }
-
-        // GET: api/poses
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<CharacterPose>>> GetAllPoses()
+        catch (Exception ex)
         {
-            var poses = await _poseRepository.GetAllPosesAsync();
-            Console.WriteLine($"Returning {poses.Count()} poses"); //logging
-            return Ok(poses.ToList());
+            Console.WriteLine($"[PoseController][GetAllPoses] Error: {ex}");
+            return StatusCode(500, ex.Message);
         }
+    }
 
-
-
-        // GET: api/poses/{id}
-        [HttpGet("{id}")]
-        public async Task<ActionResult<CharacterPose>> GetPose(int id)
+    [HttpGet("{id}")]
+    public async Task<ActionResult<CharacterPose>> GetPose(int id)
+    {
+        try
         {
-            var pose = await _poseRepository.GetByIdAsync(id);
-            if (pose == null)
-                return NotFound();
-
+            var pose = await _poseService.GetPoseByIdAsync(id);
+            if (pose == null) return NotFound();
             return Ok(pose);
         }
-
-        // POST: api/poses
-        [HttpPost]
-        public async Task<ActionResult<CharacterPose>> CreatePose(CharacterPose pose)
+        catch (Exception ex)
         {
-            await _poseRepository.AddAsync(pose);
+            Console.WriteLine($"[PoseController][GetPose] Error for id={id}: {ex}");
+            return StatusCode(500, ex.Message);
+        }
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<CharacterPose>> CreatePose(CharacterPose pose)
+    {
+        try
+        {
+            await _poseService.AddPoseAsync(pose);
             return CreatedAtAction(nameof(GetPose), new { id = pose.Id }, pose);
         }
-
-        // PUT: api/poses/{id}
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdatePose(int id, CharacterPose pose)
+        catch (Exception ex)
         {
-            if (id != pose.Id)
-                return BadRequest();
+            Console.WriteLine($"[PoseController][CreatePose] Error: {ex}");
+            return StatusCode(500, ex.Message);
+        }
+    }
 
-            var existing = await _poseRepository.GetByIdAsync(id);
-            if (existing == null)
-                return NotFound();
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdatePose(int id, CharacterPose pose)
+    {
+        try
+        {
+            if (id != pose.Id) return BadRequest();
+
+            var existing = await _poseService.GetPoseByIdAsync(id);
+            if (existing == null) return NotFound();
 
             existing.Name = pose.Name;
             existing.ImageUrl = pose.ImageUrl;
 
-            await _poseRepository.UpdateAsync(existing);
+            await _poseService.UpdatePoseAsync(existing);
             return NoContent();
         }
-
-        // DELETE: api/poses/{id}
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeletePose(int id)
+        catch (Exception ex)
         {
-            var pose = await _poseRepository.GetByIdAsync(id);
-            if (pose == null)
-                return NotFound();
-
-            await _poseRepository.DeleteAsync(id);
-            return NoContent();
+            Console.WriteLine($"[PoseController][UpdatePose] Error for id={id}: {ex}");
+            return StatusCode(500, ex.Message);
         }
     }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeletePose(int id)
+    {
+        try
+        {
+            var existing = await _poseService.GetPoseByIdAsync(id);
+            if (existing == null) return NotFound();
+
+            await _poseService.DeletePoseAsync(id);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[PoseController][DeletePose] Error for id={id}: {ex}");
+            return StatusCode(500, ex.Message);
+        }
+    }
+}
+
 }

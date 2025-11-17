@@ -1,11 +1,8 @@
-import { CharacterPose } from '../services/characterApi';
+import { Character, CharacterPose } from "../types/character";
 import styles from '../styles/CharacterBuilder.module.css';
 
 interface CharacterBuilderProps {
-  hair: string;
-  face: string;
-  outfit: string;
-  poseId: number | null;
+  character: Character;
   poses: CharacterPose[];
   onHairChange: (hair: string) => void;
   onFaceChange: (face: string) => void;
@@ -13,39 +10,33 @@ interface CharacterBuilderProps {
   onPoseChange: (poseId: number | null) => void;
 }
 
-const hairOptions = ['hair1.png', 'hair2.png', 'hair3.png'];
-const faceOptions = ['face1.png', 'face2.png', 'face3.png'];
-const outfitOptions = ['clothing1.png', 'clothing2.png', 'clothing3.png'];
-
 export default function CharacterBuilder({
-  hair,
-  face,
-  outfit,
-  poseId,
+  character,
   poses,
   onHairChange,
   onFaceChange,
   onOutfitChange,
-  onPoseChange,
+  onPoseChange
 }: CharacterBuilderProps) {
+
+  const { hair, face, outfit, poseId } = character;
+
+  const hairOptions = ["hair1.png", "hair2.png", "hair3.png"];
+  const faceOptions = ["face1.png", "face2.png", "face3.png"];
+  const outfitOptions = ["clothing1.png", "clothing2.png", "clothing3.png"];
 
   const cycleOption = (
     currentValue: string,
     options: string[],
-    onChange: (value: string) => void,
+    setter: (val: string) => void,
     direction: 'next' | 'prev'
   ) => {
-    const currentIndex = options.indexOf(currentValue);
-    let newIndex = direction === 'next'
-      ? (currentIndex + 1) % options.length
-      : (currentIndex - 1 + options.length) % options.length;
-    onChange(options[newIndex]);
+    const index = options.indexOf(currentValue);
+    const newIndex = direction === 'next' 
+      ? (index + 1) % options.length
+      : (index - 1 + options.length) % options.length;
+    setter(options[newIndex]);
   };
-
-  // Find the selected pose object
-  const selectedPose = poses.find(p => p.id === poseId);
-
-  console.log('Rendering CharacterBuilder, poses:', poses, 'selectedPose:', selectedPose);
 
   return (
     <div className={styles.container}>
@@ -157,8 +148,8 @@ export default function CharacterBuilder({
           aria-label="Select character pose"
         >
           <option value="">Select a pose</option>
-          {Array.isArray(poses) && poses.map(pose => (
-            <option key={pose.id} value={pose.id}>{pose.name}</option>
+          {poses.map(p => (
+            <option key={p.id} value={p.id}>{p.name}</option>
           ))}
         </select>
       </div>

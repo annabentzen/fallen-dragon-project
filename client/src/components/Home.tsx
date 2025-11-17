@@ -1,32 +1,35 @@
-import styles from "../styles/Home.module.css";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createSession, safeParseCharacterDesign } from "../services/storyApi";
 import {
   getAllPoses,
-  CharacterPose,
   saveCharacterToLocal,
   clearSavedCharacter,
   loadCharacterFromLocal,
 } from "../services/characterApi";
 import CharacterBuilder from "./CharacterBuilder";
+import { Character, CharacterPose } from "../types/character";
+import styles from "../styles/Home.module.css";
 
 export default function Home() {
   const navigate = useNavigate();
 
   // Character state
   const [characterName, setCharacterName] = useState("");
-  const [hair, setHair] = useState("hair1.png");
-  const [face, setFace] = useState("face1.png");
-  const [outfit, setOutfit] = useState("clothing1.png");
-  const [poseId, setPoseId] = useState<number | null>(null);
+  const [character, setCharacter] = useState<Character>({
+    hair: "hair1.png",
+    face: "face1.png",
+    outfit: "clothing1.png",
+    poseId: null,
+    id: 0, // placeholder, backend will assign real id
+  });
 
   // UI state
   const [poses, setPoses] = useState<CharacterPose[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load poses and last character on mount
+  // Load poses on mount
   useEffect(() => {
     const fetchPoses = async () => {
       try {
@@ -52,55 +55,49 @@ export default function Home() {
     };
 
     fetchPoses();
-    loadLastCharacter();
   }, []);
 
   // Reset character to defaults
   const resetCharacter = () => {
+    setCharacterName("");
+    setCharacter({
+      hair: "hair1.png",
+      face: "face1.png",
+      outfit: "clothing1.png",
+      poseId: null,
+      id: 0,
+    });
     console.log("Resetting character...");
     clearSavedCharacter();
-    setCharacterName("");
-    setHair("hair1.png");
-    setFace("face1.png");
-    setOutfit("clothing1.png");
-    setPoseId(null);
     setError(null);
   };
 
   // Start the story
-  const startStory = async () => {
-    if (!characterName.trim()) {
-      setError("Please enter a hero name");
-      return;
-    }
-    if (!poseId) {
-      setError("Please select a pose");
-      return;
-    }
+const startStory = async () => {
+  if (!characterName.trim()) {
+    setError("Please enter a hero name");
+    return;
+  }
+  if (character.poseId === null) {
+    setError("Please select a pose");
+    return;
+  }
 
-    setLoading(true);
-    setError(null);
+  setLoading(true);
+  setError(null);
 
-    try {
-      const character = { hair, face, outfit, poseId };
-      saveCharacterToLocal(character);
-      console.log("Character saved to localStorage:", character);
-
-      const session = await createSession({
-        characterName,
-        characterDesign: character,
-        storyId: 1,
-      });
-      console.log("Session created:", session);
-
-      navigate(`/story/${session.sessionId}`);
-    } catch (err) {
-      console.error("Failed to start story:", err);
-      setError("Failed to start story. Check if your backend is running.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    // Only send the name — backend creates character from builder state
+    const session = await createSession(characterName.trim());
+    console.log("Session created:", session);
+    navigate(`/story/${session.sessionId}`);
+  } catch (err) {
+    console.error("Failed to start story:", err);
+    setError("Failed to start story. Is backend running?");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className={styles.container}>
@@ -133,15 +130,12 @@ export default function Home() {
       </div>
 
       <CharacterBuilder
-        hair={hair}
-        face={face}
-        outfit={outfit}
-        poseId={poseId}
+        character={character}
         poses={poses}
-        onHairChange={setHair}
-        onFaceChange={setFace}
-        onOutfitChange={setOutfit}
-        onPoseChange={setPoseId}
+        onHairChange={(hair) => setCharacter((prev) => ({ ...prev, hair }))}
+        onFaceChange={(face) => setCharacter((prev) => ({ ...prev, face }))}
+        onOutfitChange={(outfit) => setCharacter((prev) => ({ ...prev, outfit }))}
+        onPoseChange={(poseId) => setCharacter((prev) => ({ ...prev, poseId }))}
       />
 
       <button
@@ -149,6 +143,7 @@ export default function Home() {
         disabled={loading}
         className={styles.buttonPrimary}
       >
+        {loading ? "Starting..." : "Start Mission"}
         {loading ? "Starting..." : "Start Mission"}
       </button>
 
@@ -162,3 +157,4 @@ export default function Home() {
     </div>
   );
 }
+

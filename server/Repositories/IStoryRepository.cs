@@ -1,15 +1,12 @@
 using DragonGame.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;  
 
 namespace DragonGame.Repositories
 {
-    public interface IStoryRepository
+    public interface IStoryRepository : IRepository<Story>
     {
-        Task<List<Story>> GetAllAsync();
-        Task<Story> GetByIdAsync(int id);
-        Task<Story> CreateAsync(Story story);
-        Task UpdateAsync(Story story);
-        Task DeleteAsync(int id);
+        // Act-specific methods
+        Task<Act?> GetActByIdAsync(int actId);
+        Task<Act?> GetActWithChoicesAsync(int storyId, int actNumber);
+        Task<IEnumerable<Act>> GetAllActsAsync(int storyId);
     }
 }
