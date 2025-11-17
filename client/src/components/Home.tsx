@@ -9,7 +9,7 @@ import {
   clearSavedCharacter,
   loadCharacterFromLocal,
 } from "../services/characterApi";
-import CharacterBuilder from "../components/CharacterBuilder";
+import CharacterBuilder from "./CharacterBuilder";
 
 export default function Home() {
   const navigate = useNavigate();
