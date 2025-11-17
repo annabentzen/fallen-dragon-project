@@ -51,35 +51,31 @@ export default function Home() {
   };
 
   // Start the story
-  const startStory = async () => {
-    if (!characterName.trim()) {
-      setError("Please enter a hero name");
-      return;
-    }
-    if (character.poseId === null) {
-      setError("Please select a pose");
-      return;
-    }
+const startStory = async () => {
+  if (!characterName.trim()) {
+    setError("Please enter a hero name");
+    return;
+  }
+  if (character.poseId === null) {
+    setError("Please select a pose");
+    return;
+  }
 
-    setLoading(true);
-    setError(null);
+  setLoading(true);
+  setError(null);
 
-    try {
-      const session = await createSession({
-        characterName,
-        character,
-        storyId: 1,
-      });
-      console.log("Session created:", session);
-
-      navigate(`/story/${session.sessionId}`);
-    } catch (err) {
-      console.error("Failed to start story:", err);
-      setError("Failed to start story. Check if your backend is running.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    // Only send the name — backend creates character from builder state
+    const session = await createSession(characterName.trim());
+    console.log("Session created:", session);
+    navigate(`/story/${session.sessionId}`);
+  } catch (err) {
+    console.error("Failed to start story:", err);
+    setError("Failed to start story. Is backend running?");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div style={{ maxWidth: "800px", margin: "0 auto", padding: "20px" }}>

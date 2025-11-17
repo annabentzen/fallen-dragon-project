@@ -20,6 +20,8 @@ namespace DragonGame.Models
         [Required]
         public int StoryId { get; set; }
 
+        public Story Story { get; set; } = null!;
+
         [Required]
         public int CurrentActNumber { get; set; } = 1;
 

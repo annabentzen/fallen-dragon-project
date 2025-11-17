@@ -1,16 +1,3 @@
-export interface Choice {
-  choiceId: number;
-  text: string;
-  actId: number;
-  nextActNumber: number;
-}
-
-export interface Act {
-  actNumber: number;
-  text: string;
-  choices: Choice[];
-}
-
 
 export interface Story {
   id: number;
@@ -32,4 +19,27 @@ export interface PlayerSessionFromApi {
   isCompleted: boolean;
 }
 
+export interface ChoiceDto {
+  Text: string;
+  NextActNumber: number;
+}
 
+export interface ActDto {
+  ActNumber: number;
+  Text: string;
+  Choices: ChoiceDto[];
+  IsEnding: boolean;
+}
+
+export interface Act {
+  actNumber: number;
+  text: string;
+  choices: Choice[];
+  isEnding: boolean;
+}
+
+export interface Choice {
+  choiceId: number;
+  text: string;
+  nextActNumber: number;
+}

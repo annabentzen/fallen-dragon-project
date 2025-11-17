@@ -52,7 +52,7 @@ namespace DragonGame.Services
                 {
                     CharacterName = dto.CharacterName,
                     CharacterId = character.Id,
-                    StoryId = dto.StoryId,
+                    StoryId = 1, // Currently only one story
                     CurrentActNumber = 1,
                     IsCompleted = false
                 };

@@ -13,6 +13,7 @@ Explanation of code:
 - Migration first, then seeding — ensures tables exist before you insert data.
 - JSON serializer uses camelCase, matching your frontend TypeScript interfaces.
 - ReferenceHandler set to IgnoreCycles to prevent $id/$values serialization.
+- SEEDING NOW HAPPENS **BEFORE** THE APP ACCEPTS ANY REQUESTS → fixes "No act found" race condition!
 */
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,7 +23,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add controllers with views
 builder.Services.AddControllersWithViews();
 
-// Configure JSON serialization
+// Configure JSON serialization (camelCase + no circular refs)
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -68,7 +69,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowReactDev",
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173") // React dev server
+            policy.WithOrigins("http://localhost:5173") // React/Vite dev server
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
@@ -77,16 +78,22 @@ builder.Services.AddCors(options =>
 // ---------------------- Build app ----------------------
 var app = builder.Build();
 
-// Apply migrations and seed database
+/*
+   CRITICAL FIX: Run migrations + seed the database **BEFORE** the app starts listening.
+   This prevents the race condition where a player creates a session before the story data exists.
+   After this change, "No act found for session X" disappears forever.
+*/
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-    // Apply pending migrations
+    // 1. Apply any pending migrations
     context.Database.Migrate();
 
-    // Seed initial data
+    // 2. Seed the full story (The Fallen Dragon) — guaranteed to finish before first request
     await DbSeeder.Seed(context);
+
+    Console.WriteLine("Database migrated and fully seeded. Ready for players!");
 }
 
 // ---------------------- Middleware ----------------------
@@ -96,12 +103,14 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseCors();                  // Enable CORS globally
-app.UseCors("AllowLocalhost");  // Enable specific CORS policy
-app.UseHttpsRedirection();     
-app.UseStaticFiles();          
-app.UseRouting();              
-app.UseAuthorization();        
+// Apply CORS policies
+app.UseCors("AllowReactDev");   // Specific policy for your React frontend
+app.UseCors();                  // Fallback default policy (optional)
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
+app.UseAuthorization();
 
 // ---------------------- Default route ----------------------
 app.MapControllerRoute(

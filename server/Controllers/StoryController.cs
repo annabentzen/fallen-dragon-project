@@ -122,20 +122,50 @@ namespace DragonGame.Controllers
 
         // GET /api/story/currentAct/{sessionId}
         [HttpGet("currentAct/{sessionId}")]
-        public async Task<IActionResult> GetCurrentAct(int sessionId)
+        public async Task<ActionResult<ActDto>> GetCurrentAct(int sessionId)
         {
-            try
+            var session = await _context.PlayerSessions
+                .Include(s => s.Story!)
+                    .ThenInclude(st => st.Acts!)
+                        .ThenInclude(a => a.Choices)
+                .FirstOrDefaultAsync(s => s.SessionId == sessionId);
+
+            if (session == null)
+                return NotFound("Session not found");
+
+            if (session.Story?.Acts == null || !session.Story.Acts.Any())
+                return NotFound("Story data not loaded");
+
+            var currentAct = session.Story.Acts
+                .FirstOrDefault(a => a.ActNumber == session.CurrentActNumber);
+
+            // If somehow the current act is missing → fall back to Act 1
+            if (currentAct == null)
             {
-                Console.WriteLine($"[StoryController] Getting current act for session {sessionId}");
-                var result = await _storyService.GetCurrentActAsync(sessionId);
-                if (result == null) return NotFound("Session or act not found");
-                return Ok(result);
+                currentAct = session.Story.Acts.FirstOrDefault(a => a.ActNumber == 1);
+                if (currentAct != null)
+                {
+                    session.CurrentActNumber = 1;
+                    await _context.SaveChangesAsync();
+                }
             }
-            catch (Exception ex)
+
+            if (currentAct == null)
+                return NotFound("No valid act found");
+
+            var actDto = new ActDto
             {
-                Console.WriteLine($"[StoryController][GetCurrentAct] ERROR: {ex.Message}");
-                return StatusCode(500, ex.Message);
-            }
+                ActNumber = currentAct.ActNumber,
+                Text = currentAct.Text,
+                Choices = currentAct.Choices.Select(c => new ChoiceDto
+                {
+                    Text = c.Text,
+                    NextActNumber = c.NextActNumber
+                }).ToList(),
+                IsEnding = currentAct.IsEnding
+            };
+
+            return Ok(actDto);
         }
 
         // POST /api/story/nextAct/{sessionId}

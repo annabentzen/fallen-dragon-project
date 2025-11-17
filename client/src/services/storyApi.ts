@@ -1,92 +1,114 @@
-// src/services/storyApi.ts
-import axios from "axios";
-import { Character } from "../types/character";
-import { PlayerSessionFromApi } from "../types/story";
+const API_BASE = "http://localhost:5151"; 
 
-const API_BASE = "http://localhost:5151/api/story";
+export interface ChoiceDto {
+  Text: string;          
+  NextActNumber: number;
+}
 
-// Helper to log API calls
-const log = (message: string, data?: any) => {
-  console.log(`%c[storyApi] ${message}`, "color: #4CAF50; font-weight: bold", data || "");
-};
-const error = (message: string, err: any) => {
-  console.error(`%c[storyApi ERROR] ${message}`, "color: #f44336; font-weight: bold", err.response?.data || err.message);
-};
+export interface ActDto {
+  ActNumber: number;     
+  Text: string;         
+  Choices: ChoiceDto[];  
+  IsEnding: boolean;     
+}
+
+export interface PlayerSessionDto {
+  sessionId: number;
+  characterName: string;
+  characterId: number;
+  storyId: number;
+  currentActNumber: number;
+  isCompleted: boolean;
+}
 
 // Create new game session
-export const createSession = async (data: {
-  characterName: string;
-  character: Character;
-  storyId: number;
-}): Promise<PlayerSessionFromApi> => {
-  try {
-    log("Creating new session...", data);
-    const response = await axios.post(`${API_BASE}/start`, data);
-    log("Session created successfully!", response.data);
-    return response.data;
-  } catch (err: any) {
-    error("Failed to create session", err);
-    throw err;
-  }
+export const createSession = async (characterName: string) => {
+  const response = await fetch(`${API_BASE}/api/story/start`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ characterName }),
+  });
+  if (!response.ok) throw new Error("Failed to create session");
+  return response.json();
 };
 
-// Get session info
-export const getSession = async (sessionId: number) => {
-  try {
-    log(`Fetching session ${sessionId}`);
-    const response = await axios.get(`${API_BASE}/session/${sessionId}`);
-    return response.data;
-  } catch (err: any) {
-    error(`Failed to fetch session ${sessionId}`, err);
-    throw err;
+// Load current act (backend now returns ActDto directly!)
+export const getCurrentAct = async (sessionId: number): Promise<ActDto> => {
+  console.log("[storyApi] Loading current act for session", sessionId);
+  const response = await fetch(`${API_BASE}/api/story/currentAct/${sessionId}`);
+
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`Failed to load act: ${response.status} ${err}`);
   }
+
+  const act: ActDto = await response.json();
+  console.log("[storyApi] Act loaded:", act);
+  return act;
 };
 
-// Get character for editing
-export const getCharacterForSession = async (sessionId: number): Promise<Character> => {
-  try {
-    log(`Fetching character for session ${sessionId}`);
-    const response = await axios.get<Character>(`${API_BASE}/${sessionId}/character`);
-    log("Character loaded", response.data);
-    return response.data;
-  } catch (err: any) {
-    error(`Failed to load character for session ${sessionId}`, err);
-    throw err;
-  }
+// Make a choice → go to next act
+export const makeChoice = async (sessionId: number, nextActNumber: number): Promise<ActDto> => {
+  console.log("[storyApi] Choosing next act:", nextActNumber);
+  const response = await fetch(`${API_BASE}/api/story/choose`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ sessionId, nextActNumber }),
+  });
+
+  if (!response.ok) throw new Error("Failed to make choice");
+  const act: ActDto = await response.json();
+  console.log("[storyApi] New act after choice:", act);
+  return act;
 };
 
-// Save updated character design
-export const updateCharacter = async (sessionId: number, character: Character) => {
-  try {
-    log(`Saving character update for session ${sessionId}`, character);
-    await axios.put(`${API_BASE}/updateCharacter/${sessionId}`, character);
-    log("Character saved successfully!");
-  } catch (err: any) {
-    error(`Failed to save character (session ${sessionId})`, err);
-    throw err;
-  }
+// Get character (for display on story page)
+export const getCharacter = async (sessionId: number) => {
+  console.log("[storyApi] Fetching character for session", sessionId);
+  const response = await fetch(`${API_BASE}/api/story/${sessionId}/character`);
+  if (!response.ok) throw new Error("Failed to load character");
+  const data = await response.json();
+  console.log("[storyApi] Character loaded", data);
+  return data;
 };
 
-// Load current story act + choices
-export const getCurrentAct = async (sessionId: number) => {
-  try {
-    log(`Loading current act for session ${sessionId}`);
-    const response = await axios.get(`${API_BASE}/currentAct/${sessionId}`);
-    return response.data;
-  } catch (err: any) {
-    error(`Failed to load current act (session ${sessionId})`, err);
-    throw err;
-  }
+// src/api/storyApi.ts  ← ADD THESE FUNCTIONS AT THE END OF THE FILE
+
+// Load the full session object (used for character name, etc.)
+export const getSession = async (sessionId: number): Promise<PlayerSessionDto> => {
+  const response = await fetch(`${API_BASE}/api/story/session/${sessionId}`);
+  if (!response.ok) throw new Error("Failed to load session");
+  return response.json();
 };
 
-// Choose next act
-export const moveToNextAct = async (sessionId: number, nextActNumber: number) => {
-  try {
-    log(`Moving to act ${nextActNumber} (session ${sessionId})`);
-    await axios.post(`${API_BASE}/nextAct/${sessionId}`, { nextActNumber });
-    log("Successfully moved to next act");
-  } catch (err: any) {
-    error(`Failed to move to act ${nextActNumber}`, err);
-    throw err;
+// Legacy alias — some places still use this name
+export const getCharacterForSession = async (sessionId: number) => {
+  return getCharacter(sessionId); // just forward to the main function
+};
+
+// Move to next act when a choice is made
+export const moveToNextAct = async (sessionId: number, nextActNumber: number): Promise<void> => {
+  const response = await fetch(`${API_BASE}/api/story/choose`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ sessionId, nextActNumber }),
+  });
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`Failed to move to act ${nextActNumber}: ${err}`);
+  }
+  // No body expected — just confirm success
+};
+
+// Update character appearance during the game (edit modal)
+export const updateCharacter = async (sessionId: number, character: any): Promise<void> => {
+  const response = await fetch(`${API_BASE}/api/character/session/${sessionId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(character),
+  });
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`Failed to update character: ${err}`);
   }
 };

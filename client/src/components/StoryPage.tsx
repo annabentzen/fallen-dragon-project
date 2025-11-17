@@ -4,6 +4,7 @@ import CharacterBuilder from "./CharacterBuilder";
 import { useNavigate } from "react-router-dom";
 
 import {
+  ActDto,
   getCharacterForSession,
   getCurrentAct,
   getSession,
@@ -53,32 +54,53 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
     loadSession();
   }, [sessionId]);
 
+
+
   // ---------------- LOAD CURRENT ACT ----------------
   const loadAct = async () => {
     setLoading(true);
     setErrorMsg(null);
+
     try {
-      const result = await getCurrentAct(sessionId);
-      if (!result?.act) {
+      const actDto: ActDto = await getCurrentAct(sessionId);
+
+      if (!actDto?.Text) {
         setErrorMsg(`No act found for session ${sessionId}.`);
         setCurrentAct(null);
         setChoices([]);
         return;
       }
 
-      setCurrentAct(result.act);
-      setChoices(result.act.choices || []);
-      setStoryEnded(result.session?.isCompleted ?? false);
+      // Map C# PascalCase → your frontend camelCase
+      const mappedAct: Act = {
+        actNumber: actDto.ActNumber,
+        text: actDto.Text,
+        choices: actDto.Choices.map(c => ({
+          choiceId: 0,
+          text: c.Text,
+          nextActNumber: c.NextActNumber
+        })),
+        isEnding: actDto.IsEnding
+      };
+
+      setCurrentAct(mappedAct);
+      setChoices(mappedAct.choices);
+
+      // Perfect ending detection
+      if (actDto.IsEnding || actDto.Choices.length === 0) {
+        setTimeout(() => navigate(`/ending/${sessionId}`), 800);
+      }
+
     } catch (err) {
       console.error("Error loading act:", err);
-      setErrorMsg("Failed to load act.");
+      setErrorMsg("Failed to load the next part of the story...");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadAct();
+    if (sessionId) loadAct();
   }, [sessionId]);
 
   // ---------------- FETCH POSES ----------------
@@ -95,11 +117,11 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
   }, []);
 
   // ---------------- HANDLE CHOICE ----------------
-  const handleChoiceClick = async (nextActNumber: number) => {
+ const handleChoiceClick = async (nextActNumber: number) => {
   setLoading(true);
   try {
     await moveToNextAct(sessionId, nextActNumber);
-    await loadAct();
+    await loadAct(); 
   } catch (err) {
     console.error("Error advancing act:", err);
     setErrorMsg("Failed to advance to next act.");

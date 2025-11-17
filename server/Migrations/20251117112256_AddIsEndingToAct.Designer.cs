@@ -3,6 +3,7 @@ using System;
 using DragonGame.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DragonGame.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251117112256_AddIsEndingToAct")]
+    partial class AddIsEndingToAct
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.10");
@@ -126,7 +129,7 @@ namespace DragonGame.Migrations
                     b.Property<int>("ActId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("NextActNumber")
+                    b.Property<int?>("NextActNumber")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Text")
@@ -208,8 +211,6 @@ namespace DragonGame.Migrations
                     b.HasKey("SessionId");
 
                     b.HasIndex("CharacterId");
-
-                    b.HasIndex("StoryId");
 
                     b.ToTable("PlayerSessions");
                 });
@@ -294,15 +295,7 @@ namespace DragonGame.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DragonGame.Models.Story", "Story")
-                        .WithMany("PlayerSessions")
-                        .HasForeignKey("StoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Character");
-
-                    b.Navigation("Story");
                 });
 
             modelBuilder.Entity("DragonGame.Models.Act", b =>
@@ -323,8 +316,6 @@ namespace DragonGame.Migrations
             modelBuilder.Entity("DragonGame.Models.Story", b =>
                 {
                     b.Navigation("Acts");
-
-                    b.Navigation("PlayerSessions");
                 });
 #pragma warning restore 612, 618
         }
