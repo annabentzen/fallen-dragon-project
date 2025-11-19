@@ -11,7 +11,7 @@ namespace DragonGame.Models
         public int ActId { get; set; } // Foreign Key to current act
         public Act Act { get; set; } = null!;
     
-        public int? NextActNumber { get; set; } 
+        public int NextActNumber { get; set; } 
     }
 
 }

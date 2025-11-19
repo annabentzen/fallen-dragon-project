@@ -416,5 +416,9 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# database files
+*.db
 *.db-shm
 *.db-wal
+server/App_Data/*.db

@@ -1,6 +1,9 @@
 using DragonGame.Data;
 using DragonGame.Repositories;
+using DragonGame.Services;
 using Microsoft.EntityFrameworkCore;
+using server.Services;
+using server.Services.Interfaces;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -10,7 +13,7 @@ Explanation of code:
 - Migration first, then seeding — ensures tables exist before you insert data.
 - JSON serializer uses camelCase, matching your frontend TypeScript interfaces.
 - ReferenceHandler set to IgnoreCycles to prevent $id/$values serialization.
-- CORS is configured before middleware, allowing your React frontend (5173) to call the API.
+- SEEDING NOW HAPPENS **BEFORE** THE APP ACCEPTS ANY REQUESTS → fixes "No act found" race condition!
 */
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,33 +23,40 @@ var builder = WebApplication.CreateBuilder(args);
 // Add controllers with views
 builder.Services.AddControllersWithViews();
 
-// Configure JSON serialization
+// Configure JSON serialization (camelCase + no circular refs)
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        // Use camelCase in JSON, matching TypeScript frontend
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-
-        // Ignore object reference cycles instead of Preserve
-        // This ensures lists serialize as plain arrays
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-
-        // Optional: MaxDepth for safety
         options.JsonSerializerOptions.MaxDepth = 64;
-
-        // Optional: pretty-print JSON (for debugging)
         options.JsonSerializerOptions.WriteIndented = true;
     });
 
-// Configure Entity Framework with SQLite (single database)
+// Configure Entity Framework with SQLite
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=App_Data/DragonGame.db")); // database file in root
+    options.UseSqlite("Data Source=App_Data/DragonGame.db"));
 
-// Register repositories
+// ---------------------- Dependency Injection ----------------------
+
+// Register generic repository for all entities
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+// Register specific repositories
 builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
 builder.Services.AddScoped<ICharacterPoseRepository, CharacterPoseRepository>();
+builder.Services.AddScoped<IPlayerSessionRepository, PlayerSessionRepository>();
+builder.Services.AddScoped<IStoryRepository, StoryRepository>();
+builder.Services.AddScoped<IChoiceHistoryRepository, ChoiceHistoryRepository>();
 
-// Configure CORS for React frontend
+// Register services
+builder.Services.AddScoped<IStoryService, StoryService>();
+builder.Services.AddScoped<IPlayerSessionService, PlayerSessionService>();
+builder.Services.AddScoped<ICharacterService, CharacterService>();
+builder.Services.AddScoped<IPoseService, PoseService>();
+builder.Services.AddScoped<IChoiceHistoryService, ChoiceHistoryService>();
+
+// ---------------------- CORS ----------------------
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -55,52 +65,54 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
+
+    options.AddPolicy("AllowReactDev",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5173") // React/Vite dev server
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
 });
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowLocalhost", policy =>
-        policy.WithOrigins("http://localhost:5173")
-              .AllowAnyMethod()
-              .AllowAnyHeader());
-});
-
-
 
 // ---------------------- Build app ----------------------
-
 var app = builder.Build();
 
-// Apply migrations and seed database
+/*
+   CRITICAL FIX: Run migrations + seed the database **BEFORE** the app starts listening.
+   This prevents the race condition where a player creates a session before the story data exists.
+   After this change, "No act found for session X" disappears forever.
+*/
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-    // Apply pending migrations
+    // 1. Apply any pending migrations
     context.Database.Migrate();
 
-    // Seed initial data
+    // 2. Seed the full story (The Fallen Dragon) — guaranteed to finish before first request
     await DbSeeder.Seed(context);
+
+    Console.WriteLine("Database migrated and fully seeded. Ready for players!");
 }
 
 // ---------------------- Middleware ----------------------
-
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
-app.UseCors();                  // Enable CORS globally
-app.UseCors("AllowLocalhost");  // Enable specific CORS policy
-app.UseHttpsRedirection();     // Redirect HTTP → HTTPS
-app.UseStaticFiles();          // Serve wwwroot files
-app.UseRouting();              // Route requests
-app.UseAuthorization();        // Authorization middleware
+// Apply CORS policies
+app.UseCors("AllowReactDev");   // Specific policy for your React frontend
+app.UseCors();                  // Fallback default policy (optional)
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
+app.UseAuthorization();
 
 // ---------------------- Default route ----------------------
-
-// Open Character Create view by default
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Character}/{action=Create}/{id?}");

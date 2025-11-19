@@ -1,51 +1,22 @@
 import React, { useEffect, useState } from "react";
 import EndingScreen from "./EndingScreen";
-import { getCurrentAct, getSession } from "../services/storyApi";
-import {
-  Act,
-  Choice,
-  PlayerSessionFromApi,
-  CharacterDesign,
-  CharacterPose,
-} from "../types/story";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { getAllPoses, saveCharacterToLocal } from "../services/characterApi";
 import CharacterBuilder from "./CharacterBuilder";
-import { updateCharacterDesign } from "../services/storyApi";
+import { useNavigate } from "react-router-dom";
 
+import {
+  ActDto,
+  getCharacterForSession,
+  getCurrentAct,
+  getSession,
+  moveToNextAct,
+  updateCharacter,
+} from "../services/storyApi";
+import { getAllPoses } from "../services/characterApi";
+import { Act, Choice, PlayerSessionFromApi } from "../types/story";
+import { Character, CharacterPose } from "../types/character";
 
 interface StoryPageProps {
   sessionId: number;
-}
-
-// ---------- HELPER FUNCTION ----------
-function safeParseCharacterDesign(
-  data: string | CharacterDesign | null | undefined
-): CharacterDesign {
-  if (!data) return {};
-
-  if (typeof data === "string") {
-    try {
-      const parsed = JSON.parse(data);
-      return {
-        hair: parsed.hair ?? undefined,
-        face: parsed.face ?? undefined,
-        outfit: parsed.outfit ?? undefined,
-        poseId: parsed.poseId ?? undefined,
-      };
-    } catch {
-      console.warn("Failed to parse characterDesign JSON:", data);
-      return {};
-    }
-  }
-
-  return {
-    hair: data.hair ?? undefined,
-    face: data.face ?? undefined,
-    outfit: data.outfit ?? undefined,
-    poseId: data.poseId ?? undefined,
-  };
 }
 
 const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
@@ -53,100 +24,86 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
   const [choices, setChoices] = useState<Choice[]>([]);
   const [loading, setLoading] = useState(true);
   const [storyEnded, setStoryEnded] = useState(false);
-  const [playerSession, setPlayerSession] =
-    useState<PlayerSessionFromApi | null>(null);
-  const [characterDesign, setCharacterDesign] = useState<CharacterDesign>({});
+  const [playerSession, setPlayerSession] = useState<PlayerSessionFromApi | null>(null);
+  const [character, setCharacter] = useState<Character | null>(null);
   const [poses, setPoses] = useState<CharacterPose[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isEditingCharacter, setIsEditingCharacter] = useState(false);
 
   const navigate = useNavigate();
 
-  // ---------- RESTART ----------
-  const handleRestart = () => {
-    console.log("Restart clicked, navigating to home");
-    navigate("/");
-  };
+  // ---------------- RESTART ----------------
+  const handleRestart = () => navigate("/");
 
-  // ---------- LOAD SESSION ----------
+  // ---------------- LOAD SESSION & CHARACTER ----------------
   useEffect(() => {
     const loadSession = async () => {
-      console.log("Loading session", sessionId);
       try {
         const sessionData = await getSession(sessionId);
-        if (!sessionData) {
-          setErrorMsg(`Session ${sessionId} not found.`);
-          return;
-        }
-
-        const parsedDesign = safeParseCharacterDesign(sessionData.characterDesign);
         setPlayerSession(sessionData);
-        setCharacterDesign(parsedDesign);
-        console.log("Parsed character design (session):", parsedDesign);
-      } catch (error) {
-        console.error("Error loading session:", error);
-        setErrorMsg("Failed to load session data.");
+
+        if (sessionData?.sessionId) {
+          const charData = await getCharacterForSession(sessionData.sessionId);
+          setCharacter(charData);
+        }
+      } catch (err) {
+        console.error("Failed to load session or character", err);
+        setErrorMsg("Failed to load session or character data.");
       }
     };
     loadSession();
   }, [sessionId]);
 
-  // ---------- LOAD CURRENT ACT ----------
+
+
+  // ---------------- LOAD CURRENT ACT ----------------
   const loadAct = async () => {
-    console.log("Loading current act for session", sessionId);
     setLoading(true);
     setErrorMsg(null);
 
     try {
-      const result = await getCurrentAct(sessionId);
-      if (!result || !result.act) {
+      const actDto: ActDto = await getCurrentAct(sessionId);
+
+      if (!actDto?.text) {
         setErrorMsg(`No act found for session ${sessionId}.`);
         setCurrentAct(null);
         setChoices([]);
         return;
       }
 
-      const { session, act } = result;
-      setCurrentAct(act);
-      setChoices(act.choices || []);
-      setStoryEnded(session?.isCompleted ?? false);
+      // Map C# PascalCase → your frontend camelCase
+      const mappedAct: Act = {
+        actNumber: actDto.actNumber,
+        text: actDto.text,
+        choices: actDto.choices.map((c, index) => ({
+          choiceId: index,
+          text: c.text,
+          nextActNumber: c.nextActNumber
+        })),
+        isEnding: actDto.isEnding
+      };
 
-      if (session) {
-        const parsedDesign = safeParseCharacterDesign(session.characterDesign);
-        setPlayerSession(session);
-        setCharacterDesign(parsedDesign);
+      setCurrentAct(mappedAct);
+      setChoices(mappedAct.choices);
+
+      // Perfect ending detection
+      if (actDto.isEnding || actDto.choices.length === 0) {
+        setTimeout(() => navigate(`/ending/${sessionId}`), 800);
       }
-    } catch (error) {
-      console.error("Error loading act:", error);
-      setErrorMsg("Failed to load act.");
+
+    } catch (err) {
+      console.error("Error loading act:", err);
+      setErrorMsg("Failed to load the next part of the story...");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadAct();
+    if (sessionId) loadAct();
   }, [sessionId]);
 
-  // ---------- HANDLE CHOICE ----------
-  const handleChoiceClick = async (nextActNumber: number) => {
-    setLoading(true);
-    try {
-      await axios.post(
-        `http://localhost:5151/api/story/nextAct/${sessionId}`,
-        { nextActNumber },
-        { headers: { "Content-Type": "application/json" } }
-      );
-      await loadAct();
-    } catch (error) {
-      console.error("Error advancing act:", error);
-      setErrorMsg("Failed to advance to next act.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ---------- FETCH POSES ----------
+  // ---------------- FETCH POSES ----------------
   useEffect(() => {
     const fetchPoses = async () => {
       try {
@@ -159,23 +116,29 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
     fetchPoses();
   }, []);
 
-  // ---------- RENDER ----------
+  // ---------------- HANDLE CHOICE ----------------
+ const handleChoiceClick = async (nextActNumber: number) => {
+  setLoading(true);
+  try {
+    await moveToNextAct(sessionId, nextActNumber);
+    await loadAct(); 
+  } catch (err) {
+    console.error("Error advancing act:", err);
+    setErrorMsg("Failed to advance to next act.");
+  } finally {
+    setLoading(false);
+  }
+};
+
   if (loading) return <div>Loading...</div>;
   if (errorMsg) return <div className="error">{errorMsg}</div>;
   if (!currentAct) return <div>No act data available.</div>;
 
-  const selectedPose = poses.find(
-    (p) => Number(p.id) === Number(characterDesign.poseId)
-  );
+  const selectedPose = poses.find((p) => p.id === character?.poseId);
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: storyEnded ? "#7c372fff" : "#f0f8ff",
-      }}
-    >
-      {/* --- NAVBAR --- */}
+    <div style={{ minHeight: "100vh", backgroundColor: storyEnded ? "#7c372fff" : "#f0f8ff" }}>
+      {/* Navbar */}
       <nav
         style={{
           width: "100%",
@@ -191,28 +154,32 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
         }}
       >
         <span style={{ fontWeight: "bold" }}>The Fallen Dragon</span>
-        <button
-          onClick={() => setIsEditingCharacter(true)}
-          style={{
-            padding: "6px 12px",
-            backgroundColor: "#4caf50",
-            color: "white",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-          }}
-        >
-          Edit Character
-        </button>
+        {character && (
+          <button
+            onClick={() => setIsEditingCharacter(true)}
+            style={{
+              padding: "6px 12px",
+              backgroundColor: "#4caf50",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+          >
+            Edit Character
+          </button>
+        )}
       </nav>
 
       {storyEnded ? (
         <EndingScreen onRestart={handleRestart} />
       ) : (
         <>
+          {/* Story content */}
           <h2>Act {currentAct.actNumber}</h2>
           <p>{currentAct.text}</p>
 
+          {/* Choices */}
           <div className="choices">
             {choices.length > 0 ? (
               choices.map((choice) => (
@@ -237,82 +204,55 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
             )}
           </div>
 
-          {/* --- Character Corner --- */}
-          {playerSession && (
+          {/* Character preview */}
+          {playerSession && character && (
             <div style={{ marginTop: "20px" }}>
               <p>{playerSession.characterName}</p>
-              <div
-                style={{
-                  width: "100px",
-                  height: "100px",
-                  position: "relative",
-                  margin: "10px 0",
-                }}
-              >
+              <div style={{ width: "100px", height: "100px", position: "relative", margin: "10px 0" }}>
+                {/* always show base image */}
                 <img
                   src="/images/base.png"
                   alt="base"
-                  style={{
-                    position: "absolute",
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "contain",
-                  }}
+                  style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
                 />
-                {characterDesign.hair && (
+                
+                {/* Layer character parts */}
+                {character.hair && (
                   <img
-                    src={`/images/hair/${characterDesign.hair}`}
+                    src={`/images/hair/${character.hair}`}
                     alt="hair"
-                    style={{
-                      position: "absolute",
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "contain",
-                    }}
+                    style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
                   />
                 )}
-                {characterDesign.face && (
+                {character.face && (
                   <img
-                    src={`/images/faces/${characterDesign.face}`}
+                    src={`/images/faces/${character.face}`}
                     alt="face"
-                    style={{
-                      position: "absolute",
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "contain",
-                    }}
+                    style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
                   />
                 )}
-                {characterDesign.outfit && (
+                {character.outfit && (
                   <img
-                    src={`/images/clothes/${characterDesign.outfit}`}
+                    src={`/images/clothes/${character.outfit}`}
                     alt="clothing"
-                    style={{
-                      position: "absolute",
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "contain",
-                    }}
+                    style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
                   />
                 )}
-                {selectedPose && (
+                
+                {/* only show pose if selected */}
+                {character.poseId && selectedPose && (
                   <img
                     src={`/images/poses/${selectedPose.imageUrl}`}
                     alt="pose"
-                    style={{
-                      position: "absolute",
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "contain",
-                    }}
+                    style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
                   />
                 )}
               </div>
             </div>
           )}
 
-          {/* --- Character Edit Modal --- */}
-          {isEditingCharacter && (
+          {/* Character Edit Modal */}
+          {isEditingCharacter && character && (
             <div
               style={{
                 position: "fixed",
@@ -330,55 +270,38 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
             >
               <div
                 onClick={(e) => e.stopPropagation()}
-                style={{
-                  backgroundColor: "white",
-                  padding: "20px",
-                  borderRadius: "8px",
-                  maxWidth: "500px",
-                  width: "90%",
-                }}
+                style={{ backgroundColor: "white", padding: "20px", borderRadius: "8px", maxWidth: "500px", width: "90%" }}
               >
                 <CharacterBuilder
-                  hair={characterDesign.hair || "hair1.png"}
-                  face={characterDesign.face || "face1.png"}
-                  outfit={characterDesign.outfit || "clothing1.png"}
-                  poseId={characterDesign.poseId ?? null}
+                  character={character}
                   poses={poses}
                   onHairChange={(hair) =>
-                    setCharacterDesign((prev) => ({ ...prev, hair }))
+                    setCharacter((prev) => (prev ? { ...prev, hair } : prev))
                   }
                   onFaceChange={(face) =>
-                    setCharacterDesign((prev) => ({ ...prev, face }))
+                    setCharacter((prev) => (prev ? { ...prev, face } : prev))
                   }
                   onOutfitChange={(outfit) =>
-                    setCharacterDesign((prev) => ({ ...prev, outfit }))
+                    setCharacter((prev) => (prev ? { ...prev, outfit } : prev))
                   }
                   onPoseChange={(poseId) =>
-                    setCharacterDesign((prev) => ({
-                      ...prev,
-                      poseId: poseId ?? undefined,
-                    }))
+                    setCharacter((prev) => (prev ? { ...prev, poseId: poseId ?? null } : prev))
                   }
                 />
+
                 <button
                   onClick={async () => {
                     setIsEditingCharacter(false);
                     try {
-                      await updateCharacterDesign(sessionId, characterDesign);
-                      console.log("Character design saved.");
+                      if (character) {
+                        await updateCharacter(sessionId, character);
+                        console.log("Character saved.");
+                      }
                     } catch (err) {
                       console.error("Failed to save character:", err);
                     }
                   }}
-                  style={{
-                    marginTop: "10px",
-                    padding: "8px 12px",
-                    backgroundColor: "#333",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "5px",
-                    cursor: "pointer",
-                  }}
+                  style={{ marginTop: "10px", padding: "8px 12px", backgroundColor: "#333", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}
                 >
                   Close & Save
                 </button>
