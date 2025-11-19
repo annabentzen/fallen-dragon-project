@@ -25,6 +25,7 @@ namespace DragonGame.Data
         public DbSet<Choice> Choices { get; set; }
         public DbSet<Character> Characters { get; set; }
         public DbSet<CharacterPose> CharacterPoses { get; set; }
+        public DbSet<ChoiceHistory> ChoiceHistories { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -58,6 +59,31 @@ namespace DragonGame.Data
                 new CharacterPose { Id = 2, Name = "Fighting", ImageUrl = "pose2.png" },
                 new CharacterPose { Id = 3, Name = "Flying", ImageUrl = "pose3.png" }
             );
+
+            modelBuilder.Entity<PlayerSession>(entity =>
+            {
+                entity.HasOne<Act>()                        // PlayerSession has one Act
+                    .WithMany()                           // Act can be current for many sessions
+                    .HasForeignKey(s => s.CurrentActNumber) // FK is CurrentActNumber
+                    .HasPrincipalKey(a => a.ActNumber)     // PK on Act is ActNumber
+                    .OnDelete(DeleteBehavior.Restrict);    // Don't delete act if used
+            });
+
+            modelBuilder.Entity<ChoiceHistory>(entity =>
+            {
+                entity.HasIndex(e => e.PlayerSessionId);
+                entity.HasIndex(e => e.MadeAt);
+
+                entity.HasOne(e => e.PlayerSession)
+                    .WithMany() 
+                    .HasForeignKey(e => e.PlayerSessionId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Choice)
+                    .WithMany()
+                    .HasForeignKey(e => e.ChoiceId)
+                    .OnDelete(DeleteBehavior.Restrict); 
+            });
         }
     }
 }

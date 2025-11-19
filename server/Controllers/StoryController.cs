@@ -172,17 +172,36 @@ namespace DragonGame.Controllers
         [HttpPost("nextAct/{sessionId}")]
         public async Task<IActionResult> NextAct(int sessionId, [FromBody] NextActRequest request)
         {
+            if (request == null || request.NextActNumber == 0)
+                return BadRequest("Invalid request");
+
             try
             {
-                Console.WriteLine($"[StoryController] Moving session {sessionId} → act {request.NextActNumber}");
                 var session = await _storyService.MoveToNextActAsync(sessionId, request.NextActNumber);
-                if (session == null) return NotFound();
-                return Ok(session);
+                if (session == null)
+                    return NotFound($"Session {sessionId} not found");
+
+                // Convert to DTO for frontend
+                var dto = new PlayerSessionDto
+                {
+                    SessionId = session.SessionId,
+                    CharacterName = session.CharacterName,
+                    CharacterId = session.CharacterId,
+                    Hair = session.Character?.Hair,
+                    Face = session.Character?.Face,
+                    Outfit = session.Character?.Outfit,
+                    PoseId = session.Character?.PoseId,
+                    StoryId = session.StoryId,
+                    CurrentActNumber = session.CurrentActNumber,
+                    IsCompleted = session.IsCompleted
+                };
+
+                return Ok(dto);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[StoryController][NextAct] ERROR: {ex.Message}");
-                return StatusCode(500, ex.Message);
+                Console.WriteLine($"[StoryController] NextAct error: {ex.Message}");
+                return StatusCode(500, "Failed to advance story");
             }
         }
     }
