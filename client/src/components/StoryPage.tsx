@@ -36,6 +36,7 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
   const handleRestart = () => navigate("/");
 
   // ---------------- LOAD SESSION & CHARACTER ----------------
+  /*
   useEffect(() => {
     const loadSession = async () => {
       try {
@@ -54,6 +55,19 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
     loadSession();
   }, [sessionId]);
 
+  */
+ // ---------------- LOAD CHARACTER (we get session data from currentAct anyway) ----------------
+useEffect(() => {
+  const loadCharacter = async () => {
+    try {
+      const charData = await getCharacterForSession(sessionId);
+      setCharacter(charData);
+    } catch (err) {
+      console.error("Failed to load character", err);
+    }
+  };
+  if (sessionId) loadCharacter();
+}, [sessionId]);
 
 
   // ---------------- LOAD CURRENT ACT ----------------

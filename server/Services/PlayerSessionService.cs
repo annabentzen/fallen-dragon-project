@@ -10,13 +10,16 @@ namespace DragonGame.Services
     {
         private readonly IPlayerSessionRepository _sessionRepo;
         private readonly ICharacterRepository _characterRepo;
+        private readonly AppDbContext _context;
 
         public PlayerSessionService(
             IPlayerSessionRepository sessionRepo,
-            ICharacterRepository characterRepo)
+            ICharacterRepository characterRepo,
+            AppDbContext context)
         {
             _sessionRepo = sessionRepo ?? throw new ArgumentNullException(nameof(sessionRepo));
             _characterRepo = characterRepo ?? throw new ArgumentNullException(nameof(characterRepo));
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
 
@@ -117,6 +120,41 @@ namespace DragonGame.Services
                 throw new Exception($"No character found with id {session.CharacterId}");
 
             return character;
+        }
+
+        // ---------- GET CURRENT ACT WITH CHOICES ----------
+        public async Task<Act?> GetCurrentActAsync(int sessionId)
+        {
+            var session = await _sessionRepo.GetByIdAsync(sessionId);
+
+            if (session == null)
+                return null;
+
+            // Fresh session → force start at Act 1
+            int actNumber = session.CurrentActNumber == 0 ? 1 : session.CurrentActNumber;
+
+            var act = await _context.Acts
+                .Include(a => a.Choices)
+                // ← VERY IMPORTANT
+                .FirstOrDefaultAsync(a => 
+                    a.StoryId == session.StoryId && 
+                    a.ActNumber == actNumber);
+
+            // If still null (should never happen if seed is correct), fallback to real Act 1
+            if (act == null && actNumber != 1)
+            {
+                act = await _context.Acts
+                    .Include(a => a.Choices)
+                    .FirstOrDefaultAsync(a => a.StoryId == session.StoryId && a.ActNumber == 1);
+
+                if (act != null)
+                {
+                    session.CurrentActNumber = 1;
+                    await _context.SaveChangesAsync();
+                }
+            }
+
+            return act;
         }
 
 

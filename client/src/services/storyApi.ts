@@ -1,3 +1,5 @@
+import { Character } from "../types/character";
+
 const API_BASE = "http://localhost:5151"; 
 
 export interface ChoiceDto {
@@ -32,7 +34,7 @@ export const createSession = async (characterName: string) => {
   return response.json();
 };
 
-// Load current act (backend now returns ActDto directly!)
+// Load current act (backend returns ActDto directly)
 export const getCurrentAct = async (sessionId: number): Promise<ActDto> => {
   console.log("[storyApi] Loading current act for session", sessionId);
   const response = await fetch(`${API_BASE}/api/story/currentAct/${sessionId}`);
@@ -81,9 +83,13 @@ export const getSession = async (sessionId: number): Promise<PlayerSessionDto> =
   return response.json();
 };
 
-// Legacy alias — some places still use this name
-export const getCharacterForSession = async (sessionId: number) => {
-  return getCharacter(sessionId); // just forward to the main function
+export const getCharacterForSession = async (sessionId: number): Promise<Character> => {
+  const response = await fetch(`${API_BASE}/api/story/${sessionId}/character`);
+  
+  if (!response.ok) {
+    throw new Error("Failed to load character");
+  }
+  return await response.json();
 };
 
 // Move to next act when a choice is made
