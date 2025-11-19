@@ -13,6 +13,7 @@ namespace DragonGame.Models
         public Story Story { get; set; } = null!;
 
         public List<Choice> Choices { get; set; } = new();
+        public ICollection<PlayerSession> PlayerSessions { get; set; } = new List<PlayerSession>();
     
     }
 }

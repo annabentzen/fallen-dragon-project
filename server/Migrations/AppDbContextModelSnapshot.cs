@@ -174,19 +174,29 @@ namespace DragonGame.Migrations
                     b.Property<int>("PlayerSessionId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("PlayerSessionSessionId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ChoiceId");
 
+                    b.HasIndex("MadeAt");
+
                     b.HasIndex("PlayerSessionId");
 
-                    b.ToTable("ChoiceHistory");
+                    b.HasIndex("PlayerSessionSessionId");
+
+                    b.ToTable("ChoiceHistories");
                 });
 
             modelBuilder.Entity("DragonGame.Models.PlayerSession", b =>
                 {
                     b.Property<int>("SessionId")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("ActId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("CharacterId")
@@ -207,7 +217,11 @@ namespace DragonGame.Migrations
 
                     b.HasKey("SessionId");
 
+                    b.HasIndex("ActId");
+
                     b.HasIndex("CharacterId");
+
+                    b.HasIndex("CurrentActNumber");
 
                     b.HasIndex("StoryId");
 
@@ -272,14 +286,18 @@ namespace DragonGame.Migrations
                     b.HasOne("DragonGame.Models.Choice", "Choice")
                         .WithMany()
                         .HasForeignKey("ChoiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("DragonGame.Models.PlayerSession", "PlayerSession")
-                        .WithMany("Choices")
+                        .WithMany()
                         .HasForeignKey("PlayerSessionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("DragonGame.Models.PlayerSession", null)
+                        .WithMany("Choices")
+                        .HasForeignKey("PlayerSessionSessionId");
 
                     b.Navigation("Choice");
 
@@ -288,10 +306,21 @@ namespace DragonGame.Migrations
 
             modelBuilder.Entity("DragonGame.Models.PlayerSession", b =>
                 {
+                    b.HasOne("DragonGame.Models.Act", null)
+                        .WithMany("PlayerSessions")
+                        .HasForeignKey("ActId");
+
                     b.HasOne("DragonGame.Models.Character", "Character")
                         .WithMany("PlayerSessions")
                         .HasForeignKey("CharacterId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DragonGame.Models.Act", "CurrentAct")
+                        .WithMany()
+                        .HasForeignKey("CurrentActNumber")
+                        .HasPrincipalKey("ActNumber")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("DragonGame.Models.Story", "Story")
@@ -302,12 +331,16 @@ namespace DragonGame.Migrations
 
                     b.Navigation("Character");
 
+                    b.Navigation("CurrentAct");
+
                     b.Navigation("Story");
                 });
 
             modelBuilder.Entity("DragonGame.Models.Act", b =>
                 {
                     b.Navigation("Choices");
+
+                    b.Navigation("PlayerSessions");
                 });
 
             modelBuilder.Entity("DragonGame.Models.Character", b =>

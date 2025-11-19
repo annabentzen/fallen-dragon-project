@@ -62,11 +62,11 @@ namespace DragonGame.Data
 
             modelBuilder.Entity<PlayerSession>(entity =>
             {
-                entity.HasOne<Act>()                        // PlayerSession has one Act
-                    .WithMany()                           // Act can be current for many sessions
-                    .HasForeignKey(s => s.CurrentActNumber) // FK is CurrentActNumber
-                    .HasPrincipalKey(a => a.ActNumber)     // PK on Act is ActNumber
-                    .OnDelete(DeleteBehavior.Restrict);    // Don't delete act if used
+                entity.HasOne(d => d.CurrentAct)
+                    .WithMany()
+                    .HasForeignKey(d => d.CurrentActNumber)
+                    .HasPrincipalKey(a => a.ActNumber)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<ChoiceHistory>(entity =>

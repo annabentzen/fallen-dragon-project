@@ -21,10 +21,10 @@ namespace DragonGame.Models
         public int StoryId { get; set; }
 
         public Story Story { get; set; } = null!;
-        public Act? CurrentAct { get; set; }
+        public int CurrentActNumber { get; set; }
 
-        [Required]
-        public int CurrentActNumber { get; set; } = 1;
+        [ForeignKey("CurrentActNumber")]
+        public Act CurrentAct { get; set; } = null!;
 
         [Required]
         public bool IsCompleted { get; set; } = false;

@@ -19,7 +19,8 @@ namespace DragonGame.Services
             IPlayerSessionRepository sessionRepo,
             IStoryRepository storyRepo,
             ICharacterRepository characterRepo,
-            AppDbContext context, ChoiceHistoryService choiceHistoryService)
+            AppDbContext context, 
+            IChoiceHistoryService choiceHistoryService)
         {
             _sessionRepo = sessionRepo;
             _storyRepo = storyRepo;
