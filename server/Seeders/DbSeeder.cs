@@ -21,13 +21,19 @@ public static class DbSeeder
     }
 
     private static async Task CleanStoryData(AppDbContext context)
-    {
-        Console.WriteLine("Wiping old story data...");
-        await context.Choices.ExecuteDeleteAsync();
-        await context.Acts.ExecuteDeleteAsync();
-        await context.Stories.Where(s => s.StoryId == 1).ExecuteDeleteAsync();
-        await context.SaveChangesAsync();
-    }
+{
+    Console.WriteLine("Wiping old story data...");
+
+    // Order matters! Delete things that reference Acts FIRST
+    await context.ChoiceHistories.ExecuteDeleteAsync();     // if you have any
+    await context.PlayerSessions.ExecuteDeleteAsync();    // THIS IS THE CRUCIAL ONE
+
+    await context.Choices.ExecuteDeleteAsync();
+    await context.Acts.ExecuteDeleteAsync();
+    await context.Stories.Where(s => s.StoryId == 1).ExecuteDeleteAsync();
+
+    await context.SaveChangesAsync();
+}
 
     private static async Task InsertFullStory(AppDbContext context)
     {

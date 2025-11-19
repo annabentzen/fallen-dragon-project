@@ -26,6 +26,7 @@ namespace DragonGame.Data
         public DbSet<Character> Characters { get; set; }
         public DbSet<CharacterPose> CharacterPoses { get; set; }
         public DbSet<ChoiceHistory> ChoiceHistories { get; set; } = null!;
+    
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
