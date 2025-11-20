@@ -203,7 +203,7 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
             {/* Middle Right: Dragon Image */}
             <div className={styles.dragonSection}>
               <img
-                src="/images/dragon.png"
+                src="/images/game-images/dragon/Death3.png"
                 alt="Dragon"
                 className={styles.dragonImage}
               />

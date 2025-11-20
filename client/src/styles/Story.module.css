@@ -50,7 +50,7 @@
 
 .storyScene {
   min-height: calc(100vh - 60px);
-  background-image: url('/images/background.png');
+  background-image: url('/images/backgrounds/nature_3/origbig.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -65,20 +65,23 @@
 
 .noteboardSection {
   position: absolute;
-  top: 40px;
-  left: 40px;
-  width: 450px;
-  max-width: 45%;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 700px;
+  max-width: 50%;
   z-index: 10;
 }
 
 .noteboardContainer {
-  background-image: url('/images/noteboard.png');
+  background-image: url('/images/game-images/UI/symbols/PNG/05ogin&pass/beige_border2.png');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  padding: 60px 50px;
-  min-height: 200px;
+  padding: 80px 60px 60px 60px;
+  max-height: 350px;     
+  overflow-y: auto;  
+  height: 350px;
   position: relative;
 }
 
@@ -99,10 +102,11 @@
   display: flex;
   flex-direction: column;
   gap: 15px;
+  width: 500px;
 }
 
 .choiceButton {
-  background-image: url('/images/button.png');
+  background-image: url('/images/game-images/UI/symbols/PNG/05ogin&pass/button.png');
   background-size: 100% 100%;
   background-repeat: no-repeat;
   padding: 20px 30px;
@@ -141,7 +145,7 @@
 .dragonSection {
   position: absolute;
   top: 50%;
-  right: 10%;
+  right: 8%;
   transform: translateY(-50%);
   width: 400px;
   max-width: 35%;
@@ -174,8 +178,8 @@
   position: absolute;
   bottom: 20px;
   left: 40px;
-  width: 300px;
-  max-width: 25%;
+  width: 220px;
+  max-width: 20%;
   z-index: 10;
 }
 
