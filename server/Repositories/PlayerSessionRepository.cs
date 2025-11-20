@@ -60,16 +60,20 @@ namespace DragonGame.Repositories
             => _context.PlayerSessions.AsQueryable();
 
         public async Task<PlayerSession?> GetSessionWithCharacterAsync(int sessionId)
-    {
-        return await _context.PlayerSessions
-            .Include(s => s.Character)
-            .FirstOrDefaultAsync(s => s.SessionId == sessionId);
-    }
-
-
-        public Task<PlayerSession?> GetSessionByIdWithChoicesAsync(int sessionId)
         {
-            throw new NotImplementedException();
+            return await _context.PlayerSessions
+                .Include(s => s.Character)
+                .FirstOrDefaultAsync(s => s.SessionId == sessionId);
+        }
+
+
+        public async Task<PlayerSession?> GetSessionByIdWithChoicesAsync(int sessionId)
+        {
+            return await _context.PlayerSessions
+                .Include(s => s.CurrentAct)
+                    .ThenInclude(a => a!.Choices)
+                .Include(s => s.Character) // Also include character
+                .FirstOrDefaultAsync(s => s.SessionId == sessionId);
         }
     }
 }

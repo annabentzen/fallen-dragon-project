@@ -23,7 +23,6 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
   const [currentAct, setCurrentAct] = useState<Act | null>(null);
   const [choices, setChoices] = useState<Choice[]>([]);
   const [loading, setLoading] = useState(true);
-  const [storyEnded, setStoryEnded] = useState(false);
   const [playerSession, setPlayerSession] = useState<PlayerSessionFromApi | null>(null);
   const [character, setCharacter] = useState<Character | null>(null);
   const [poses, setPoses] = useState<CharacterPose[]>([]);
@@ -32,8 +31,26 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
 
   const navigate = useNavigate();
 
+  // ---------------- DETERMINE ENDING TYPE ----------------
+  const getEndingType = (actNumber: number): 
+    'heroDeath' | 'dragonKilled' | 'tragedy' | 'ignored' | 'recovery' | 'guardian' | 'default' => 
+  {
+    if ([113, 121, 1112].includes(actNumber)) return "heroDeath";
+    if ([1311, 1111221].includes(actNumber)) return "dragonKilled";
+    if ([1321, 1111232].includes(actNumber)) return "tragedy";
+    if (actNumber === 122) return "ignored";
+    if (actNumber === 1111211) return "recovery";
+    if (actNumber === 1111231) return "guardian";
+    return "default";
+  };
+
+
   // ---------------- RESTART ----------------
-  const handleRestart = () => navigate("/");
+  const handleRestart = () => {
+  // Simply navigate back to home page
+  // This will force user to create a new session
+  navigate("/", { replace: true });
+};
 
   // ---------------- LOAD SESSION & CHARACTER ----------------
   useEffect(() => {
@@ -86,11 +103,6 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
       setCurrentAct(mappedAct);
       setChoices(mappedAct.choices);
 
-      // Perfect ending detection
-      if (actDto.isEnding || actDto.choices.length === 0) {
-        setTimeout(() => navigate(`/ending/${sessionId}`), 800);
-      }
-
     } catch (err) {
       console.error("Error loading act:", err);
       setErrorMsg("Failed to load the next part of the story...");
@@ -136,9 +148,12 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
 
   const selectedPose = poses.find((p) => p.id === character?.poseId);
 
+    // Determine if we're on an ending (no choices = ending)
+  const isEnding = choices.length === 0;
+
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: storyEnded ? "#7c372fff" : "#f0f8ff" }}>
-      {/* Navbar */}
+    <div style={{ minHeight: "100vh", backgroundColor: "#f0f8ff" }}>
+      {/* ==================== NAVBAR ==================== */}
       <nav
         style={{
           width: "100%",
@@ -154,7 +169,9 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
         }}
       >
         <span style={{ fontWeight: "bold" }}>The Fallen Dragon</span>
-        {character && (
+
+        {/* Hide Edit button on ending screen */}
+        {character && !isEnding && (
           <button
             onClick={() => setIsEditingCharacter(true)}
             style={{
@@ -171,85 +188,122 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
         )}
       </nav>
 
-      {storyEnded ? (
-        <EndingScreen onRestart={handleRestart} />
-      ) : (
-        <>
-          {/* Story content */}
-          <h2>Act {currentAct.actNumber}</h2>
-          <p>{currentAct.text}</p>
+      {/* ==================== ENDING SCREEN ==================== */}
+      {isEnding && currentAct && (
+        <EndingScreen
+          endingType={getEndingType(currentAct.actNumber)}
+          endingText={currentAct.text}
+          onRestart={handleRestart}
+          navigate={navigate} 
+        />
+      )}
 
-          {/* Choices */}
-          <div className="choices">
-            {choices.length > 0 ? (
-              choices.map((choice) => (
+      {/* ==================== NORMAL STORY CONTENT ==================== */}
+      {!isEnding && currentAct && (
+        <>
+          <div style={{ padding: "20px", maxWidth: "900px", margin: "0 auto" }}>
+            <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
+              Act {currentAct.actNumber}
+            </h2>
+            <p style={{ fontSize: "18px", lineHeight: "1.7", marginBottom: "30px" }}>
+              {currentAct.text}
+            </p>
+
+            {/* Choices */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "12px",
+                alignItems: "center",
+                margin: "40px 0",
+              }}
+            >
+              {choices.map((choice) => (
                 <button
                   key={choice.choiceId}
                   onClick={() => handleChoiceClick(choice.nextActNumber)}
                   style={{
-                    margin: "5px",
-                    padding: "10px 20px",
+                    width: "100%",
+                    maxWidth: "500px",
+                    padding: "14px 20px",
                     backgroundColor: "#007bff",
                     color: "white",
                     border: "none",
-                    borderRadius: "5px",
+                    borderRadius: "8px",
                     cursor: "pointer",
+                    fontSize: "17px",
+                    fontWeight: "600",
+                    transition: "all 0.2s",
                   }}
+                  onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#0056b3")}
+                  onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#007bff")}
                 >
                   {choice.text}
                 </button>
-              ))
-            ) : (
-              <p>No choices available.</p>
-            )}
-          </div>
-
-          {/* Character preview */}
-          {playerSession && character && (
-            <div style={{ marginTop: "20px" }}>
-              <p>{playerSession.characterName}</p>
-              <div style={{ width: "100px", height: "100px", position: "relative", margin: "10px 0" }}>
-                {/* always show base image */}
-                <img
-                  src="/images/base.png"
-                  alt="base"
-                  style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
-                />
-                
-                {/* Layer character parts */}
-                {character.hair && (
-                  <img
-                    src={`/images/hair/${character.hair}`}
-                    alt="hair"
-                    style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
-                  />
-                )}
-                {character.face && (
-                  <img
-                    src={`/images/faces/${character.face}`}
-                    alt="face"
-                    style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
-                  />
-                )}
-                {character.outfit && (
-                  <img
-                    src={`/images/clothes/${character.outfit}`}
-                    alt="clothing"
-                    style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
-                  />
-                )}
-                
-                {/* only show pose if selected */}
-                {character.poseId && selectedPose && (
-                  <img
-                    src={`/images/poses/${selectedPose.imageUrl}`}
-                    alt="pose"
-                    style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
-                  />
-                )}
-              </div>
+              ))}
             </div>
-          )}
+
+            {/* Character Preview – FIXED */}
+            {playerSession && character && !isEnding && (
+              <div style={{ textAlign: "center", margin: "50px 0" }}>
+                <p style={{ fontWeight: "bold", fontSize: "22px", marginBottom: "16px" }}>
+                  {playerSession.characterName}
+                </p>
+                <div
+                  style={{
+                    width: "280px",
+                    height: "280px",
+                    position: "relative",
+                    margin: "0 auto",
+                    backgroundColor: "#fff",
+                    border: "4px solid #333",
+                    borderRadius: "16px",
+                    overflow: "hidden",
+                    boxShadow: "0 8px 20px rgba(0,0,0,0.2)",
+                  }}
+                >
+                  {/* Base body */}
+                  <img
+                    src="/images/base.png"
+                    alt="base"
+                    style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }}
+                  />
+                  {/* Hair */}
+                  {character.hair && (
+                    <img
+                      src={`/images/hair/${character.hair}`}
+                      alt="hair"
+                      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }}
+                    />
+                  )}
+                  {/* Face */}
+                  {character.face && (
+                    <img
+                      src={`/images/faces/${character.face}`}
+                      alt="face"
+                      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }}
+                    />
+                  )}
+                  {/* Outfit */}
+                  {character.outfit && (
+                    <img
+                      src={`/images/clothes/${character.outfit}`}
+                      alt="outfit"
+                      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }}
+                    />
+                  )}
+                  {/* Pose (on top) */}
+                  {character.poseId && selectedPose && (
+                    <img
+                      src={`/images/poses/${selectedPose.imageUrl}`}
+                      alt="pose"
+                      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }}
+                    />
+                  )}
+                </div>
+              </div>
+            )}
 
           {/* Character Edit Modal */}
           {isEditingCharacter && character && (
@@ -260,7 +314,7 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
                 left: 0,
                 width: "100%",
                 height: "100%",
-                backgroundColor: "rgba(0,0,0,0.6)",
+                backgroundColor: "rgba(0,0,0,0.7)",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
@@ -270,7 +324,15 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
             >
               <div
                 onClick={(e) => e.stopPropagation()}
-                style={{ backgroundColor: "white", padding: "20px", borderRadius: "8px", maxWidth: "500px", width: "90%" }}
+                style={{
+                  backgroundColor: "white",
+                  padding: "30px",
+                  borderRadius: "12px",
+                  maxWidth: "560px",
+                  width: "90%",
+                  maxHeight: "90vh",
+                  overflowY: "auto",
+                }}
               >
                 <CharacterBuilder
                   character={character}
@@ -289,25 +351,31 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
                   }
                 />
 
-                <button
-                  onClick={async () => {
-                    setIsEditingCharacter(false);
-                    try {
+                <div style={{ textAlign: "center", marginTop: "20px" }}>
+                  <button
+                    onClick={async () => {
+                      setIsEditingCharacter(false);
                       if (character) {
                         await updateCharacter(sessionId, character);
-                        console.log("Character saved.");
                       }
-                    } catch (err) {
-                      console.error("Failed to save character:", err);
-                    }
-                  }}
-                  style={{ marginTop: "10px", padding: "8px 12px", backgroundColor: "#333", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}
-                >
-                  Close & Save
-                </button>
+                    }}
+                    style={{
+                      padding: "12px 24px",
+                      backgroundColor: "#333",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                      fontSize: "16px",
+                    }}
+                  >
+                    Close and Save
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </>
       )}
     </div>

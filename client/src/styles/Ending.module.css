@@ -1,0 +1,194 @@
+.endingContainer {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spacing-xl);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.endingContainer::before {
+  pointer-events: none;
+}
+
+.title {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  text-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+  margin-bottom: var(--spacing-lg);
+  animation: fadeIn 1.8s ease-out;
+}
+
+.subtitle {
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--spacing-xl);
+  opacity: 0.9;
+}
+
+.endingText {
+  font-size: var(--font-size-lg);
+  max-width: 900px;
+  margin: 0 auto var(--spacing-xl);
+  line-height: 1.7;
+  opacity: 0.95;
+}
+
+.restartButton {
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  background: linear-gradient(145deg, #ff8c00, #ff6b00);
+  color: white;
+  border: none;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg), 0 0 25px rgba(255, 140, 0, 0.6);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  position: relative;
+  z-index: 10;
+}
+
+.restartButton:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl), 0 0 35px rgba(255, 140, 0, 0.8);
+}
+
+/* ==================== ENDING VARIANTS ==================== */
+
+.ending--heroDeath {
+  background: linear-gradient(135deg, #1a0000 0%, #660000 50%, #990000 100%);
+  color: #ff9999;
+}
+
+.ending--heroDeath::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, rgba(255,80,0,0.15) 0px, transparent 4px, transparent 8px);
+  animation: embers 12s linear infinite;
+  pointer-events: none;
+}
+
+.ending--dragonKilled {
+  background: linear-gradient(135deg, #0f1b2c 0%, #1e2a3c 50%, #2c3e50 100%);
+  color: #bdc3c7;
+}
+
+.ending--dragonKilled::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(100,150,255,0.15), transparent 60%);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.ending--dragonKilled .title {
+  text-shadow: 0 0 20px rgba(100, 150, 255, 0.6);
+}
+
+.ending--tragedy {
+  background: linear-gradient(135deg, #330000 0%, #660011 50%, #990033 100%);
+  color: #ff9999;
+}
+
+.ending--tragedy::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(200,0,0,0.6), transparent 50%);
+  animation: pulse 4s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.ending--ignored {
+  background: linear-gradient(135deg, #2c2c2c 0%, #434343 50%, #595959 100%);
+  color: #aaa;
+}
+
+.ending--ignored::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(255,255,255,0.03) 0%, transparent 50%);
+  animation: shimmer 8s linear infinite;
+  pointer-events: none;
+}
+
+.ending--recovery {
+  background: linear-gradient(135deg, #0d3b1e 0%, #1e5c36 50%, #2d8a57 100%);
+  color: #e6f3e6;
+}
+
+.ending--recovery::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 20%, rgba(100,255,100,0.25), transparent 60%);
+  animation: float 20s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.ending--recovery .title {
+  text-shadow: 0 0 30px rgba(100, 255, 100, 0.8);
+}
+
+.ending--recovery .restartButton {
+  background: linear-gradient(145deg, #4caf50, #388e3c);
+  box-shadow: 0 0 30px rgba(76, 175, 80, 0.7);
+}
+
+.ending--guardian {
+  background: linear-gradient(135deg, #0b2e4a 0%, #1e5c8c 50%, #2a9ddf 100%);
+  color: #ffffff;
+}
+
+.ending--guardian::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 40% 30%, rgba(255,215,0,0.4), transparent 60%),
+              radial-gradient(circle at 70% 70%, rgba(100,181,246,0.3), transparent 60%);
+  animation: float 25s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.ending--guardian .title {
+  text-shadow: 0 0 40px rgba(255, 215, 0, 1);
+  color: #ffd700;
+}
+
+.ending--guardian .restartButton {
+  background: linear-gradient(145deg, #ffd700, #ffa500);
+  box-shadow: 0 0 35px rgba(255, 215, 0, 0.8);
+}
+
+/* ==================== ANIMATIONS ==================== */
+
+@keyframes embers {
+  0% { background-position: 0 100vh; }
+  100% { background-position: 0 -200px -100px; }
+}
+
+@keyframes pulse {
+  0% { opacity: 0.4; }
+  100% { opacity: 0.8; }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
