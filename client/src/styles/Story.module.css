@@ -1,0 +1,461 @@
+/* ========================================
+   STORY PAGE MODULE STYLES
+   ======================================== */
+
+/* Main container */
+.storyContainer {
+  min-height: 100vh;
+  background-color: #f0f8ff;
+}
+
+/* ========================================
+   NAVBAR STYLES
+   ======================================== */
+
+.navbar {
+  width: 100%;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #333;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbarTitle {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.editButton {
+  padding: 6px 12px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.editButton:hover {
+  background-color: #388e3c;
+}
+
+/* ========================================
+   STORY SCENE LAYOUT
+   ======================================== */
+
+.storyScene {
+  min-height: calc(100vh - 60px);
+  background-image: url('/images/background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  padding: 40px 20px;
+  overflow: hidden;
+}
+
+/* ========================================
+   NOTEBOARD & TEXT SECTION (Top Left)
+   ======================================== */
+
+.noteboardSection {
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  width: 450px;
+  max-width: 45%;
+  z-index: 10;
+}
+
+.noteboardContainer {
+  background-image: url('/images/noteboard.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  padding: 60px 50px;
+  min-height: 200px;
+  position: relative;
+}
+
+.actText {
+  color: #2c3e50;
+  font-size: 16px;
+  line-height: 1.6;
+  text-align: left;
+  font-family: Georgia, serif;
+}
+
+/* ========================================
+   CHOICE BUTTONS (Below Noteboard)
+   ======================================== */
+
+.choicesContainer {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.choiceButton {
+  background-image: url('/images/button.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  padding: 20px 30px;
+  cursor: pointer;
+  position: relative;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, filter 0.2s ease;
+  border: none;
+  outline: none;
+}
+
+.choiceButton:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+
+.choiceButton:active {
+  transform: scale(0.98);
+}
+
+.choiceText {
+  color: #2c3e50;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+/* ========================================
+   DRAGON IMAGE (Middle Right)
+   ======================================== */
+
+.dragonSection {
+  position: absolute;
+  top: 50%;
+  right: 10%;
+  transform: translateY(-50%);
+  width: 400px;
+  max-width: 35%;
+  z-index: 5;
+}
+
+.dragonImage {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.4));
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Float animation for dragon */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+/* ========================================
+   CHARACTER DISPLAY (Bottom Left)
+   ======================================== */
+
+.characterSection {
+  position: absolute;
+  bottom: 20px;
+  left: 40px;
+  width: 300px;
+  max-width: 25%;
+  z-index: 10;
+}
+
+.characterNameBadge {
+  text-align: center;
+  margin-bottom: 10px;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 8px 16px;
+  border-radius: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.characterName {
+  font-weight: bold;
+  font-size: 18px;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.characterPreview {
+  width: 100%;
+  aspect-ratio: 1;
+  position: relative;
+  background-color: rgba(255, 255, 255, 0.95);
+  border: 4px solid #8b6914;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.characterLayer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* ========================================
+   CHARACTER EDIT MODAL
+   ======================================== */
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modalContent {
+  background-color: white;
+  padding: 30px;
+  border-radius: 12px;
+  max-width: 560px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.modalButtonContainer {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.closeButton {
+  padding: 12px 24px;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.closeButton:hover {
+  background-color: #555;
+}
+
+/* ========================================
+   LOADING & ERROR STATES
+   ======================================== */
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-size: 24px;
+  color: #333;
+}
+
+.error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-size: 20px;
+  color: #f44336;
+  padding: 20px;
+  text-align: center;
+}
+
+.noData {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-size: 20px;
+  color: #666;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+/* Tablets and smaller */
+@media (max-width: 1024px) {
+  .noteboardSection {
+    width: 400px;
+    max-width: 50%;
+  }
+
+  .actText {
+    font-size: 14px;
+  }
+
+  .dragonSection {
+    width: 300px;
+    max-width: 30%;
+    right: 5%;
+  }
+
+  .characterSection {
+    width: 250px;
+    max-width: 28%;
+  }
+
+  .choiceText {
+    font-size: 14px;
+  }
+}
+
+/* Mobile devices */
+@media (max-width: 768px) {
+  .storyScene {
+    padding: 20px 10px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    min-height: 100vh;
+  }
+
+  .noteboardSection {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .noteboardContainer {
+    padding: 40px 30px;
+  }
+
+  .actText {
+    font-size: 14px;
+  }
+
+  .choicesContainer {
+    gap: 10px;
+  }
+
+  .choiceButton {
+    padding: 15px 20px;
+    min-height: 50px;
+  }
+
+  .dragonSection {
+    position: relative;
+    top: auto;
+    right: auto;
+    transform: none;
+    width: 80%;
+    max-width: 300px;
+    margin: 20px auto;
+  }
+
+  .characterSection {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    width: 80%;
+    max-width: 250px;
+    margin: 20px auto;
+  }
+
+  .characterName {
+    font-size: 16px;
+  }
+
+  .modalContent {
+    width: 95%;
+    padding: 20px;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .navbar {
+    padding: 8px 12px;
+  }
+
+  .navbarTitle {
+    font-size: 16px;
+  }
+
+  .editButton {
+    padding: 5px 10px;
+    font-size: 14px;
+  }
+
+  .noteboardContainer {
+    padding: 30px 20px;
+  }
+
+  .actText {
+    font-size: 13px;
+  }
+
+  .choiceText {
+    font-size: 13px;
+  }
+
+  .characterSection {
+    width: 90%;
+    max-width: 200px;
+  }
+
+  .dragonSection {
+    width: 90%;
+    max-width: 250px;
+  }
+}
+
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+
+.choiceButton:focus {
+  outline: 3px solid #4caf50;
+  outline-offset: 2px;
+}
+
+.editButton:focus,
+.closeButton:focus {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .dragonImage {
+    animation: none;
+  }
+
+  .choiceButton {
+    transition: none;
+  }
+
+  .editButton,
+  .closeButton {
+    transition: none;
+  }
+}
