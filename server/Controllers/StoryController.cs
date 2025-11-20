@@ -56,9 +56,8 @@ namespace DragonGame.Controllers
                     SessionId = session.SessionId,
                     CharacterName = session.CharacterName,
                     CharacterId = session.CharacterId,
-                    Hair = session.Character?.Hair,
-                    Face = session.Character?.Face,
-                    Outfit = session.Character?.Outfit,
+                    Head = session.Character?.Head,
+                    Body = session.Character?.Body,
                     PoseId = session.Character?.PoseId,
                     StoryId = session.StoryId,
                     CurrentActNumber = session.CurrentActNumber,
@@ -102,9 +101,8 @@ namespace DragonGame.Controllers
                 var character = new Character
                 {
                     Id = dto.Id,
-                    Hair = dto.Hair,
-                    Face = dto.Face,
-                    Outfit = dto.Outfit,
+                    Head = dto.Head,
+                    Body = dto.Body,
                     PoseId = dto.PoseId
                 };
 

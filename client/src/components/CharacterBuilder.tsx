@@ -4,27 +4,29 @@ import styles from '../styles/CharacterBuilder.module.css';
 interface CharacterBuilderProps {
   character: Character;
   poses: CharacterPose[];
-  onHairChange: (hair: string) => void;
-  onFaceChange: (face: string) => void;
-  onOutfitChange: (outfit: string) => void;
+  onHeadChange: (head: string) => void;  // renamed from onHairChange
+  onBodyChange: (body: string) => void;  // renamed from onOutfitChange
   onPoseChange: (poseId: number | null) => void;
 }
 
 export default function CharacterBuilder({
   character,
   poses,
-  onHairChange,
-  onFaceChange,
-  onOutfitChange,
+  onHeadChange,
+  onBodyChange,
   onPoseChange
 }: CharacterBuilderProps) {
 
-  const { hair, face, outfit, poseId } = character;
+  const { head, body, poseId } = character;
   const selectedPose = poses.find(pose => pose.id === character.poseId);
 
-  const hairOptions = ["hair1.png", "hair2.png", "hair3.png"];
-  const faceOptions = ["face1.png", "face2.png", "face3.png"];
-  const outfitOptions = ["clothing1.png", "clothing2.png", "clothing3.png"];
+  // NEW: Avatar head and body options
+  const headOptions = ["mage-head1.png", "knight-head1.png", "rogue-head1.png"]; 
+  const bodyOptions = ["knight-body.png", "mage-body.png", "rogue-body.png"];
+
+
+  const currentHead = head; 
+  const currentBody = body; 
 
   const cycleOption = (
     currentValue: string,
@@ -46,20 +48,20 @@ export default function CharacterBuilder({
      {/* Character preview with side arrows */}
       <div className={styles.characterSection}>
         
-        {/* Hair arrows - TOP */}
+        {/* Head arrows - TOP */}
         <div className={styles.arrowRow}>
           <button 
-            onClick={() => cycleOption(hair, hairOptions, onHairChange, 'prev')} 
+            onClick={() => cycleOption(currentHead, headOptions, onHeadChange, 'prev')} 
             className={styles.arrowButtonLeft}
-            aria-label="Previous hair"
+            aria-label="Previous head"
           >
             ◀
           </button>
           <div className={styles.spacer}></div>
           <button 
-            onClick={() => cycleOption(hair, hairOptions, onHairChange, 'next')} 
+            onClick={() => cycleOption(currentHead, headOptions, onHeadChange, 'next')} 
             className={styles.arrowButtonRight}
-            aria-label="Next hair"
+            aria-label="Next head"
           >
             ▶
           </button>
@@ -67,29 +69,17 @@ export default function CharacterBuilder({
 
         {/* Character preview */}
         <div className={styles.previewContainer}>
-          {/* Base image only shows if no pose is selected */}
-          {!poseId && (
-            <img
-              src="/images/base.png"
-              alt="base"
-              className={styles.characterImage}
-            />
-          )}
+          {/* Body layer - always show */}
+          <img 
+            src={`/images/avatar/body/${currentBody}`} 
+            alt="body" 
+            className={styles.characterImage}
+          />
 
-          {/* Always show hair, face, and outfit */}
+          {/* Head layer - on top of body */}
           <img 
-            src={`/images/hair/${hair}`} 
-            alt="hair" 
-            className={styles.characterImage}
-          />
-          <img 
-            src={`/images/faces/${face}`} 
-            alt="face" 
-            className={styles.characterImage}
-          />
-          <img 
-            src={`/images/clothes/${outfit}`} 
-            alt="clothing" 
+            src={`/images/avatar/heads/${currentHead}`} 
+            alt="head" 
             className={styles.characterImage}
           />
 
@@ -102,40 +92,28 @@ export default function CharacterBuilder({
             />
           )}
 
-          {/* Face arrows - MIDDLE (overlaid on character) */}
+          {/* Body arrows - MIDDLE (overlaid on character) */}
           <button 
-            onClick={() => cycleOption(face, faceOptions, onFaceChange, 'prev')} 
+            onClick={() => cycleOption(currentBody, bodyOptions, onBodyChange, 'prev')} 
             className={`${styles.arrowButtonOverlay} ${styles.arrowLeft}`}
-            aria-label="Previous face"
+            aria-label="Previous body"
           >
             ◀
           </button>
           <button 
-            onClick={() => cycleOption(face, faceOptions, onFaceChange, 'next')} 
+            onClick={() => cycleOption(currentBody, bodyOptions, onBodyChange, 'next')} 
             className={`${styles.arrowButtonOverlay} ${styles.arrowRight}`}
-            aria-label="Next face"
+            aria-label="Next body"
           >
             ▶
           </button>
         </div>
 
-        {/* Outfit arrows - BOTTOM */}
+        {/* Info text - BOTTOM */}
         <div className={styles.arrowRow}>
-          <button 
-            onClick={() => cycleOption(outfit, outfitOptions, onOutfitChange, 'prev')} 
-            className={styles.arrowButtonLeft}
-            aria-label="Previous outfit"
-          >
-            ◀
-          </button>
-          <div className={styles.spacer}></div>
-          <button 
-            onClick={() => cycleOption(outfit, outfitOptions, onOutfitChange, 'next')} 
-            className={styles.arrowButtonRight}
-            aria-label="Next outfit"
-          >
-            ▶
-          </button>
+          <div className={styles.infoText}>
+            Mix and match heads and bodies!
+          </div>
         </div>
       </div>
 

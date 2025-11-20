@@ -14,9 +14,8 @@ export default function Home() {
   // Character state
   const [characterName, setCharacterName] = useState("");
   const [character, setCharacter] = useState<Character>({
-    hair: "hair1.png",
-    face: "face1.png",
-    outfit: "clothing1.png",
+    head: "mage-head1.png",
+    body: "knight-body.png",
     poseId: null,
     id: 0, // placeholder, backend will assign real id
   });
@@ -44,9 +43,8 @@ export default function Home() {
   const resetCharacter = () => {
     setCharacterName("");
     setCharacter({
-      hair: "hair1.png",
-      face: "face1.png",
-      outfit: "clothing1.png",
+      head: "mage-head1.png",
+      body: "knight-body.png",
       poseId: null,
       id: 0,
     });
@@ -113,9 +111,8 @@ const startStory = async () => {
       <CharacterBuilder
         character={character}
         poses={poses}
-        onHairChange={(hair) => setCharacter((prev) => ({ ...prev, hair }))}
-        onFaceChange={(face) => setCharacter((prev) => ({ ...prev, face }))}
-        onOutfitChange={(outfit) => setCharacter((prev) => ({ ...prev, outfit }))}
+        onHeadChange={(head) => setCharacter((prev) => ({ ...prev, head }))}
+        onBodyChange={(body) => setCharacter((prev) => ({ ...prev, body }))}
         onPoseChange={(poseId) => setCharacter((prev) => ({ ...prev, poseId }))}
       />
 

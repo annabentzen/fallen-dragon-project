@@ -38,9 +38,8 @@ namespace server.Services
             var existing = await _characterRepository.GetByIdAsync(id);
             if (existing == null) return null;
 
-            existing.Hair = updatedCharacter.Hair;
-            existing.Face = updatedCharacter.Face;
-            existing.Outfit = updatedCharacter.Outfit;
+            existing.Head = updatedCharacter.Head;
+            existing.Body = updatedCharacter.Body;
             existing.PoseId = updatedCharacter.PoseId;
 
             await _characterRepository.UpdateAsync(existing);
