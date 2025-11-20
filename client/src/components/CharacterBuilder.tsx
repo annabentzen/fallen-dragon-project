@@ -21,7 +21,7 @@ export default function CharacterBuilder({
   const selectedPose = poses.find(pose => pose.id === character.poseId);
 
   // NEW: Avatar head and body options
-  const headOptions = ["mage-head1.png", "knight-head1.png", "rogue-head1.png"]; 
+  const headOptions = ["mage-head1.png", "knight-head.png", "rogue-head.png"]; 
   const bodyOptions = ["knight-body.png", "mage-body.png", "rogue-body.png"];
 
 
