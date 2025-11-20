@@ -4,6 +4,7 @@ using DragonGame.Models;
 using Microsoft.EntityFrameworkCore;
 using DragonGame.Data;
 using server.Services.Interfaces;
+using DragonGame.Dtos;
 
 namespace DragonGame.Controllers
 {
@@ -60,7 +61,7 @@ namespace DragonGame.Controllers
 
         // NEW: Update character through session
         [HttpPut("session/{sessionId}")]
-        public async Task<IActionResult> UpdateCharacterForSession(int sessionId, [FromBody] Character updatedCharacter)
+        public async Task<IActionResult> UpdateCharacterForSession(int sessionId, [FromBody] UpdateCharacterDto dto)
         {
             try
             {
@@ -71,11 +72,11 @@ namespace DragonGame.Controllers
                 if (session == null || session.Character == null)
                     return NotFound("Session or character not found");
 
-                // Update character properties
-                session.Character.Hair = updatedCharacter.Hair;
-                session.Character.Face = updatedCharacter.Face;
-                session.Character.Outfit = updatedCharacter.Outfit;
-                session.Character.PoseId = updatedCharacter.PoseId;
+                // Update only the appearance properties
+                session.Character.Hair = dto.Hair;
+                session.Character.Face = dto.Face;
+                session.Character.Outfit = dto.Outfit;
+                session.Character.PoseId = dto.PoseId;
 
                 await _context.SaveChangesAsync();
                 return Ok(session.Character);
