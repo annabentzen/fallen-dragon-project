@@ -1,0 +1,140 @@
+.
+├── DragonGame.sln
+├── LICENSE
+├── README.md
+├── client
+│   ├── README.md
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── public
+│   │   ├── favicon.ico
+│   │   ├── images
+│   │   │   ├── base.png
+│   │   │   ├── clothes
+│   │   │   ├── faces
+│   │   │   ├── hair
+│   │   │   └── poses
+│   │   ├── manifest.json
+│   │   └── robots.txt
+│   ├── src
+│   │   ├── App.css
+│   │   ├── App.test.tsx
+│   │   ├── App.tsx
+│   │   ├── components
+│   │   │   ├── CharacterBuilder.tsx
+│   │   │   ├── ChoiceButton.tsx
+│   │   │   ├── EndingScreen.tsx
+│   │   │   ├── Home.tsx
+│   │   │   └── StoryPage.tsx
+│   │   ├── custom.d.ts
+│   │   ├── index.css
+│   │   ├── index.tsx
+│   │   ├── services
+│   │   │   ├── characterApi.ts
+│   │   │   └── storyApi.ts
+│   │   ├── styles
+│   │   │   └── story.css
+│   │   ├── types
+│   │   │   ├── character.ts
+│   │   │   └── story.ts
+│   │   └── vite-env.d.ts
+│   ├── tsconfig.json
+│   └── vite.config.ts
+├── docs
+│   ├── project-plan-and-notes.md
+│   └── references.md
+├── package-lock.json
+├── project_structure.txt
+└── server
+    ├── App_Data
+    │   └── DragonGame.db
+    ├── Controllers
+    │   ├── CharacterController.cs
+    │   ├── ChoiceHistoryController.cs
+    │   ├── PlayerSessionController.cs
+    │   ├── PoseController.cs
+    │   └── StoryController.cs
+    ├── Data
+    │   ├── AppDbContext.cs
+    │   └── AppDbContextFactory.cs
+    ├── DragonGame.csproj
+    ├── Dtos
+    │   ├── Character
+    │   │   └── UpdateCharacterDto.cs
+    │   ├── Session
+    │   │   ├── CreateSessionDto.cs
+    │   │   └── PlayerSessionDto.cs
+    │   └── Story
+    │       ├── ActDto.cs
+    │       ├── ChoiceDto.cs
+    │       ├── ChoiceHistoryDto.cs
+    │       └── NextActRequest.cs
+    ├── Migrations
+    │   ├── 20251119100747_InitialCreate_FromExistingDb.Designer.cs
+    │   ├── 20251119100747_InitialCreate_FromExistingDb.cs
+    │   └── AppDbContextModelSnapshot.cs
+    ├── Models
+    │   ├── Character
+    │   │   ├── Character.cs
+    │   │   └── CharacterPose.cs
+    │   └── Story
+    │       ├── Act.cs
+    │       ├── Choice.cs
+    │       ├── ChoiceHistory.cs
+    │       ├── PlayerSession.cs
+    │       └── Story.cs
+    ├── Program.cs
+    ├── Properties
+    │   └── launchSettings.json
+    ├── Repositories
+    │   ├── CharacterPoseRepository.cs
+    │   ├── CharacterRepository.cs
+    │   ├── ChoiceHistoryRepository.cs
+    │   ├── ICharacterPoseRepository.cs
+    │   ├── ICharacterRepository.cs
+    │   ├── IChoiceHistoryRepository.cs
+    │   ├── IPlayerSessionRepository.cs
+    │   ├── IRepository.cs
+    │   ├── IStoryRepository.cs
+    │   ├── PlayerSessionRepository.cs
+    │   ├── Repository.cs
+    │   └── StoryRepository.cs
+    ├── Seeders
+    │   └── DbSeeder.cs
+    ├── Services
+    │   ├── CharacterService.cs
+    │   ├── ChoiceHistoryService.cs
+    │   ├── ICharacterAssetsService.cs
+    │   ├── ICharacterService.cs
+    │   ├── IChoiceHistoryService.cs
+    │   ├── IPlayerSessionService.cs
+    │   ├── IPoseService.cs
+    │   ├── IStoryService.cs
+    │   ├── PlayerSessionService.cs
+    │   ├── PoseService.cs
+    │   └── StoryService.cs
+    ├── appsettings.Development.json
+    ├── appsettings.json
+    ├── global.json
+    └── wwwroot
+        ├── css
+        │   └── CharacterCreator.css
+        ├── favicon.ico
+        ├── images
+        │   ├── base.png
+        │   ├── clothes
+        │   ├── faces
+        │   ├── hair
+        │   └── poses
+        ├── js
+        │   ├── CharacterCreator.js
+        │   ├── PoseSelector.js
+        │   └── assets
+        └── lib
+            ├── bootstrap
+            ├── jquery
+            ├── jquery-validation
+            └── jquery-validation-unobtrusive
+
+44 directories, 94 files
