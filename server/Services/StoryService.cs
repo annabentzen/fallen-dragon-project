@@ -13,17 +13,20 @@ namespace DragonGame.Services
         private readonly IStoryRepository _storyRepo;
         private readonly ICharacterRepository _characterRepo;
         private readonly AppDbContext _context;
+        private readonly IChoiceHistoryService _choiceHistoryService;
 
         public StoryService(
             IPlayerSessionRepository sessionRepo,
             IStoryRepository storyRepo,
             ICharacterRepository characterRepo,
-            AppDbContext context)
+            AppDbContext context,
+            IChoiceHistoryService choiceHistoryService)
         {
             _sessionRepo = sessionRepo;
             _storyRepo = storyRepo;
             _characterRepo = characterRepo;
             _context = context;
+            _choiceHistoryService = choiceHistoryService;
         }
 
         // Starts a new game session with character creation
@@ -148,41 +151,60 @@ namespace DragonGame.Services
         }
 
         // Moves player to next act (or ends game if nextActNumber <= 0)
-        public async Task<PlayerSession?> MoveToNextActAsync(int sessionId, int nextActNumber)
+       public async Task<PlayerSession?> MoveToNextActAsync(int sessionId, int nextActNumber)
+{
+    try
+    {
+        Console.WriteLine($"[StoryService] Moving session {sessionId} → Act {nextActNumber}");
+
+        // Load session with current act and choices
+        var session = await _sessionRepo.GetSessionByIdWithChoicesAsync(sessionId);
+        if (session == null || session.CurrentAct == null)
         {
-            try
-            {
-                Console.WriteLine($"[StoryService] Moving session {sessionId} → Act {nextActNumber}");
-
-                var session = await _sessionRepo.GetByIdAsync(sessionId);
-                if (session == null)
-                {
-                    Console.WriteLine($"[StoryService] Session {sessionId} not found");
-                    return null;
-                }
-
-                if (nextActNumber <= 0)
-                {
-                    session.IsCompleted = true;
-                    Console.WriteLine($"[StoryService] Story completed! Session {sessionId}");
-                }
-                else
-                {
-                    session.CurrentActNumber = nextActNumber;
-                }
-
-                await _sessionRepo.UpdateAsync(session);
-                await _sessionRepo.SaveChangesAsync();
-
-                return session;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[StoryService][ERROR] MoveToNextAct failed: {ex.Message}");
-                throw;
-            }
+            Console.WriteLine($"[StoryService] Session or CurrentAct not found");
+            return null;
         }
 
+        // Find the choice that leads to nextActNumber
+        var selectedChoice = session.CurrentAct.Choices
+            ?.FirstOrDefault(c => c.NextActNumber == nextActNumber);
+
+        // Record choice in history
+        if (selectedChoice != null)
+        {
+            var historyEntry = new ChoiceHistory
+            {
+                PlayerSessionId = session.SessionId,
+                ActNumber = session.CurrentAct.ActNumber,
+                ChoiceId = selectedChoice.ChoiceId,
+                MadeAt = DateTime.UtcNow
+            };
+
+            await _choiceHistoryService.AddChoiceAsync(historyEntry);
+            Console.WriteLine($"[StoryService] Recorded choice: Act {historyEntry.ActNumber} → Choice {selectedChoice.ChoiceId}");
+        }
+
+        // Update session state
+        if (nextActNumber <= 0)
+        {
+            session.IsCompleted = true;
+        }
+        else
+        {
+            session.CurrentActNumber = nextActNumber;
+        }
+
+        await _sessionRepo.UpdateAsync(session);
+        await _sessionRepo.SaveChangesAsync();
+
+        return session;
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[StoryService][ERROR] {ex.Message}");
+        throw;
+    }
+}
         // Gets just the Character entity for a session (used in edit mode)
         public async Task<Character?> GetCharacterForSessionAsync(int sessionId)
         {
