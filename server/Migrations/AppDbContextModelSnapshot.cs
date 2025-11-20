@@ -178,9 +178,11 @@ namespace DragonGame.Migrations
 
                     b.HasIndex("ChoiceId");
 
+                    b.HasIndex("MadeAt");
+
                     b.HasIndex("PlayerSessionId");
 
-                    b.ToTable("ChoiceHistory");
+                    b.ToTable("ChoiceHistories");
                 });
 
             modelBuilder.Entity("DragonGame.Models.PlayerSession", b =>
@@ -208,6 +210,8 @@ namespace DragonGame.Migrations
                     b.HasKey("SessionId");
 
                     b.HasIndex("CharacterId");
+
+                    b.HasIndex("CurrentActNumber");
 
                     b.HasIndex("StoryId");
 
@@ -298,7 +302,7 @@ namespace DragonGame.Migrations
                     b.HasOne("DragonGame.Models.Choice", "Choice")
                         .WithMany()
                         .HasForeignKey("ChoiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("DragonGame.Models.PlayerSession", "PlayerSession")
@@ -320,6 +324,12 @@ namespace DragonGame.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("DragonGame.Models.Act", "CurrentAct")
+                        .WithMany()
+                        .HasForeignKey("CurrentActNumber")
+                        .HasPrincipalKey("ActNumber")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("DragonGame.Models.Story", "Story")
                         .WithMany("PlayerSessions")
                         .HasForeignKey("StoryId")
@@ -327,6 +337,8 @@ namespace DragonGame.Migrations
                         .IsRequired();
 
                     b.Navigation("Character");
+
+                    b.Navigation("CurrentAct");
 
                     b.Navigation("Story");
                 });

@@ -14,7 +14,7 @@ namespace DragonGame.Data
             {
                 optionsBuilder
                     .UseSqlite("Data Source=App_Data/DragonGame.db")
-                    .LogTo(Console.WriteLine, LogLevel.Information); //log SQL and EF operations
+                    .LogTo(Console.WriteLine, LogLevel.Information);
                 optionsBuilder.EnableSensitiveDataLogging();
             }
         }
@@ -26,6 +26,7 @@ namespace DragonGame.Data
         public DbSet<Character> Characters { get; set; }
         public DbSet<CharacterPose> CharacterPoses { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<ChoiceHistory> ChoiceHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -46,12 +47,45 @@ namespace DragonGame.Data
             modelBuilder.Entity<Act>().HasKey(a => a.ActId);
             modelBuilder.Entity<Story>().HasKey(s => s.StoryId);
 
+            // ADD THIS: Make ActNumber an alternate key
+            modelBuilder.Entity<Act>()
+                .HasAlternateKey(a => a.ActNumber);
+
+            // Configure PlayerSession -> CurrentAct relationship
+            modelBuilder.Entity<PlayerSession>(entity =>
+            {
+                entity.HasOne(ps => ps.CurrentAct)
+                    .WithMany()
+                    .HasForeignKey(ps => ps.CurrentActNumber)
+                    .HasPrincipalKey(a => a.ActNumber)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired(false);
+            });
+
+            // Configure ChoiceHistory
+            modelBuilder.Entity<ChoiceHistory>(entity =>
+            {
+                entity.HasIndex(e => e.MadeAt);
+                entity.HasIndex(e => e.PlayerSessionId);
+
+                entity.HasOne(e => e.PlayerSession)
+                    .WithMany(ps => ps.Choices)
+                    .HasForeignKey(e => e.PlayerSessionId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Choice)
+                    .WithMany()
+                    .HasForeignKey(e => e.ChoiceId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Seed data
             modelBuilder.Entity<Story>().HasData(
                 new Story { StoryId = 1, Title = "Fallen Dragon" }
             );
 
             modelBuilder.Entity<Act>().HasData(
-                new Act { ActId = 1, StoryId = 1, ActNumber = 1, Text = "The dragon awakens..." }
+                new Act { ActId = 1, StoryId = 1, ActNumber = 1, Text = "The dragon awakens...", IsEnding = false }
             );
 
             modelBuilder.Entity<Choice>().HasData(
