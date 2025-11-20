@@ -9,15 +9,15 @@ namespace DragonGame.Data
             : base(options) { }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured)
         {
+            if (!optionsBuilder.IsConfigured)
+            {
                 optionsBuilder
                     .UseSqlite("Data Source=App_Data/DragonGame.db")
                     .LogTo(Console.WriteLine, LogLevel.Information); //log SQL and EF operations
                 optionsBuilder.EnableSensitiveDataLogging();
+            }
         }
-    }
 
         public DbSet<PlayerSession> PlayerSessions { get; set; }
         public DbSet<Story> Stories { get; set; }
@@ -25,6 +25,7 @@ namespace DragonGame.Data
         public DbSet<Choice> Choices { get; set; }
         public DbSet<Character> Characters { get; set; }
         public DbSet<CharacterPose> CharacterPoses { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -35,6 +36,11 @@ namespace DragonGame.Data
             modelBuilder.Entity<Choice>().ToTable("Choices");
             modelBuilder.Entity<Character>().ToTable("Characters");
             modelBuilder.Entity<CharacterPose>().ToTable("CharacterPoses");
+            modelBuilder.Entity<User>().ToTable("Users");
+            modelBuilder.Entity<User>().HasKey(u => u.UserId);
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Username)
+                .IsUnique();
 
             modelBuilder.Entity<Choice>().HasKey(c => c.ChoiceId);
             modelBuilder.Entity<Act>().HasKey(a => a.ActId);

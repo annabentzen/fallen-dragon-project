@@ -3,21 +3,28 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-route
 import Home from './components/Home';
 import StoryPage from './components/StoryPage';
 import EndingScreen from './components/EndingScreen';
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import LoginPage from './components/LoginPage';
 
 const App: React.FC = () => {
   return (
+    <AuthProvider>
     <Router>
       <Routes>
-        {/* Home / character builder */}
-        <Route path="/" element={<Home />} />
+        {/* Login route - PUBLIC */}
+        <Route path="/login" element={<LoginPage />} />
 
-        {/* Story page with dynamic sessionId */}
-        <Route path="/story/:sessionId" element={<StoryPageWrapper />} />
+        {/* Home / character builder - PROTECTED */}
+        <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
 
-        {/* Optional direct ending screen */}
-        <Route path="/ending/:sessionId" element={<EndingScreenWrapper />} />
+        {/* Story page with dynamic sessionId - PROTECTED */}
+        <Route path="/story/:sessionId" element={<ProtectedRoute><StoryPageWrapper /></ProtectedRoute>} />
+        {/* Optional direct ending screen - PROTECTED */}
+        <Route path="/ending/:sessionId" element={<ProtectedRoute><EndingScreenWrapper /></ProtectedRoute>} />
       </Routes>
     </Router>
+    </AuthProvider>
   );
 };
 
