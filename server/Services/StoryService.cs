@@ -188,6 +188,7 @@ namespace DragonGame.Services
         if (nextActNumber <= 0)
         {
             session.IsCompleted = true;
+            Console.WriteLine($"[StoryService] Session {sessionId} completed!");
         }
         else
         {
