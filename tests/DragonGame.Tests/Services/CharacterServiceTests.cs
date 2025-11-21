@@ -121,7 +121,6 @@ namespace DragonGame.Tests.Services
             _characterRepoMock.Verify(repo => repo.GetByIdAsync(1), Times.Once);
 
         }
-
         [Fact]
         public async Task GetByIdAsync_NotExist_ReturnsNull()
         {
@@ -136,5 +135,77 @@ namespace DragonGame.Tests.Services
             _characterRepoMock.Verify(repo => repo.GetByIdAsync(9999), Times.Once);
         }
 
+        // UPDATE
+        [Fact]
+        public async Task UpdateAsync_Exists_UpdateFieldsAndReturnsChar()
+        {
+            // Given
+            var existingChar = CreateValidCharacterById(1);
+            var updatedChar = CreateValidCharacterById(2);
+            _characterRepoMock.Setup(repo => repo.GetByIdAsync(1)).ReturnsAsync(existingChar);
+            _characterRepoMock.Setup(repo => repo.UpdateAsync(existingChar)).Returns(Task.CompletedTask);
+
+            // When
+            var result = await _sut.UpdateAsync(1, updatedChar);
+
+            // Then
+            result.Should().NotBeNull();
+            result!.Id.Should().Be(1);
+            result.Hair.Should().Be(updatedChar.Hair);
+            result.Face.Should().Be(updatedChar.Face);
+            result.Outfit.Should().Be(updatedChar.Outfit);
+            result.PoseId.Should().Be(updatedChar.PoseId);
+            _characterRepoMock.Verify(repo => repo.GetByIdAsync(1), Times.Once);
+            _characterRepoMock.Verify(repo => repo.UpdateAsync(existingChar), Times.Once);
+        }
+        [Fact]
+        public async Task UpdateAsync_NotExist_ReturnsNullAndNoUpdate()
+        {
+            // Given
+            var updatedChar = CreateValidCharacterById(2);
+            _characterRepoMock.Setup(repo => repo.GetByIdAsync(5678)).ReturnsAsync((Character?)null);
+
+            // When
+            var result = await _sut.UpdateAsync(5678, updatedChar);
+
+            // Then
+            result.Should().BeNull();
+            _characterRepoMock.Verify(repo => repo.GetByIdAsync(5678), Times.Once);
+            _characterRepoMock.Verify(repo => repo.UpdateAsync(It.IsAny<Character>()), Times.Never);
+        }
+
+
+        // DELETE
+        [Fact]
+        public async Task DeleteAsync_Exist_DeleteCharReturnTrue()
+        {
+            // Given
+            var existingChar = CreateValidCharacterById(1);
+            _characterRepoMock.Setup(repo => repo.GetByIdAsync(1)).ReturnsAsync(existingChar);
+            _characterRepoMock.Setup(repo => repo.DeleteAsync(existingChar.Id)).Returns(Task.CompletedTask);
+
+            // When
+            var result = await _sut.DeleteAsync(1);
+
+            // Then
+            result.Should().Be(true);
+            _characterRepoMock.Verify(repo => repo.GetByIdAsync(1), Times.Once);
+            _characterRepoMock.Verify(repo => repo.DeleteAsync(existingChar.Id), Times.Once);
+
+        }
+        [Fact]
+        public async Task DeleteAsync_NotExist_DoNothingReturnFalse()
+        {
+            // Given
+            _characterRepoMock.Setup(repo => repo.GetByIdAsync(8484)).ReturnsAsync((Character?)null);
+
+            // When
+            var result = await _sut.DeleteAsync(8484);
+
+            // Then
+            result.Should().BeFalse();
+            _characterRepoMock.Verify(repo => repo.GetByIdAsync(8484), Times.Once);
+            _characterRepoMock.Verify(repo => repo.DeleteAsync(It.IsAny<int>()), Times.Never);
+        }
     }
 }
