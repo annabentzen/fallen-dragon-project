@@ -95,10 +95,16 @@
   position: relative; /* Make sure this exists */
 }
 
-.poseImage {
-  position: relative;
-  left: 6%; /* Move right */
-  top: 0px; /* Move down if needed */
+.poseKnight {
+  transform: translateX(15px);
+}
+
+.poseMage {
+  transform: translateX(15px);
+}
+
+.poseRogue {
+  transform: translateX(8px);
 }
 
 /* ========================================

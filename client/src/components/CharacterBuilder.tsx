@@ -110,7 +110,7 @@ export default function CharacterBuilder({
             <img
               src={`/images/avatar/poses/${selectedPose.imageUrl}`}
               alt="pose"
-              className={`${styles.characterImage} ${styles.poseImage}`}
+              className={`${styles.characterImage} ${styles.poseImage} ${styles[`pose${characterType.charAt(0).toUpperCase() + characterType.slice(1)}`]}`}
             />
           )}
 
