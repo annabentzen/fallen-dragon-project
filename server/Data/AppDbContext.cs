@@ -87,11 +87,6 @@ namespace DragonGame.Data
                 new Choice { ChoiceId = 2, ActId = 1, Text = "Go right", NextActNumber = 3 }
             );
 
-            modelBuilder.Entity<CharacterPose>().HasData(
-                new CharacterPose { Id = 1, Name = "Standing", ImageUrl = "pose1.png" },
-                new CharacterPose { Id = 2, Name = "Fighting", ImageUrl = "pose2.png" },
-                new CharacterPose { Id = 3, Name = "Flying", ImageUrl = "pose3.png" }
-            );
         }
     }
 }

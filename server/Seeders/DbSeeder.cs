@@ -280,61 +280,52 @@ When the smoke clears, several of your friends and neighbours lay dead or wounde
     }
 
     private static async Task SeedPoses(AppDbContext context)
-{
-    if (!context.CharacterPoses.Any())
     {
-        context.CharacterPoses.AddRange(
-            new CharacterPose { 
-                Id = 1, 
-                Name = "Rogue Standing", 
-                ImageUrl = "rouge1-pose1.png",  
-                CharacterType = "rogue"  
-            },
-            new CharacterPose { 
-                Id = 2, 
-                Name = "Mage Fighting", 
-                ImageUrl = "mage1-pose1.png",  
-                CharacterType = "mage"  
-            },
-            new CharacterPose { 
-                Id = 2, 
-                Name = "Mage Hurt", 
-                ImageUrl = "mage1-pose2.png",  
-                CharacterType = "mage" 
-            },
-            new CharacterPose { 
-                Id = 2, 
-                Name = "Mage Standing", 
-                ImageUrl = "mage1-pose3.png",  
-                CharacterType = "mage" 
-            },
-            new CharacterPose { 
-                Id = 4, 
-                Name = "Mage 2 Jumping", 
-                ImageUrl = "mage2-pose1.png",  
-                CharacterType = "mage2"  
-            },
-            new CharacterPose { 
-                Id = 4, 
-                Name = "Mage 2 Hurt", 
-                ImageUrl = "mage2-pose2.png",  
-                CharacterType = "mage2" 
-            },
-            new CharacterPose { 
-                Id = 3, 
-                Name = "Knight Flying", 
-                ImageUrl = "knight1-pose1.png",  
-                CharacterType = "knight"  
-            },
-            new CharacterPose { 
-                Id = 3, 
-                Name = "Knight Fighting", 
-                ImageUrl = "knight1-pose2.png",  
-                CharacterType = "knight"  
-            }
-            
-        );
-        await context.SaveChangesAsync();
+        if (!context.CharacterPoses.Any())
+        {
+            context.CharacterPoses.AddRange(
+                new CharacterPose { 
+                    Name = "Rogue Standing", 
+                    ImageUrl = "rouge1-pose1.png",  
+                    CharacterType = "rogue"  
+                },
+                new CharacterPose { 
+                    Name = "Mage Fighting", 
+                    ImageUrl = "mage1-pose1.png",  
+                    CharacterType = "mage"  
+                },
+                new CharacterPose { 
+                    Name = "Mage Jumping", 
+                    ImageUrl = "mage1-pose2.png",  
+                    CharacterType = "mage"  
+                },
+                new CharacterPose { 
+                    Name = "Mage Hurt", 
+                    ImageUrl = "mage1-pose3.png",  
+                    CharacterType = "mage" 
+                },
+                new CharacterPose { 
+                    Name = "Mage 2 Jumping", 
+                    ImageUrl = "mage2-pose1.png",  
+                    CharacterType = "mage2"  
+                },
+                new CharacterPose { 
+                    Name = "Mage 2 Hurt", 
+                    ImageUrl = "mage2-pose2.png",  
+                    CharacterType = "mage2" 
+                },
+                new CharacterPose { 
+                    Name = "Knight Flying", 
+                    ImageUrl = "knight1-pose1.png",  
+                    CharacterType = "knight"  
+                },
+                new CharacterPose { 
+                    Name = "Knight Fighting", 
+                    ImageUrl = "knight1-pose2.png",  
+                    CharacterType = "knight"  
+                }
+            );
+            await context.SaveChangesAsync();
+        }
     }
-}
 }
