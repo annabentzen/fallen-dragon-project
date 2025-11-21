@@ -280,15 +280,30 @@ When the smoke clears, several of your friends and neighbours lay dead or wounde
     }
 
     private static async Task SeedPoses(AppDbContext context)
+{
+    if (!context.CharacterPoses.Any())
     {
-        if (!context.CharacterPoses.Any())
-        {
-            context.CharacterPoses.AddRange(
-                new CharacterPose { Id = 1, Name = "Standing", ImageUrl = "pose1.png" },
-                new CharacterPose { Id = 2, Name = "Fighting", ImageUrl = "pose2.png" },
-                new CharacterPose { Id = 3, Name = "Flying", ImageUrl = "pose3.png" }
-            );
-            await context.SaveChangesAsync();
-        }
+        context.CharacterPoses.AddRange(
+            new CharacterPose { 
+                Id = 1, 
+                Name = "Rogue Standing", 
+                ImageUrl = "rouge1-pose1.png",  
+                CharacterType = "rogue"  
+            },
+            new CharacterPose { 
+                Id = 2, 
+                Name = "Mage Fighting", 
+                ImageUrl = "mage1-pose1.png",  
+                CharacterType = "mage"  
+            },
+            new CharacterPose { 
+                Id = 3, 
+                Name = "Knight Flying", 
+                ImageUrl = "pose3.png",  
+                CharacterType = "knight"  
+            }
+        );
+        await context.SaveChangesAsync();
     }
+}
 }

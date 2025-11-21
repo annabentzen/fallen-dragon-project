@@ -91,6 +91,16 @@
   image-rendering: crisp-edges;
 }
 
+.previewContainer {
+  position: relative; /* Make sure this exists */
+}
+
+.poseImage {
+  position: relative;
+  left: 6%; /* Move right */
+  top: 0px; /* Move down if needed */
+}
+
 /* ========================================
    SELECTOR ROWS
    ======================================== */

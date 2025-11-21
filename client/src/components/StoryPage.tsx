@@ -227,26 +227,18 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
                     alt="base"
                     className={styles.characterLayer}
                   />
-                  {/* Hair */}
-                  {character.hair && (
+                  {/* Head */}
+                  {character.head && (
                     <img
-                      src={`/images/hair/${character.hair}`}
-                      alt="hair"
-                      className={styles.characterLayer}
-                    />
-                  )}
-                  {/* Face */}
-                  {character.face && (
-                    <img
-                      src={`/images/faces/${character.face}`}
+                      src={`/images/faces/${character.head}`}
                       alt="face"
                       className={styles.characterLayer}
                     />
                   )}
-                  {/* Outfit */}
-                  {character.outfit && (
+                  {/* Body */}
+                  {character.body && (
                     <img
-                      src={`/images/clothes/${character.outfit}`}
+                      src={`/images/clothes/${character.body}`}
                       alt="outfit"
                       className={styles.characterLayer}
                     />
@@ -254,7 +246,7 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
                   {/* Pose (on top) */}
                   {character.poseId && selectedPose && (
                     <img
-                      src={`/images/poses/${selectedPose.imageUrl}`}
+                      src={`/images/avatar/poses/${selectedPose.imageUrl}`}
                       alt="pose"
                       className={styles.characterLayer}
                     />
@@ -277,14 +269,11 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
                 <CharacterBuilder
                   character={character}
                   poses={poses}
-                  onHairChange={(hair) =>
-                    setCharacter((prev) => (prev ? { ...prev, hair } : prev))
+                  onHeadChange={(head) =>
+                    setCharacter((prev) => (prev ? { ...prev, head } : prev))
                   }
-                  onFaceChange={(face) =>
-                    setCharacter((prev) => (prev ? { ...prev, face } : prev))
-                  }
-                  onOutfitChange={(outfit) =>
-                    setCharacter((prev) => (prev ? { ...prev, outfit } : prev))
+                  onBodyChange={(body) =>
+                    setCharacter((prev) => (prev ? { ...prev, body } : prev))
                   }
                   onPoseChange={(poseId) =>
                     setCharacter((prev) => (prev ? { ...prev, poseId: poseId ?? null } : prev))

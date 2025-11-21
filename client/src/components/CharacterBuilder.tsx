@@ -1,5 +1,6 @@
 import { Character, CharacterPose } from "../types/character";
 import styles from '../styles/CharacterBuilder.module.css';
+import { useEffect } from "react";
 
 interface CharacterBuilderProps {
   character: Character;
@@ -18,11 +19,30 @@ export default function CharacterBuilder({
 }: CharacterBuilderProps) {
 
   const { head, body, poseId } = character;
-  const selectedPose = poses.find(pose => pose.id === character.poseId);
+  //const selectedPose = poses.find(pose => pose.id === character.poseId);
 
   // NEW: Avatar head and body options
   const headOptions = ["mage-head1.png", "knight-head.png", "rogue-head.png"]; 
   const bodyOptions = ["knight-body.png", "mage-body.png", "rogue-body.png"];
+
+// Extract character type from body filename (e.g., "knight-body.png" -> "knight")
+  const characterType = body.split('-')[0]; // "knight", "mage", or "rogue"
+  
+  // Filter poses to only show ones matching the current body type
+  const availablePoses = poses.filter(pose => 
+    !pose.characterType || pose.characterType === characterType
+  );
+  
+  const selectedPose = availablePoses.find(pose => pose.id === poseId);
+
+// Reset pose if it's not valid for current character type
+  useEffect(() => {
+    if (poseId && !availablePoses.find(p => p.id === poseId)) {
+      onPoseChange(null);
+    }
+  }, [characterType, availablePoses, poseId, onPoseChange]);
+
+
 
 
   const currentHead = head; 
@@ -69,12 +89,14 @@ export default function CharacterBuilder({
 
         {/* Character preview */}
         <div className={styles.previewContainer}>
-          {/* Body layer - always show */}
-          <img 
-            src={`/images/avatar/body/${currentBody}`} 
-            alt="body" 
-            className={styles.characterImage}
-          />
+          {/* Body layer - only show if NO pose is selected */}
+          {!poseId && (
+            <img 
+              src={`/images/avatar/body/${currentBody}`} 
+              alt="body" 
+              className={styles.characterImage}
+            />
+          )}
 
           {/* Head layer - on top of body */}
           <img 
@@ -83,12 +105,12 @@ export default function CharacterBuilder({
             className={styles.characterImage}
           />
 
-          {/* Pose image overlays everything if selected */}
-          {character.poseId && selectedPose && (
+          {/* Pose image replaces body when selected */}
+          {poseId && selectedPose && (
             <img
-              src={`/images/poses/${selectedPose.imageUrl}`}
+              src={`/images/avatar/poses/${selectedPose.imageUrl}`}
               alt="pose"
-              className={styles.characterImage}
+              className={`${styles.characterImage} ${styles.poseImage}`}
             />
           )}
 
@@ -117,21 +139,21 @@ export default function CharacterBuilder({
         </div>
       </div>
 
-      {/* Pose selector - traditional dropdown */}
-      <div className={styles.poseSection}>
-        <label className={styles.poseLabel}>Pose:</label>
-        <select
-          value={poseId || ''}
-          onChange={(e) => onPoseChange(e.target.value ? Number(e.target.value) : null)}
-          className={styles.select}
-          aria-label="Select character pose"
-        >
-          <option value="">Select a pose</option>
-          {poses.map(p => (
-            <option key={p.id} value={p.id}>{p.name}</option>
-          ))}
-        </select>
-      </div>
+      {/* Pose selector */}
+    <div className={styles.poseSection}>
+      <label className={styles.poseLabel}>Pose ({characterType}):</label>
+      <select
+        value={poseId || ''}
+        onChange={(e) => onPoseChange(e.target.value ? Number(e.target.value) : null)}
+        className={styles.select}
+        aria-label="Select character pose"
+      >
+        <option value="">Select a pose</option>
+        {availablePoses.map(p => (
+          <option key={p.id} value={p.id}>{p.name}</option>
+        ))}
+      </select>
+    </div>
     </div>
   );
 }
