@@ -1,10 +1,8 @@
-using System.IO.Compression;
-using System.Linq;
 using DragonGame.Models;
 using DragonGame.Repositories;
 using FluentAssertions;
 using Moq;
-using server.Services;
+using DragonGame.Services;
 
 namespace DragonGame.Tests.Services
 {
@@ -19,7 +17,7 @@ namespace DragonGame.Tests.Services
             _sut = new CharacterService(_characterRepoMock.Object);
         }
 
-        // method to help create characters for tests quicker. MAX ID 3!!
+        // HELPER - MAX ID 3!!
         private Character CreateValidCharacterById(int Id, string? hair = null, string? face = null, string? outfit = null, int? pose = null)
         {
             if (Id is < 0 or > 3) throw new ArgumentException(nameof(Id), "ID cannot currently go higher than 3 or lower than 1");
