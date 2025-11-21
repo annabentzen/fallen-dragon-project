@@ -297,11 +297,42 @@ When the smoke clears, several of your friends and neighbours lay dead or wounde
                 CharacterType = "mage"  
             },
             new CharacterPose { 
+                Id = 2, 
+                Name = "Mage Hurt", 
+                ImageUrl = "mage1-pose2.png",  
+                CharacterType = "mage" 
+            },
+            new CharacterPose { 
+                Id = 2, 
+                Name = "Mage Standing", 
+                ImageUrl = "mage1-pose3.png",  
+                CharacterType = "mage" 
+            },
+            new CharacterPose { 
+                Id = 4, 
+                Name = "Mage 2 Jumping", 
+                ImageUrl = "mage2-pose1.png",  
+                CharacterType = "mage2"  
+            },
+            new CharacterPose { 
+                Id = 4, 
+                Name = "Mage 2 Hurt", 
+                ImageUrl = "mage2-pose2.png",  
+                CharacterType = "mage2" 
+            },
+            new CharacterPose { 
                 Id = 3, 
                 Name = "Knight Flying", 
-                ImageUrl = "pose3.png",  
+                ImageUrl = "knight1-pose1.png",  
+                CharacterType = "knight"  
+            },
+            new CharacterPose { 
+                Id = 3, 
+                Name = "Knight Fighting", 
+                ImageUrl = "knight1-pose2.png",  
                 CharacterType = "knight"  
             }
+            
         );
         await context.SaveChangesAsync();
     }

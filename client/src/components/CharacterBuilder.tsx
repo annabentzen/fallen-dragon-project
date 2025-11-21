@@ -22,8 +22,19 @@ export default function CharacterBuilder({
   //const selectedPose = poses.find(pose => pose.id === character.poseId);
 
   // NEW: Avatar head and body options
-  const headOptions = ["mage-head1.png", "knight-head.png", "rogue-head.png"]; 
-  const bodyOptions = ["knight-body.png", "mage-body.png", "rogue-body.png"];
+  const headOptions = [
+  "knight-head.png", 
+  "mage-head1.png", 
+  "mage2-head.png",  
+  "rogue-head.png"
+]; 
+
+const bodyOptions = [
+  "knight-body.png", 
+  "mage-body.png", 
+  "mage2-body.png", 
+  "rogue-body.png"
+];
 
 // Extract character type from body filename (e.g., "knight-body.png" -> "knight")
   const characterType = body.split('-')[0]; // "knight", "mage", or "rogue"

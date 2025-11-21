@@ -109,12 +109,16 @@ const startStory = async () => {
       </div>
 
       <CharacterBuilder
-        character={character}
-        poses={poses}
-        onHeadChange={(head) => setCharacter((prev) => ({ ...prev, head }))}
-        onBodyChange={(body) => setCharacter((prev) => ({ ...prev, body }))}
-        onPoseChange={(poseId) => setCharacter((prev) => ({ ...prev, poseId }))}
-      />
+      character={character}
+      poses={poses}
+      onHeadChange={(head) => setCharacter((prev) => ({ ...prev, head }))}
+      onBodyChange={(body) => setCharacter((prev) => ({ 
+        ...prev, 
+        body,
+        poseId: null  // Reset pose when body changes
+      }))}
+      onPoseChange={(poseId) => setCharacter((prev) => ({ ...prev, poseId }))}
+    />
 
       <button
         onClick={startStory}

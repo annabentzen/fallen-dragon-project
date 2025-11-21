@@ -102,6 +102,9 @@
 .poseMage {
   transform: translateX(15px);
 }
+.poseMage2 {
+  transform: translateX(15px); 
+}
 
 .poseRogue {
   transform: translateX(8px);
@@ -352,4 +355,138 @@
   50% {
     opacity: 0.6;
   }
+}
+
+
+
+
+/* ========================================
+   ARROW ROW (for top/bottom arrows)
+   ======================================== */
+
+.arrowRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-md);
+  gap: var(--spacing-md);
+}
+
+.spacer {
+  flex: 1;
+}
+
+/* ========================================
+   TOP/BOTTOM ARROW BUTTONS
+   ======================================== */
+
+.arrowButtonLeft,
+.arrowButtonRight {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
+  color: white;
+  border: 2px solid #4a148c;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: 2px 2px 0px #4a148c, var(--shadow-sm);
+  min-width: 50px;
+  font-weight: var(--font-weight-bold);
+  font-family: monospace;
+}
+
+.arrowButtonLeft:hover,
+.arrowButtonRight:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px #4a148c, var(--shadow-md);
+  background: linear-gradient(135deg, #ab47bc 0%, #9c27b0 100%);
+}
+
+.arrowButtonLeft:active,
+.arrowButtonRight:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px #4a148c;
+}
+
+/* ========================================
+   OVERLAY ARROW BUTTONS (for body - middle)
+   ======================================== */
+
+.arrowButtonOverlay {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: var(--spacing-md);
+  background: linear-gradient(135deg, rgba(156, 39, 176, 0.9) 0%, rgba(123, 31, 162, 0.9) 100%);
+  color: white;
+  border: 2px solid #4a148c;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xl);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: 2px 2px 0px #4a148c, var(--shadow-md);
+  min-width: 45px;
+  min-height: 45px;
+  font-weight: var(--font-weight-bold);
+  font-family: monospace;
+  z-index: 10; /* Make sure they're on top */
+  backdrop-filter: blur(4px); /* Slight blur effect */
+}
+
+.arrowButtonOverlay:hover {
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 3px 3px 0px #4a148c, var(--shadow-lg);
+  background: linear-gradient(135deg, rgba(171, 71, 188, 0.95) 0%, rgba(156, 39, 176, 0.95) 100%);
+}
+
+.arrowButtonOverlay:active {
+  transform: translateY(-50%) scale(0.95);
+  box-shadow: 1px 1px 0px #4a148c;
+}
+
+.arrowLeft {
+  left: -20px; /* Position outside the preview box */
+}
+
+.arrowRight {
+  right: -20px; /* Position outside the preview box */
+}
+
+/* ========================================
+   CHARACTER SECTION
+   ======================================== */
+
+.characterSection {
+  margin-bottom: var(--spacing-xl);
+}
+
+/* ========================================
+   INFO TEXT
+   ======================================== */
+
+.infoText {
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-style: italic;
+  padding: var(--spacing-sm);
+}
+
+/* ========================================
+   POSE SECTION
+   ======================================== */
+
+.poseSection {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+}
+
+.poseLabel {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-base);
+  min-width: 120px;
 }
