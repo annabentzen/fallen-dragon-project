@@ -2,7 +2,7 @@ using DragonGame.Models;
 using DragonGame.Repositories;
 using server.Services.Interfaces;
 
-namespace server.Services
+namespace DragonGame.Services
 {
     public class CharacterService : ICharacterService
     {
