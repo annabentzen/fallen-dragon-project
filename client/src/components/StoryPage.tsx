@@ -144,162 +144,157 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
   const selectedPose = poses.find((p) => p.id === character?.poseId);
   const isEnding = choices.length === 0;
 
-  return (
-    <div className={styles.storyContainer}>
-      {/* ==================== NAVBAR ==================== */}
-      <nav className={styles.navbar}>
-        <span className={styles.navbarTitle}>The Fallen Dragon</span>
+return (
+  <div className={styles.storyContainer}>
+    {/* ==================== NAVBAR ==================== */}
+    <nav className={styles.navbar}>
+      <span className={styles.navbarTitle}>The Fallen Dragon</span>
 
-        {character && !isEnding && (
-          <button
-            onClick={() => setIsEditingCharacter(true)}
-            className={styles.editButton}
-          >
-            Edit Character
-          </button>
-        )}
-      </nav>
-
-      {/* ==================== ENDING SCREEN ==================== */}
-      {isEnding && currentAct && (
-        <EndingScreen
-          endingType={getEndingType(currentAct.actNumber)}
-          endingText={currentAct.text}
-          onRestart={handleRestart}
-          navigate={navigate} 
-        />
+      {character && !isEnding && (
+        <button
+          onClick={() => setIsEditingCharacter(true)}
+          className={styles.editButton}
+        >
+          Edit Character
+        </button>
       )}
+    </nav>
 
-      {/* ==================== NORMAL STORY CONTENT ==================== */}
-      {!isEnding && currentAct && (
-        <>
-          {/* Story Scene Container with Background */}
-          <div className={styles.storyScene}>
-            {/* Top Left: Noteboard with Act Text */}
-            <div className={styles.noteboardSection}>
-              {/* Noteboard Background */}
-              <div className={styles.noteboardContainer}>
-                <div className={styles.actText}>
-                  {currentAct.text}
-                </div>
-              </div>
+    {/* ==================== ENDING SCREEN ==================== */}
+    {isEnding && currentAct && (
+      <EndingScreen
+        endingType={getEndingType(currentAct.actNumber)}
+        endingText={currentAct.text}
+        onRestart={handleRestart}
+        navigate={navigate} 
+      />
+    )}
 
-              {/* Choice Buttons Below Noteboard */}
-              <div className={styles.choicesContainer}>
-                {choices.map((choice) => (
-                  <div
-                    key={choice.choiceId}
-                    onClick={() => handleChoiceClick(choice.nextActNumber)}
-                    className={styles.choiceButton}
-                  >
-                    <span className={styles.choiceText}>
-                      {choice.text}
-                    </span>
-                  </div>
-                ))}
+    {/* ==================== NORMAL STORY CONTENT ==================== */}
+    {!isEnding && currentAct && (
+      <>
+        {/* Story Scene Container with Background */}
+        <div className={styles.storyScene}>
+          {/* Top Left: Noteboard with Act Text */}
+          <div className={styles.noteboardSection}>
+            {/* Noteboard Background */}
+            <div className={styles.noteboardContainer}>
+              <div className={styles.actText}>
+                {currentAct.text}
               </div>
             </div>
 
-            {/* Middle Right: Dragon Image */}
-            <div className={styles.dragonSection}>
-              <img
-                src="/images/game-images/dragon/Death3.png"
-                alt="Dragon"
-                className={styles.dragonImage}
-              />
+            {/* Choice Buttons Below Noteboard */}
+            <div className={styles.choicesContainer}>
+              {choices.map((choice) => (
+                <div
+                  key={choice.choiceId}
+                  onClick={() => handleChoiceClick(choice.nextActNumber)}
+                  className={styles.choiceButton}
+                >
+                  <span className={styles.choiceText}>
+                    {choice.text}
+                  </span>
+                </div>
+              ))}
             </div>
-
-            {/* Bottom Left: Character */}
-            {playerSession && character && (
-              <div className={styles.characterSection}>
-                {/* Character Name */}
-                <div className={styles.characterNameBadge}>
-                  <p className={styles.characterName}>
-                    {playerSession.characterName}
-                  </p>
-                </div>
-
-                {/* Character Preview */}
-                <div className={styles.characterPreview}>
-                  {/* Base body */}
-                  <img
-                    src="/images/base.png"
-                    alt="base"
-                    className={styles.characterLayer}
-                  />
-                  {/* Head */}
-                  {character.head && (
-                    <img
-                      src={`/images/faces/${character.head}`}
-                      alt="face"
-                      className={styles.characterLayer}
-                    />
-                  )}
-                  {/* Body */}
-                  {character.body && (
-                    <img
-                      src={`/images/clothes/${character.body}`}
-                      alt="outfit"
-                      className={styles.characterLayer}
-                    />
-                  )}
-                  {/* Pose (on top) */}
-                  {character.poseId && selectedPose && (
-                    <img
-                      src={`/images/avatar/poses/${selectedPose.imageUrl}`}
-                      alt="pose"
-                      className={styles.characterLayer}
-                    />
-                  )}
-                </div>
-              </div>
-            )}
           </div>
 
-          {/* Character Edit Modal */}
-          {isEditingCharacter && character && (
-            <div
-              className={styles.modalOverlay}
-              onClick={() => setIsEditingCharacter(false)}
-            >
-              <div
-                className={styles.modalContent}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <CharacterBuilder
-                  character={character}
-                  poses={poses}
-                  onHeadChange={(head) =>
-                    setCharacter((prev) => (prev ? { ...prev, head } : prev))
-                  }
-                  onBodyChange={(body) =>
-                    setCharacter((prev) => (prev ? { ...prev, body } : prev))
-                  }
-                  onPoseChange={(poseId) =>
-                    setCharacter((prev) => (prev ? { ...prev, poseId: poseId ?? null } : prev))
-                  }
-                />
+          {/* Middle Right: Dragon Image */}
+          <div className={styles.dragonSection}>
+            <img
+              src="/images/game-images/dragon/Death3.png"
+              alt="Dragon"
+              className={styles.dragonImage}
+            />
+          </div>
 
-                <div className={styles.modalButtonContainer}>
-                  <button
-                    onClick={async () => {
-                      setIsEditingCharacter(false);
-                      if (character) {
-                        await updateCharacter(sessionId, character);
-                      }
-                    }}
-                    className={styles.closeButton}
-                  >
-                    Close and Save
-                  </button>
-                </div>
+          {/* Bottom Left: Character */}
+          {playerSession && character && (
+            <div className={styles.characterSection}>
+              {/* Character Name */}
+              <div className={styles.characterNameBadge}>
+                <p className={styles.characterName}>
+                  {playerSession.characterName}
+                </p>
+              </div>
+
+              {/* Character Preview */}
+              <div className={styles.characterPreview}>
+                {/* Body - only show if NO pose is selected */}
+                {!character.poseId && character.body && (
+                  <img
+                    src={`/images/avatar/body/${character.body}`}
+                    alt="body"
+                    className={styles.characterLayer}
+                  />
+                )}
+                
+                {/* Head - always show */}
+                {character.head && (
+                  <img
+                    src={`/images/avatar/heads/${character.head}`}
+                    alt="head"
+                    className={styles.characterLayer}
+                  />
+                )}
+                
+                {/* Pose (replaces body when selected) */}
+                {character.poseId && selectedPose && (
+                  <img
+                    src={`/images/avatar/poses/${selectedPose.imageUrl}`}
+                    alt="pose"
+                    className={styles.characterLayer}
+                  />
+                )}
               </div>
             </div>
           )}
-        </>
-      )}
-    </div>
-  );
-};
+        </div>
 
+        {/* Character Edit Modal */}
+        {isEditingCharacter && character && (
+          <div
+            className={styles.modalOverlay}
+            onClick={() => setIsEditingCharacter(false)}
+          >
+            <div
+              className={styles.modalContent}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <CharacterBuilder
+                character={character}
+                poses={poses}
+                onHeadChange={(head) =>
+                  setCharacter((prev) => (prev ? { ...prev, head } : prev))
+                }
+                onBodyChange={(body) =>
+                  setCharacter((prev) => (prev ? { ...prev, body } : prev))
+                }
+                onPoseChange={(poseId) =>
+                  setCharacter((prev) => (prev ? { ...prev, poseId: poseId ?? null } : prev))
+                }
+              />
+
+              <div className={styles.modalButtonContainer}>
+                <button
+                  onClick={async () => {
+                    setIsEditingCharacter(false);
+                    if (character) {
+                      await updateCharacter(sessionId, character);
+                    }
+                  }}
+                  className={styles.closeButton}
+                >
+                  Close and Save
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </>
+    )}
+  </div>
+);
+}
 export default StoryPage;
