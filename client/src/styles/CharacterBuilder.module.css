@@ -493,7 +493,6 @@
 
 
 
-
 /* ========================================
    INDIVIDUAL BODY POSITIONING
    ======================================== */
@@ -523,11 +522,11 @@
   transform: translateX(15px) translateY(0px);
 }
 
-.poseKnightFlying {
+.poseKnightAttacking {
   transform: translateX(18px) translateY(0px);
 }
 
-.poseKnightFighting {
+.poseKnightStriking {
   transform: translateX(-7px) translateY(1px);
 }
 
@@ -536,15 +535,15 @@
   transform: translateX(15px) translateY(0px);
 }
 
-.poseMageFighting {
+.poseMageFloating {
   transform: translateX(7px) translateY(16px);
 }
 
-.poseMageJumping {
+.poseMageCrouching {
   transform: translateX(-6px) translateY(-5px);
 }
 
-.poseMageHurt {
+.poseMageDizzy {
   transform: translateX(8px) translateY(-2px);
 }
 
@@ -557,7 +556,7 @@
   transform: translateX(-12px) translateY(-1px);
 }
 
-.poseMage2Hurt {
+.poseMage2Standing {
   transform: translateX(0px) translateY(-2px);
 }
 
@@ -566,6 +565,6 @@
   transform: translateX(8px) translateY(0px);
 }
 
-.poseRogueStanding {
+.poseRogueDizzy {
   transform: translateX(-8px) translateY(7px);
 }

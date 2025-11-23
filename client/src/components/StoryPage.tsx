@@ -226,7 +226,7 @@ return (
                   <img
                     src={`/images/avatar/body/${character.body}`}
                     alt="body"
-                    className={styles.characterLayer}
+                    className={`${styles.characterLayer} ${styles[`body${character.body.split('-')[0].charAt(0).toUpperCase() + character.body.split('-')[0].slice(1)}`]}`}
                   />
                 )}
                 
@@ -244,7 +244,7 @@ return (
                   <img
                     src={`/images/avatar/poses/${selectedPose.imageUrl}`}
                     alt="pose"
-                    className={styles.characterLayer}
+                    className={`${styles.characterLayer} ${styles[`pose${selectedPose.name.replace(/\s+/g, '')}`]}`}
                   />
                 )}
               </div>
