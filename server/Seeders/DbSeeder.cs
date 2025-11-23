@@ -285,22 +285,22 @@ When the smoke clears, several of your friends and neighbours lay dead or wounde
         {
             context.CharacterPoses.AddRange(
                 new CharacterPose { 
-                    Name = "Rogue Standing", 
+                    Name = "Rogue Dizzy", 
                     ImageUrl = "rouge1-pose1.png",  
                     CharacterType = "rogue"  
                 },
                 new CharacterPose { 
-                    Name = "Mage Fighting", 
+                    Name = "Mage Floating", 
                     ImageUrl = "mage1-pose1.png",  
                     CharacterType = "mage"  
                 },
                 new CharacterPose { 
-                    Name = "Mage Jumping", 
+                    Name = "Mage Crouching", 
                     ImageUrl = "mage1-pose2.png",  
                     CharacterType = "mage"  
                 },
                 new CharacterPose { 
-                    Name = "Mage Hurt", 
+                    Name = "Mage Dizzy", 
                     ImageUrl = "mage1-pose3.png",  
                     CharacterType = "mage" 
                 },
@@ -310,17 +310,17 @@ When the smoke clears, several of your friends and neighbours lay dead or wounde
                     CharacterType = "mage2"  
                 },
                 new CharacterPose { 
-                    Name = "Mage 2 Hurt", 
+                    Name = "Mage 2 Standing", 
                     ImageUrl = "mage2-pose2.png",  
                     CharacterType = "mage2" 
                 },
                 new CharacterPose { 
-                    Name = "Knight Flying", 
+                    Name = "Knight Attacking", 
                     ImageUrl = "knight1-pose1.png",  
                     CharacterType = "knight"  
                 },
                 new CharacterPose { 
-                    Name = "Knight Fighting", 
+                    Name = "Knight Striking", 
                     ImageUrl = "knight1-pose2.png",  
                     CharacterType = "knight"  
                 }
