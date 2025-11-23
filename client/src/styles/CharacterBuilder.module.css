@@ -490,3 +490,82 @@
   font-size: var(--font-size-base);
   min-width: 120px;
 }
+
+
+
+
+/* ========================================
+   INDIVIDUAL BODY POSITIONING
+   ======================================== */
+
+.bodyKnight {
+  transform: translateX(0px) translateY(0px);
+}
+
+.bodyMage {
+  transform: translateX(0px) translateY(0px);
+}
+
+.bodyMage2 {
+  transform: translateX(0px) translateY(0px);
+}
+
+.bodyRogue {
+  transform: translateX(5px) translateY(10px);
+}
+
+/* ========================================
+   INDIVIDUAL POSE POSITIONING
+   ======================================== */
+
+/* Knight poses */
+.poseKnight {
+  transform: translateX(15px) translateY(0px);
+}
+
+.poseKnightFlying {
+  transform: translateX(18px) translateY(0px);
+}
+
+.poseKnightFighting {
+  transform: translateX(-7px) translateY(1px);
+}
+
+/* Mage poses */
+.poseMage {
+  transform: translateX(15px) translateY(0px);
+}
+
+.poseMageFighting {
+  transform: translateX(7px) translateY(16px);
+}
+
+.poseMageJumping {
+  transform: translateX(-6px) translateY(-5px);
+}
+
+.poseMageHurt {
+  transform: translateX(8px) translateY(-2px);
+}
+
+/* Mage2 poses */
+.poseMage2 {
+  transform: translateX(15px) translateY(0px);
+}
+
+.poseMage2Jumping {
+  transform: translateX(-12px) translateY(-1px);
+}
+
+.poseMage2Hurt {
+  transform: translateX(0px) translateY(-2px);
+}
+
+/* Rogue poses */
+.poseRogue {
+  transform: translateX(8px) translateY(0px);
+}
+
+.poseRogueStanding {
+  transform: translateX(-8px) translateY(7px);
+}

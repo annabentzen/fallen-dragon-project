@@ -105,7 +105,7 @@ const bodyOptions = [
             <img 
               src={`/images/avatar/body/${currentBody}`} 
               alt="body" 
-              className={styles.characterImage}
+              className={`${styles.characterImage} ${styles[`body${characterType.charAt(0).toUpperCase() + characterType.slice(1)}`]}`}
             />
           )}
 
@@ -121,8 +121,7 @@ const bodyOptions = [
             <img
               src={`/images/avatar/poses/${selectedPose.imageUrl}`}
               alt="pose"
-              className={`${styles.characterImage} ${styles.poseImage} ${styles[`pose${characterType.charAt(0).toUpperCase() + characterType.slice(1)}`]}`}
-            />
+className={`${styles.characterImage} ${styles[`pose${characterType.charAt(0).toUpperCase() + characterType.slice(1)}`]} ${selectedPose.name ? styles[`pose${selectedPose.name.replace(/\s+/g, '')}`] : ''}`}            />
           )}
 
           {/* Body arrows - MIDDLE (overlaid on character) */}
