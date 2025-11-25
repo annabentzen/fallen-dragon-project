@@ -25,6 +25,7 @@ namespace DragonGame.Data
         public DbSet<Choice> Choices { get; set; }
         public DbSet<Character> Characters { get; set; }
         public DbSet<CharacterPose> CharacterPoses { get; set; }
+        public DbSet<User> Users { get; set; }
         public DbSet<ChoiceHistory> ChoiceHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -36,6 +37,11 @@ namespace DragonGame.Data
             modelBuilder.Entity<Choice>().ToTable("Choices");
             modelBuilder.Entity<Character>().ToTable("Characters");
             modelBuilder.Entity<CharacterPose>().ToTable("CharacterPoses");
+            modelBuilder.Entity<User>().ToTable("Users");
+            modelBuilder.Entity<User>().HasKey(u => u.UserId);
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Username)
+                .IsUnique();
 
             modelBuilder.Entity<Choice>().HasKey(c => c.ChoiceId);
             modelBuilder.Entity<Act>().HasKey(a => a.ActId);
@@ -53,7 +59,7 @@ namespace DragonGame.Data
                     .HasForeignKey(ps => ps.CurrentActNumber)
                     .HasPrincipalKey(a => a.ActNumber)
                     .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired(false);  
+                    .IsRequired(false);
             });
 
             // Configure ChoiceHistory
