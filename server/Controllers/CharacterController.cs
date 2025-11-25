@@ -73,9 +73,8 @@ namespace DragonGame.Controllers
                     return NotFound("Session or character not found");
 
                 // Update only the appearance properties
-                session.Character.Hair = dto.Hair;
-                session.Character.Face = dto.Face;
-                session.Character.Outfit = dto.Outfit;
+                session.Character.Head = dto.Head;
+                session.Character.Body = dto.Body;
                 session.Character.PoseId = dto.PoseId;
 
                 await _context.SaveChangesAsync();

@@ -1,30 +1,63 @@
 import { Character, CharacterPose } from "../types/character";
 import styles from '../styles/CharacterBuilder.module.css';
+import { useEffect } from "react";
 
 interface CharacterBuilderProps {
   character: Character;
   poses: CharacterPose[];
-  onHairChange: (hair: string) => void;
-  onFaceChange: (face: string) => void;
-  onOutfitChange: (outfit: string) => void;
+  onHeadChange: (head: string) => void;  // renamed from onHairChange
+  onBodyChange: (body: string) => void;  // renamed from onOutfitChange
   onPoseChange: (poseId: number | null) => void;
 }
 
 export default function CharacterBuilder({
   character,
   poses,
-  onHairChange,
-  onFaceChange,
-  onOutfitChange,
+  onHeadChange,
+  onBodyChange,
   onPoseChange
 }: CharacterBuilderProps) {
 
-  const { hair, face, outfit, poseId } = character;
-  const selectedPose = poses.find(pose => pose.id === character.poseId);
+  const { head, body, poseId } = character;
+  //const selectedPose = poses.find(pose => pose.id === character.poseId);
 
-  const hairOptions = ["hair1.png", "hair2.png", "hair3.png"];
-  const faceOptions = ["face1.png", "face2.png", "face3.png"];
-  const outfitOptions = ["clothing1.png", "clothing2.png", "clothing3.png"];
+  // NEW: Avatar head and body options
+  const headOptions = [
+  "knight-head.png", 
+  "mage-head1.png", 
+  "mage2-head.png",  
+  "rogue-head.png"
+]; 
+
+const bodyOptions = [
+  "knight-body.png", 
+  "mage-body.png", 
+  "mage2-body.png", 
+  "rogue-body.png"
+];
+
+// Extract character type from body filename (e.g., "knight-body.png" -> "knight")
+  const characterType = body.split('-')[0]; // "knight", "mage", or "rogue"
+  
+  // Filter poses to only show ones matching the current body type
+  const availablePoses = poses.filter(pose => 
+    !pose.characterType || pose.characterType === characterType
+  );
+  
+  const selectedPose = availablePoses.find(pose => pose.id === poseId);
+
+// Reset pose if it's not valid for current character type
+  useEffect(() => {
+    if (poseId && !availablePoses.find(p => p.id === poseId)) {
+      onPoseChange(null);
+    }
+  }, [characterType, availablePoses, poseId, onPoseChange]);
+
+
+
+
+  const currentHead = head; 
+  const currentBody = body; 
 
   const cycleOption = (
     currentValue: string,
@@ -46,98 +79,91 @@ export default function CharacterBuilder({
      {/* Character preview with side arrows */}
       <div className={styles.characterSection}>
         
-        {/* Hair arrows - TOP */}
+        {/* Head arrows - TOP */}
         <div className={styles.arrowRow}>
-        <button 
-          onClick={() => cycleOption(hair, hairOptions, onHairChange, 'prev')} 
-          className={styles.arrowButtonLeft}
-          aria-label="Previous hair"
-          />
+          <button 
+            onClick={() => cycleOption(currentHead, headOptions, onHeadChange, 'prev')} 
+            className={styles.arrowButtonLeft}
+            aria-label="Previous head"
+          >
+            ◀
+          </button>
           <div className={styles.spacer}></div>
           <button 
-            onClick={() => cycleOption(hair, hairOptions, onHairChange, 'next')} 
+            onClick={() => cycleOption(currentHead, headOptions, onHeadChange, 'next')} 
             className={styles.arrowButtonRight}
-            aria-label="Next hair"
-            />
+            aria-label="Next head"
+          >
+            ▶
+          </button>
         </div>
 
         {/* Character preview */}
         <div className={styles.previewContainer}>
-          {/* Base image only shows if no pose is selected*/}
+          {/* Body layer - only show if NO pose is selected */}
           {!poseId && (
-            <img
-              src="/images/base.png"
-              alt="base"
-              className={styles.characterImage}
+            <img 
+              src={`/images/avatar/body/${currentBody}`} 
+              alt="body" 
+              className={`${styles.characterImage} ${styles[`body${characterType.charAt(0).toUpperCase() + characterType.slice(1)}`]}`}
             />
           )}
 
-          {/* Always show hair, face, and outfit */}
+          {/* Head layer - on top of body */}
           <img 
-            src={`/images/hair/${hair}`} 
-            alt="hair" 
-            className={styles.characterImage}
-          />
-          <img 
-            src={`/images/faces/${face}`} 
-            alt="face" 
-            className={styles.characterImage}
-          />
-          <img 
-            src={`/images/clothes/${outfit}`} 
-            alt="clothing" 
+            src={`/images/avatar/heads/${currentHead}`} 
+            alt="head" 
             className={styles.characterImage}
           />
 
-          {/* Pose image overlays everything if selected */}
-          {character.poseId && selectedPose && (
+          {/* Pose image replaces body when selected */}
+          {poseId && selectedPose && (
             <img
-              src={`/images/poses/${selectedPose.imageUrl}`}
+              src={`/images/avatar/poses/${selectedPose.imageUrl}`}
               alt="pose"
-              className={styles.characterImage}
-            />
+className={`${styles.characterImage} ${styles[`pose${characterType.charAt(0).toUpperCase() + characterType.slice(1)}`]} ${selectedPose.name ? styles[`pose${selectedPose.name.replace(/\s+/g, '')}`] : ''}`}            />
           )}
 
-          {/* Face arrows - MIDDLE (overlaid on character) */}
+          {/* Body arrows - MIDDLE (overlaid on character) */}
           <button 
-            onClick={() => cycleOption(face, faceOptions, onFaceChange, 'prev')} 
+            onClick={() => cycleOption(currentBody, bodyOptions, onBodyChange, 'prev')} 
             className={`${styles.arrowButtonOverlay} ${styles.arrowLeft}`}
-            aria-label="Previous face"/>
+            aria-label="Previous body"
+          >
+            ◀
+          </button>
           <button 
-            onClick={() => cycleOption(face, faceOptions, onFaceChange, 'next')} 
+            onClick={() => cycleOption(currentBody, bodyOptions, onBodyChange, 'next')} 
             className={`${styles.arrowButtonOverlay} ${styles.arrowRight}`}
-            aria-label="Next face"/>
+            aria-label="Next body"
+          >
+            ▶
+          </button>
         </div>
 
-        {/* Outfit arrows - BOTTOM */}
+        {/* Info text - BOTTOM */}
         <div className={styles.arrowRow}>
-          <button 
-            onClick={() => cycleOption(outfit, outfitOptions, onOutfitChange, 'prev')} 
-            className={styles.arrowButtonLeft}
-            aria-label="Previous outfit"/>
-          <div className={styles.spacer}></div>
-          <button 
-            onClick={() => cycleOption(outfit, outfitOptions, onOutfitChange, 'next')} 
-            className={styles.arrowButtonRight}
-            aria-label="Next outfit"/>
+          <div className={styles.infoText}>
+            Mix and match heads and bodies!
+          </div>
         </div>
       </div>
 
-      {/* Pose selector - traditional dropdown */}
-      <div className={styles.poseSection}>
-        <label className={styles.poseLabel}>Pose:</label>
-        <select
-          value={poseId || ''}
-          onChange={(e) => onPoseChange(e.target.value ? Number(e.target.value) : null)}
-          className={styles.select}
-          aria-label="Select character pose"
-        >
-          <option value="">Select a pose</option>
-          {poses.map(p => (
-            <option key={p.id} value={p.id}>{p.name}</option>
-          ))}
-        </select>
-      </div>
+      {/* Pose selector */}
+    <div className={styles.poseSection}>
+      <label className={styles.poseLabel}>Pose ({characterType}):</label>
+      <select
+        value={poseId || ''}
+        onChange={(e) => onPoseChange(e.target.value ? Number(e.target.value) : null)}
+        className={styles.select}
+        aria-label="Select character pose"
+      >
+        <option value="">Select a pose</option>
+        {availablePoses.map(p => (
+          <option key={p.id} value={p.id}>{p.name}</option>
+        ))}
+      </select>
+    </div>
     </div>
   );
 }

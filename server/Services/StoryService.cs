@@ -39,9 +39,8 @@ namespace DragonGame.Services
                 // Step 1: Create the Character entity first (so we get an ID)
                 var character = new Character
                 {
-                    Hair = dto.Character.Hair,
-                    Face = dto.Character.Face,
-                    Outfit = dto.Character.Outfit,
+                    Head = dto.Character.Head,
+                    Body = dto.Character.Body,
                     PoseId = dto.Character.PoseId
                 };
 
@@ -121,9 +120,8 @@ namespace DragonGame.Services
                         session.CharacterName,
                         Character = session.Character != null ? new
                         {
-                            session.Character.Hair,
-                            session.Character.Face,
-                            session.Character.Outfit,
+                            session.Character.Head,
+                            session.Character.Body,
                             session.Character.PoseId
                         } : null,
                         session.StoryId,
@@ -252,9 +250,8 @@ namespace DragonGame.Services
                 }
 
                 // Apply new design
-                character.Hair = newDesign.Hair;
-                character.Face = newDesign.Face;
-                character.Outfit = newDesign.Outfit;
+                character.Head = newDesign.Head;
+                character.Body = newDesign.Body;
                 character.PoseId = newDesign.PoseId;
 
                 await _characterRepo.UpdateAsync(character);
