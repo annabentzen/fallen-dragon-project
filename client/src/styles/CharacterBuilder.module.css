@@ -34,6 +34,71 @@
 }
 
 /* ========================================
+   CHARACTER SECTION (WRAPPER)
+   ======================================== */
+
+.characterSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* ========================================
+   ARROW ROW (TOP AND BOTTOM)
+   ======================================== */
+
+.arrowRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 240px; /* Match preview width */
+  gap: var(--spacing-md);
+}
+
+.spacer {
+  flex: 1; /* Takes up space between left and right arrows */
+}
+
+/* ========================================
+   ARROW BUTTONS (LEFT & RIGHT)
+   ======================================== */
+
+.arrowButtonLeft,
+.arrowButtonRight {
+  width: 48px;
+  height: 48px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  background-color: transparent;
+  padding: 0;
+}
+
+.arrowButtonLeft {
+  background-image: url("/images/ui/backward_button.png");
+}
+
+.arrowButtonRight {
+  background-image: url("/images/ui/forward_button.png");
+}
+
+.arrowButtonLeft:hover,
+.arrowButtonRight:hover {
+  transform: scale(1.1);
+  filter: brightness(1.1);
+}
+
+.arrowButtonLeft:active,
+.arrowButtonRight:active {
+  transform: scale(0.95);
+}
+
+/* ========================================
    CHARACTER PREVIEW
    ======================================== */
 
@@ -92,116 +157,61 @@
 }
 
 /* ========================================
-   SELECTOR ROWS
+   OVERLAY ARROW BUTTONS (ON CHARACTER)
    ======================================== */
 
-.selectorRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--spacing-lg);
-  padding: var(--spacing-md);
-  background-color: rgba(255, 255, 255, 0.5);
-  border-radius: var(--radius-md);
-  transition: all var(--transition-normal);
+.arrowButtonOverlay {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  background-color: transparent;
+  padding: 0;
+  z-index: 10; /* Above character images */
 }
 
-.selectorRow:hover {
-  background-color: var(--color-bg-hover);
-  transform: translateX(4px);
+.arrowButtonOverlay.arrowLeft {
+  left: -60px; /* Position outside the preview box */
+  background-image: url("/images/ui/backward_button.png");
 }
 
-.selectorRow:last-child {
-  margin-bottom: 0;
+.arrowButtonOverlay.arrowRight {
+  right: -60px; /* Position outside the preview box */
+  background-image: url("/images/ui/forward_button.png");
+}
+
+.arrowButtonOverlay:hover {
+  transform: translateY(-50%) scale(1.1);
+  filter: brightness(1.1);
+}
+
+.arrowButtonOverlay:active {
+  transform: translateY(-50%) scale(0.95);
 }
 
 /* ========================================
-   LABELS
+   POSE SECTION
    ======================================== */
 
-.label {
-  font-weight: var(--font-weight-bold);
-  min-width: 90px;
-  color: var(--color-text-primary);
-  font-size: var(--font-size-base);
-  display: flex;
-  align-items: center;
-}
-
-/* ========================================
-   CONTROLS SECTION
-   ======================================== */
-
-.controls {
+.poseSection {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  flex: 1;
+  margin-top: var(--spacing-lg);
 }
 
-/* ========================================
-   ARROW BUTTONS
-   ======================================== */
-
-.arrowButton {
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: linear-gradient(
-    135deg,
-    #9c27b0 0%,
-    /* PURPLE */ #7b1fa2 100% /* DARK PURPLE */
-  );
-  color: white;
-  border: 2px solid #4a148c; /* DARK PURPLE BORDER */
-  border-radius: 0; /* PIXEL STYLE = NO ROUND CORNERS */
-  font-size: var(--font-size-lg);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  box-shadow: 2px 2px 0px #4a148c, /* PIXEL SHADOW */ var(--shadow-sm);
-  min-width: 40px;
+.poseLabel {
   font-weight: var(--font-weight-bold);
-  font-family: monospace; /* PIXEL FONT */
-}
-
-.arrowButton:hover {
-  transform: translate(-1px, -1px); /* PIXEL HOVER */
-  box-shadow: 3px 3px 0px #4a148c, var(--shadow-md);
-  background: linear-gradient(
-    135deg,
-    #ab47bc 0%,
-    /* LIGHTER PURPLE */ #9c27b0 100%
-  );
-}
-
-.arrowButton:active {
-  transform: translate(1px, 1px); /* ← PIXEL PRESS */
-  box-shadow: 1px 1px 0px #4a148c;
-}
-
-/* Directional styling */
-.arrowButton:first-child {
-  border-radius: var(--radius-md) var(--radius-sm) var(--radius-sm)
-    var(--radius-md);
-}
-
-.arrowButton:last-child {
-  border-radius: var(--radius-sm) var(--radius-md) var(--radius-md)
-    var(--radius-sm);
-}
-
-/* ========================================
-   CURRENT VALUE DISPLAY
-   ======================================== */
-
-.currentValue {
-  min-width: 120px;
-  text-align: center;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  font-weight: var(--font-weight-medium);
-  padding: var(--spacing-sm);
-  background-color: rgba(255, 255, 255, 0.7);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-base);
+  min-width: 60px;
 }
 
 /* ========================================

@@ -48,26 +48,22 @@ export default function CharacterBuilder({
         
         {/* Hair arrows - TOP */}
         <div className={styles.arrowRow}>
-          <button 
-            onClick={() => cycleOption(hair, hairOptions, onHairChange, 'prev')} 
-            className={styles.arrowButtonLeft}
-            aria-label="Previous hair"
-          >
-            ◀
-          </button>
+        <button 
+          onClick={() => cycleOption(hair, hairOptions, onHairChange, 'prev')} 
+          className={styles.arrowButtonLeft}
+          aria-label="Previous hair"
+          />
           <div className={styles.spacer}></div>
           <button 
             onClick={() => cycleOption(hair, hairOptions, onHairChange, 'next')} 
             className={styles.arrowButtonRight}
             aria-label="Next hair"
-          >
-            ▶
-          </button>
+            />
         </div>
 
         {/* Character preview */}
         <div className={styles.previewContainer}>
-          {/* Base image only shows if no pose is selected */}
+          {/* Base image only shows if no pose is selected*/}
           {!poseId && (
             <img
               src="/images/base.png"
@@ -106,17 +102,11 @@ export default function CharacterBuilder({
           <button 
             onClick={() => cycleOption(face, faceOptions, onFaceChange, 'prev')} 
             className={`${styles.arrowButtonOverlay} ${styles.arrowLeft}`}
-            aria-label="Previous face"
-          >
-            ◀
-          </button>
+            aria-label="Previous face"/>
           <button 
             onClick={() => cycleOption(face, faceOptions, onFaceChange, 'next')} 
             className={`${styles.arrowButtonOverlay} ${styles.arrowRight}`}
-            aria-label="Next face"
-          >
-            ▶
-          </button>
+            aria-label="Next face"/>
         </div>
 
         {/* Outfit arrows - BOTTOM */}
@@ -124,18 +114,12 @@ export default function CharacterBuilder({
           <button 
             onClick={() => cycleOption(outfit, outfitOptions, onOutfitChange, 'prev')} 
             className={styles.arrowButtonLeft}
-            aria-label="Previous outfit"
-          >
-            ◀
-          </button>
+            aria-label="Previous outfit"/>
           <div className={styles.spacer}></div>
           <button 
             onClick={() => cycleOption(outfit, outfitOptions, onOutfitChange, 'next')} 
             className={styles.arrowButtonRight}
-            aria-label="Next outfit"
-          >
-            ▶
-          </button>
+            aria-label="Next outfit"/>
         </div>
       </div>
 
