@@ -1,8 +1,10 @@
 // Controllers/StoryController.cs
+using System.Security.Claims;
 using DragonGame.Data;
 using DragonGame.Dtos;
 using DragonGame.Models;
 using DragonGame.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,15 +12,25 @@ namespace DragonGame.Controllers
 {
     [ApiController]
     [Route("api/story")]
+    [Authorize]
     public class StoryController : ControllerBase
     {
         private readonly IStoryService _storyService;
         private readonly AppDbContext _context;
+        private readonly IPlayerSessionService _sessionService;
 
-        public StoryController(IStoryService storyService, AppDbContext context)
+        public StoryController(IStoryService storyService, IPlayerSessionService sessionService, AppDbContext context)
         {
             _storyService = storyService;
+            _sessionService = sessionService;
             _context = context;
+        }
+
+        //helper method
+        private int GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return int.Parse(userIdClaim ?? "0");
         }
 
         // POST /api/story/start
@@ -27,14 +39,17 @@ namespace DragonGame.Controllers
         {
             try
             {
-                Console.WriteLine($"[StoryController] Starting new session for '{dto.CharacterName}'");
-                var session = await _storyService.StartStoryAsync(dto);
+                var userId = GetCurrentUserId(); // Get from JWT token
+                Console.WriteLine($"[StoryController] User {userId} starting session for '{dto.CharacterName}'");
+                
+                // Need to inject IPlayerSessionService instead of IStoryService
+                var session = await _sessionService.CreateSessionAsync(dto, userId);
                 return Ok(session);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"[StoryController][Start] ERROR: {ex.Message}\n{ex.StackTrace}");
-                return StatusCode(500, "Failed to start story");
+                return StatusCode(500, new { message = "Failed to start story", error = ex.Message });
             }
         }
 
