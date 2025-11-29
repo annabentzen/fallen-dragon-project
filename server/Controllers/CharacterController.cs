@@ -5,11 +5,13 @@ using Microsoft.EntityFrameworkCore;
 using DragonGame.Data;
 using server.Services.Interfaces;
 using DragonGame.Dtos;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DragonGame.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class CharacterController : ControllerBase
     {
         private readonly ICharacterService _characterService;

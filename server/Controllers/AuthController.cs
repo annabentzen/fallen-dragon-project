@@ -1,5 +1,6 @@
 using DragonGame.Dtos;
 using DragonGame.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DragonGame.Controllers
@@ -9,6 +10,7 @@ namespace DragonGame.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;

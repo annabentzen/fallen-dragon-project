@@ -24,11 +24,12 @@ export interface PlayerSessionDto {
   isCompleted: boolean;
 }
 
+// Helper function to create headers with auth token
 const getHeaders = () => {
   const token = getToken();
   return {
     "Content-Type": "application/json",
-    ...(token && { Authorization: `Bearer ${token}` }), // Add token if exists
+    ...(token && { Authorization: `Bearer ${token}` }),
   };
 };
 
@@ -37,7 +38,9 @@ export const createSession = async (characterName: string, character: Character)
   const response = await fetch(`${API_BASE}/api/story/start`, {
     method: "POST",
     headers: getHeaders(),
-    body: JSON.stringify({ characterName, character: {
+    body: JSON.stringify({ 
+      characterName, 
+      character: {
         head: character.head,
         body: character.body,
         poseId: character.poseId 
@@ -49,10 +52,12 @@ export const createSession = async (characterName: string, character: Character)
   return response.json();
 };
 
-// Load current act (backend now returns ActDto directly!)
+// Load current act
 export const getCurrentAct = async (sessionId: number): Promise<ActDto> => {
   console.log("[storyApi] Loading current act for session", sessionId);
-  const response = await fetch(`${API_BASE}/api/story/currentAct/${sessionId}`);
+  const response = await fetch(`${API_BASE}/api/story/currentAct/${sessionId}`, {
+    headers: getHeaders(),
+  });
 
   if (!response.ok) {
     const err = await response.text();
@@ -83,25 +88,27 @@ export const makeChoice = async (sessionId: number, nextActNumber: number): Prom
 // Get character (for display on story page)
 export const getCharacter = async (sessionId: number) => {
   console.log("[storyApi] Fetching character for session", sessionId);
-  const response = await fetch(`${API_BASE}/api/story/${sessionId}/character`);
+  const response = await fetch(`${API_BASE}/api/story/${sessionId}/character`, {
+    headers: getHeaders(),
+  });
   if (!response.ok) throw new Error("Failed to load character");
   const data = await response.json();
   console.log("[storyApi] Character loaded", data);
   return data;
 };
 
-// src/api/storyApi.ts  ← ADD THESE FUNCTIONS AT THE END OF THE FILE
-
 // Load the full session object (used for character name, etc.)
 export const getSession = async (sessionId: number): Promise<PlayerSessionDto> => {
-  const response = await fetch(`${API_BASE}/api/story/session/${sessionId}`);
+  const response = await fetch(`${API_BASE}/api/story/session/${sessionId}`, {
+    headers: getHeaders(),
+  });
   if (!response.ok) throw new Error("Failed to load session");
   return response.json();
 };
 
 // Legacy alias — some places still use this name
 export const getCharacterForSession = async (sessionId: number) => {
-  return getCharacter(sessionId); // just forward to the main function
+  return getCharacter(sessionId);
 };
 
 // Move to next act when a choice is made
@@ -115,7 +122,6 @@ export const moveToNextAct = async (sessionId: number, nextActNumber: number): P
     const err = await response.text();
     throw new Error(`Failed to move to act ${nextActNumber}: ${err}`);
   }
-  // No body expected — just confirm success
 };
 
 // Update character appearance during the game (edit modal)
