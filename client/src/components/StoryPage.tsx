@@ -167,10 +167,10 @@ return (
     <nav className={styles.navbar}>
       <span className={styles.navbarTitle}>The Fallen Dragon</span>
 
-      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+      <div className={styles.navbarActions}>
         {/* Show username */}
         {username && (
-          <span style={{ color: "white", fontSize: "14px" }}>
+          <span className={styles.welcomeText}>
             Welcome, {username}!
           </span>
         )}
@@ -179,14 +179,7 @@ return (
         {!isEnding && (
           <button
             onClick={() => navigate("/home")}
-            style={{
-              padding: "6px 12px",
-              backgroundColor: "#2196F3",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
+            className={styles.navButton}
           >
             Home
           </button>
@@ -205,19 +198,13 @@ return (
         {/* Logout button */}
         <button
           onClick={handleLogout}
-          style={{
-            padding: "6px 12px",
-            backgroundColor: "#f44336",
-            color: "white",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-          }}
+          className={styles.logoutButton}
         >
           Logout
         </button>
       </div>
     </nav>
+
     {/* ==================== ENDING SCREEN ==================== */}
     {isEnding && currentAct && (
       <EndingScreen
@@ -231,9 +218,12 @@ return (
     {/* ==================== NORMAL STORY CONTENT ==================== */}
     {!isEnding && currentAct && (
       <>
+        {/* Atmospheric overlay */}
+        <div className={styles.atmosphereOverlay} />
+        
         {/* Story Scene Container with Background */}
         <div className={styles.storyScene}>
-          {/* Top Left: Noteboard with Act Text */}
+          {/* Top Center: Noteboard with Act Text */}
           <div className={styles.noteboardSection}>
             {/* Noteboard Background */}
             <div className={styles.noteboardContainer}>
@@ -244,11 +234,12 @@ return (
 
             {/* Choice Buttons Below Noteboard */}
             <div className={styles.choicesContainer}>
-              {choices.map((choice) => (
+              {choices.map((choice, index) => (
                 <div
                   key={choice.choiceId}
                   onClick={() => handleChoiceClick(choice.nextActNumber)}
                   className={styles.choiceButton}
+                  style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <span className={styles.choiceText}>
                     {choice.text}
@@ -320,6 +311,7 @@ return (
               className={styles.modalContent}
               onClick={(e) => e.stopPropagation()}
             >
+              <h2 className={styles.modalTitle}>Edit Your Character</h2>
               <CharacterBuilder
                 character={character}
                 poses={poses}
@@ -344,7 +336,7 @@ return (
                   }}
                   className={styles.closeButton}
                 >
-                  Close and Save
+                  Save & Close
                 </button>
               </div>
             </div>

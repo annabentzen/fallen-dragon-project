@@ -1,7 +1,6 @@
 // Types for authentication
 export interface RegisterData {
   username: string;
-  email: string;
   password: string;
 }
 
@@ -13,7 +12,6 @@ export interface LoginData {
 export interface AuthResponse {
   userId: number;
   username: string;
-  email: string;
   token: string;
 }
 
