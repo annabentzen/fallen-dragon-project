@@ -11,9 +11,8 @@ namespace DragonGame.Dtos
     public int CharacterId { get; set; }
 
     //Design via Character entity
-    public string? Hair { get; set; }
-    public string? Face { get; set; }
-    public string? Outfit { get; set; }
+    public string Head { get; set;}
+    public string Body { get; set;}
     public int? PoseId { get; set; }
 
     public int StoryId { get; set; }

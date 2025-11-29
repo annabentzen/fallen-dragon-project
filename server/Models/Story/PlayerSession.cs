@@ -24,6 +24,9 @@ namespace DragonGame.Models
 
         [Required]
         public int CurrentActNumber { get; set; } = 1;
+        
+        [ForeignKey("CurrentActNumber")]
+        public Act? CurrentAct { get; set; }
 
         [Required]
         public bool IsCompleted { get; set; } = false;

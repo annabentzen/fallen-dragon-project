@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import EndingScreen from "./EndingScreen";
 import CharacterBuilder from "./CharacterBuilder";
 import { useNavigate } from "react-router-dom";
+import styles from "../styles/Story.module.css";
 
 import {
   ActDto,
@@ -23,7 +24,6 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
   const [currentAct, setCurrentAct] = useState<Act | null>(null);
   const [choices, setChoices] = useState<Choice[]>([]);
   const [loading, setLoading] = useState(true);
-  const [storyEnded, setStoryEnded] = useState(false);
   const [playerSession, setPlayerSession] = useState<PlayerSessionFromApi | null>(null);
   const [character, setCharacter] = useState<Character | null>(null);
   const [poses, setPoses] = useState<CharacterPose[]>([]);
@@ -32,8 +32,23 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
 
   const navigate = useNavigate();
 
+  // ---------------- DETERMINE ENDING TYPE ----------------
+  const getEndingType = (actNumber: number): 
+    'heroDeath' | 'dragonKilled' | 'tragedy' | 'ignored' | 'recovery' | 'guardian' | 'default' => 
+  {
+    if ([113, 121, 1112].includes(actNumber)) return "heroDeath";
+    if ([1311, 1111221].includes(actNumber)) return "dragonKilled";
+    if ([1321, 1111232].includes(actNumber)) return "tragedy";
+    if (actNumber === 122) return "ignored";
+    if (actNumber === 1111211) return "recovery";
+    if (actNumber === 1111231) return "guardian";
+    return "default";
+  };
+
   // ---------------- RESTART ----------------
-  const handleRestart = () => navigate("/");
+  const handleRestart = () => {
+    navigate("/", { replace: true });
+  };
 
   // ---------------- LOAD SESSION & CHARACTER ----------------
   useEffect(() => {
@@ -54,8 +69,6 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
     loadSession();
   }, [sessionId]);
 
-
-
   // ---------------- LOAD CURRENT ACT ----------------
   const loadAct = async () => {
     setLoading(true);
@@ -71,7 +84,6 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
         return;
       }
 
-      // Map C# PascalCase → your frontend camelCase
       const mappedAct: Act = {
         actNumber: actDto.actNumber,
         text: actDto.text,
@@ -85,11 +97,6 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
 
       setCurrentAct(mappedAct);
       setChoices(mappedAct.choices);
-
-      // Perfect ending detection
-      if (actDto.isEnding || actDto.choices.length === 0) {
-        setTimeout(() => navigate(`/ending/${sessionId}`), 800);
-      }
 
     } catch (err) {
       console.error("Error loading act:", err);
@@ -117,201 +124,177 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
   }, []);
 
   // ---------------- HANDLE CHOICE ----------------
- const handleChoiceClick = async (nextActNumber: number) => {
-  setLoading(true);
-  try {
-    await moveToNextAct(sessionId, nextActNumber);
-    await loadAct(); 
-  } catch (err) {
-    console.error("Error advancing act:", err);
-    setErrorMsg("Failed to advance to next act.");
-  } finally {
-    setLoading(false);
-  }
-};
+  const handleChoiceClick = async (nextActNumber: number) => {
+    setLoading(true);
+    try {
+      await moveToNextAct(sessionId, nextActNumber);
+      await loadAct(); 
+    } catch (err) {
+      console.error("Error advancing act:", err);
+      setErrorMsg("Failed to advance to next act.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  if (loading) return <div>Loading...</div>;
-  if (errorMsg) return <div className="error">{errorMsg}</div>;
-  if (!currentAct) return <div>No act data available.</div>;
+  if (loading) return <div className={styles.loading}>Loading...</div>;
+  if (errorMsg) return <div className={styles.error}>{errorMsg}</div>;
+  if (!currentAct) return <div className={styles.noData}>No act data available.</div>;
 
   const selectedPose = poses.find((p) => p.id === character?.poseId);
+  const isEnding = choices.length === 0;
 
-  return (
-    <div style={{ minHeight: "100vh", backgroundColor: storyEnded ? "#7c372fff" : "#f0f8ff" }}>
-      {/* Navbar */}
-      <nav
-        style={{
-          width: "100%",
-          padding: "10px 20px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          backgroundColor: "#333",
-          color: "white",
-          position: "sticky",
-          top: 0,
-          zIndex: 1000,
-        }}
-      >
-        <span style={{ fontWeight: "bold" }}>The Fallen Dragon</span>
-        {character && (
-          <button
-            onClick={() => setIsEditingCharacter(true)}
-            style={{
-              padding: "6px 12px",
-              backgroundColor: "#4caf50",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
-          >
-            Edit Character
-          </button>
-        )}
-      </nav>
+return (
+  <div className={styles.storyContainer}>
+    {/* ==================== NAVBAR ==================== */}
+    <nav className={styles.navbar}>
+      <span className={styles.navbarTitle}>The Fallen Dragon</span>
 
-      {storyEnded ? (
-        <EndingScreen onRestart={handleRestart} />
-      ) : (
-        <>
-          {/* Story content */}
-          <h2>Act {currentAct.actNumber}</h2>
-          <p>{currentAct.text}</p>
+      {character && !isEnding && (
+        <button
+          onClick={() => setIsEditingCharacter(true)}
+          className={styles.editButton}
+        >
+          Edit Character
+        </button>
+      )}
+    </nav>
 
-          {/* Choices */}
-          <div className="choices">
-            {choices.length > 0 ? (
-              choices.map((choice) => (
-                <button
+    {/* ==================== ENDING SCREEN ==================== */}
+    {isEnding && currentAct && (
+      <EndingScreen
+        endingType={getEndingType(currentAct.actNumber)}
+        endingText={currentAct.text}
+        onRestart={handleRestart}
+        navigate={navigate} 
+      />
+    )}
+
+    {/* ==================== NORMAL STORY CONTENT ==================== */}
+    {!isEnding && currentAct && (
+      <>
+        {/* Story Scene Container with Background */}
+        <div className={styles.storyScene}>
+          {/* Top Left: Noteboard with Act Text */}
+          <div className={styles.noteboardSection}>
+            {/* Noteboard Background */}
+            <div className={styles.noteboardContainer}>
+              <div className={styles.actText}>
+                {currentAct.text}
+              </div>
+            </div>
+
+            {/* Choice Buttons Below Noteboard */}
+            <div className={styles.choicesContainer}>
+              {choices.map((choice) => (
+                <div
                   key={choice.choiceId}
                   onClick={() => handleChoiceClick(choice.nextActNumber)}
-                  style={{
-                    margin: "5px",
-                    padding: "10px 20px",
-                    backgroundColor: "#007bff",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "5px",
-                    cursor: "pointer",
-                  }}
+                  className={styles.choiceButton}
                 >
-                  {choice.text}
-                </button>
-              ))
-            ) : (
-              <p>No choices available.</p>
-            )}
+                  <span className={styles.choiceText}>
+                    {choice.text}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Character preview */}
+          {/* Middle Right: Dragon Image */}
+          <div className={styles.dragonSection}>
+            <img
+              src="/images/game-images/dragon/Death3.png"
+              alt="Dragon"
+              className={styles.dragonImage}
+            />
+          </div>
+
+          {/* Bottom Left: Character */}
           {playerSession && character && (
-            <div style={{ marginTop: "20px" }}>
-              <p>{playerSession.characterName}</p>
-              <div style={{ width: "100px", height: "100px", position: "relative", margin: "10px 0" }}>
-                {/* always show base image */}
-                <img
-                  src="/images/base.png"
-                  alt="base"
-                  style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
-                />
-                
-                {/* Layer character parts */}
-                {character.hair && (
+            <div className={styles.characterSection}>
+              {/* Character Name */}
+              <div className={styles.characterNameBadge}>
+                <p className={styles.characterName}>
+                  {playerSession.characterName}
+                </p>
+              </div>
+
+              {/* Character Preview */}
+              <div className={styles.characterPreview}>
+                {/* Body - only show if NO pose is selected */}
+                {!character.poseId && character.body && (
                   <img
-                    src={`/images/hair/${character.hair}`}
-                    alt="hair"
-                    style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
-                  />
-                )}
-                {character.face && (
-                  <img
-                    src={`/images/faces/${character.face}`}
-                    alt="face"
-                    style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
-                  />
-                )}
-                {character.outfit && (
-                  <img
-                    src={`/images/clothes/${character.outfit}`}
-                    alt="clothing"
-                    style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
+                    src={`/images/avatar/body/${character.body}`}
+                    alt="body"
+                    className={`${styles.characterLayer} ${styles[`body${character.body.split('-')[0].charAt(0).toUpperCase() + character.body.split('-')[0].slice(1)}`]}`}
                   />
                 )}
                 
-                {/* only show pose if selected */}
+                {/* Head - always show */}
+                {character.head && (
+                  <img
+                    src={`/images/avatar/heads/${character.head}`}
+                    alt="head"
+                    className={styles.characterLayer}
+                  />
+                )}
+                
+                {/* Pose (replaces body when selected) */}
                 {character.poseId && selectedPose && (
                   <img
-                    src={`/images/poses/${selectedPose.imageUrl}`}
+                    src={`/images/avatar/poses/${selectedPose.imageUrl}`}
                     alt="pose"
-                    style={{ position: "absolute", width: "100%", height: "100%", objectFit: "contain" }}
+                    className={`${styles.characterLayer} ${styles[`pose${selectedPose.name.replace(/\s+/g, '')}`]}`}
                   />
                 )}
               </div>
             </div>
           )}
+        </div>
 
-          {/* Character Edit Modal */}
-          {isEditingCharacter && character && (
+        {/* Character Edit Modal */}
+        {isEditingCharacter && character && (
+          <div
+            className={styles.modalOverlay}
+            onClick={() => setIsEditingCharacter(false)}
+          >
             <div
-              style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                backgroundColor: "rgba(0,0,0,0.6)",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                zIndex: 2000,
-              }}
-              onClick={() => setIsEditingCharacter(false)}
+              className={styles.modalContent}
+              onClick={(e) => e.stopPropagation()}
             >
-              <div
-                onClick={(e) => e.stopPropagation()}
-                style={{ backgroundColor: "white", padding: "20px", borderRadius: "8px", maxWidth: "500px", width: "90%" }}
-              >
-                <CharacterBuilder
-                  character={character}
-                  poses={poses}
-                  onHairChange={(hair) =>
-                    setCharacter((prev) => (prev ? { ...prev, hair } : prev))
-                  }
-                  onFaceChange={(face) =>
-                    setCharacter((prev) => (prev ? { ...prev, face } : prev))
-                  }
-                  onOutfitChange={(outfit) =>
-                    setCharacter((prev) => (prev ? { ...prev, outfit } : prev))
-                  }
-                  onPoseChange={(poseId) =>
-                    setCharacter((prev) => (prev ? { ...prev, poseId: poseId ?? null } : prev))
-                  }
-                />
+              <CharacterBuilder
+                character={character}
+                poses={poses}
+                onHeadChange={(head) =>
+                  setCharacter((prev) => (prev ? { ...prev, head } : prev))
+                }
+                onBodyChange={(body) =>
+                  setCharacter((prev) => (prev ? { ...prev, body } : prev))
+                }
+                onPoseChange={(poseId) =>
+                  setCharacter((prev) => (prev ? { ...prev, poseId: poseId ?? null } : prev))
+                }
+              />
 
+              <div className={styles.modalButtonContainer}>
                 <button
                   onClick={async () => {
                     setIsEditingCharacter(false);
-                    try {
-                      if (character) {
-                        await updateCharacter(sessionId, character);
-                        console.log("Character saved.");
-                      }
-                    } catch (err) {
-                      console.error("Failed to save character:", err);
+                    if (character) {
+                      await updateCharacter(sessionId, character);
                     }
                   }}
-                  style={{ marginTop: "10px", padding: "8px 12px", backgroundColor: "#333", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}
+                  className={styles.closeButton}
                 >
-                  Close & Save
+                  Close and Save
                 </button>
               </div>
             </div>
-          )}
-        </>
-      )}
-    </div>
-  );
-};
-
+          </div>
+        )}
+      </>
+    )}
+  </div>
+);
+}
 export default StoryPage;

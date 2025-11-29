@@ -21,13 +21,19 @@ public static class DbSeeder
     }
 
     private static async Task CleanStoryData(AppDbContext context)
-    {
-        Console.WriteLine("Wiping old story data...");
-        await context.Choices.ExecuteDeleteAsync();
-        await context.Acts.ExecuteDeleteAsync();
-        await context.Stories.Where(s => s.StoryId == 1).ExecuteDeleteAsync();
-        await context.SaveChangesAsync();
-    }
+{
+    Console.WriteLine("Wiping old story data...");
+
+    // Delete in correct order (child tables first)
+    await context.ChoiceHistories.ExecuteDeleteAsync();  // 1. Delete choice history first
+    await context.PlayerSessions.ExecuteDeleteAsync();   // 2. Delete sessions (references Acts)
+    await context.Choices.ExecuteDeleteAsync();           // 3. Delete choices (references Acts)
+    await context.Acts.ExecuteDeleteAsync();              // 4. Delete acts
+    await context.Stories.Where(s => s.StoryId == 1).ExecuteDeleteAsync(); // 5. Finally delete story
+
+    await context.SaveChangesAsync();
+    Console.WriteLine("✓ Old data wiped");
+}
 
     private static async Task InsertFullStory(AppDbContext context)
     {
@@ -278,9 +284,46 @@ When the smoke clears, several of your friends and neighbours lay dead or wounde
         if (!context.CharacterPoses.Any())
         {
             context.CharacterPoses.AddRange(
-                new CharacterPose { Id = 1, Name = "Standing", ImageUrl = "pose1.png" },
-                new CharacterPose { Id = 2, Name = "Fighting", ImageUrl = "pose2.png" },
-                new CharacterPose { Id = 3, Name = "Flying", ImageUrl = "pose3.png" }
+                new CharacterPose { 
+                    Name = "Rogue Dizzy", 
+                    ImageUrl = "rouge1-pose1.png",  
+                    CharacterType = "rogue"  
+                },
+                new CharacterPose { 
+                    Name = "Mage Floating", 
+                    ImageUrl = "mage1-pose1.png",  
+                    CharacterType = "mage"  
+                },
+                new CharacterPose { 
+                    Name = "Mage Crouching", 
+                    ImageUrl = "mage1-pose2.png",  
+                    CharacterType = "mage"  
+                },
+                new CharacterPose { 
+                    Name = "Mage Dizzy", 
+                    ImageUrl = "mage1-pose3.png",  
+                    CharacterType = "mage" 
+                },
+                new CharacterPose { 
+                    Name = "Mage 2 Jumping", 
+                    ImageUrl = "mage2-pose1.png",  
+                    CharacterType = "mage2"  
+                },
+                new CharacterPose { 
+                    Name = "Mage 2 Standing", 
+                    ImageUrl = "mage2-pose2.png",  
+                    CharacterType = "mage2" 
+                },
+                new CharacterPose { 
+                    Name = "Knight Attacking", 
+                    ImageUrl = "knight1-pose1.png",  
+                    CharacterType = "knight"  
+                },
+                new CharacterPose { 
+                    Name = "Knight Striking", 
+                    ImageUrl = "knight1-pose2.png",  
+                    CharacterType = "knight"  
+                }
             );
             await context.SaveChangesAsync();
         }

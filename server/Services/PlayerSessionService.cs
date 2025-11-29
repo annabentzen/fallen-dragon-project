@@ -34,9 +34,8 @@ namespace DragonGame.Services
                 SessionId = session.SessionId,
                 CharacterName = session.CharacterName,
                 CharacterId = session.CharacterId,
-                Hair = session.Character.Hair,
-                Face = session.Character.Face,
-                Outfit = session.Character.Outfit,
+                Head = session.Character.Head,
+                Body = session.Character.Body,
                 PoseId = session.Character.PoseId,
                 StoryId = session.StoryId,
                 CurrentActNumber = session.CurrentActNumber,
@@ -55,9 +54,8 @@ namespace DragonGame.Services
             if (character == null) throw new Exception("Character not found");
 
             // Update character fields
-            character.Hair = updatedCharacter.Hair;
-            character.Face = updatedCharacter.Face;
-            character.Outfit = updatedCharacter.Outfit;
+            character.Head = updatedCharacter.Head;
+            character.Body = updatedCharacter.Body;
             character.PoseId = updatedCharacter.PoseId;
 
             await _characterRepo.SaveChangesAsync();
@@ -80,9 +78,8 @@ namespace DragonGame.Services
             // 1. Create character
             var character = new Character
             {
-                Hair = dto.Character.Hair,
-                Face = dto.Character.Face,
-                Outfit = dto.Character.Outfit,
+                Head = dto.Character.Head,
+                Body = dto.Character.Body,
                 PoseId = dto.Character.PoseId
             };
             await _characterRepo.AddAsync(character);
