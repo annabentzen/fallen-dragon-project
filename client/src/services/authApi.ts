@@ -17,10 +17,11 @@ export interface AuthResponse {
   token: string;
 }
 
-const API_BASE = "http://localhost:5151/api"; 
+const API_BASE = "http://localhost:5151/api";
+
 // Register new user
 export const register = async (data: RegisterData): Promise<AuthResponse> => {
-  const response = await fetch(`${API_BASE}/auth/register`, {
+  const response = await fetch(`${API_BASE}/auth/register`, { 
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -36,7 +37,7 @@ export const register = async (data: RegisterData): Promise<AuthResponse> => {
 
 // Login existing user
 export const login = async (data: LoginData): Promise<AuthResponse> => {
-  const response = await fetch(`${API_BASE}/auth/login`, {
+  const response = await fetch(`${API_BASE}/auth/login`, { 
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),

@@ -24,7 +24,7 @@ const LoginPage: React.FC = () => {
       console.log("Login successful:", response.username);
       
       // Navigate to home page (character creation)
-      navigate("/");
+      navigate("/home");
     } catch (err: any) {
       setError(err.message || "Login failed");
     } finally {

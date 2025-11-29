@@ -1,28 +1,28 @@
-import React, { JSX } from 'react';
+import React, { JSX, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, Navigate, useParams } from 'react-router-dom';
 import Home from './components/Home';
 import StoryPage from './components/StoryPage';
 import EndingScreen from './components/EndingScreen';
 import LoginPage from "./components/LogInPage";
 import RegisterPage from "./components/RegisterPage";
-import { isAuthenticated } from "./services/authApi"; // ← IMPORT THIS
+import { isAuthenticated } from "./services/authApi";
 
 // Protected Route Component - only allows access if user is logged in
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  return isAuthenticated() ? children : <Navigate to="/login" />;
+  return isAuthenticated() ? children : <Navigate to="/" />;
 };
 
 const App: React.FC = () => {
   return (
     <Router>
       <Routes>
-        {/* Public routes - anyone can access */}
-        <Route path="/login" element={<LoginPage />} />
+        {/* Public routes - Login is now the landing page */}
+        <Route path="/" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
         {/* Protected routes - require authentication */}
         <Route 
-          path="/" 
+          path="/home" 
           element={
             <ProtectedRoute>
               <Home />
@@ -58,7 +58,7 @@ const EndingScreenWrapper: React.FC = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
 
   const handleRestart = () => {
-    navigate('/'); // Navigate back to home to start a new session
+    navigate('/home'); // Navigate back to home to start a new session
   };
 
   return <EndingScreen onRestart={handleRestart} endingType={'default'} endingText={''} />;
