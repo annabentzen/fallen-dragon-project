@@ -27,6 +27,8 @@ namespace DragonGame.Data
         public DbSet<CharacterPose> CharacterPoses { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<ChoiceHistory> ChoiceHistories { get; set; }
+        public DbSet<User> Users { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -92,6 +94,18 @@ namespace DragonGame.Data
                 new Choice { ChoiceId = 1, ActId = 1, Text = "Go left", NextActNumber = 2 },
                 new Choice { ChoiceId = 2, ActId = 1, Text = "Go right", NextActNumber = 3 }
             );
+
+            // Configure User -> PlayerSessions relationship
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasIndex(u => u.Username).IsUnique();
+                entity.HasIndex(u => u.Email).IsUnique();
+
+                entity.HasMany(u => u.PlayerSessions)
+                    .WithOne(ps => ps.User)
+                    .HasForeignKey(ps => ps.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
         }
     }

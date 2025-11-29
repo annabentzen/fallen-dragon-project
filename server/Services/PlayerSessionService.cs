@@ -3,6 +3,7 @@ using DragonGame.Dtos;
 using DragonGame.Models;
 using DragonGame.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration.UserSecrets;
 
 namespace DragonGame.Services
 {
@@ -32,6 +33,7 @@ namespace DragonGame.Services
             return new PlayerSessionDto
             {
                 SessionId = session.SessionId,
+                UserId = session.UserId, // Fixed: was undefined "UserId"
                 CharacterName = session.CharacterName,
                 CharacterId = session.CharacterId,
                 Head = session.Character.Head,
@@ -62,8 +64,6 @@ namespace DragonGame.Services
         }
 
 
-
-
         // ---------- GET SESSION ENTITY ----------
         public async Task<PlayerSession?> GetSessionAsync(int sessionId)
         {
@@ -72,8 +72,8 @@ namespace DragonGame.Services
                 .FirstOrDefaultAsync(ps => ps.SessionId == sessionId);
         }
 
-        // ---------- CREATE SESSION WITH CHARACTER ----------
-        public async Task<PlayerSession> CreateSessionAsync(CreateSessionDto dto)
+        // ---------- CREATE SESSION WITH CHARACTER (UPDATED WITH USERID) ----------
+        public async Task<PlayerSession> CreateSessionAsync(CreateSessionDto dto, int userId)
         {
             // 1. Create character
             var character = new Character
@@ -85,9 +85,10 @@ namespace DragonGame.Services
             await _characterRepo.AddAsync(character);
             await _characterRepo.SaveChangesAsync();
 
-            // 2. Create session linked to character
+            // 2. Create session linked to character AND user
             var session = new PlayerSession
             {
+                UserId = userId, // ← ADDED: Tie session to authenticated user
                 CharacterId = character.Id,
                 Character = character,
                 CharacterName = dto.CharacterName ?? "Hero",
@@ -97,6 +98,8 @@ namespace DragonGame.Services
             };
             await _sessionRepo.AddAsync(session);
             await _sessionRepo.SaveChangesAsync();
+
+            Console.WriteLine($"[PlayerSessionService] Created session {session.SessionId} for user {userId}");
 
             return session;
         }

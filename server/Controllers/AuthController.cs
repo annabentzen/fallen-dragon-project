@@ -1,11 +1,12 @@
-using DragonGame.Dtos.Auth;
+using DragonGame.Dtos;
 using DragonGame.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DragonGame.Controllers
 {
     /// <summary>
-    /// Controller for user authentication (register and login)
+    /// Handles user authentication endpoints (register, login)
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
@@ -19,53 +20,53 @@ namespace DragonGame.Controllers
         }
 
         /// <summary>
-        /// Register a new user
-        /// POST: api/auth/register
+        /// POST /api/auth/register
+        /// Creates a new user account
         /// </summary>
-        /// <param name="registerDto">Username and password</param>
-        /// <returns>User info with JWT token</returns>
         [HttpPost("register")]
-        public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterDto registerDto)
+        public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
-            // Validate input
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                var result = await _authService.RegisterAsync(dto);
+
+                if (result == null)
+                {
+                    return BadRequest(new { message = "Username or email already exists" });
+                }
+
+                return Ok(result);
             }
-
-            var result = await _authService.RegisterAsync(registerDto);
-
-            if (result == null)
+            catch (Exception ex)
             {
-                return BadRequest(new { message = "Username already exists" });
+                Console.WriteLine($"[AuthController][Register] ERROR: {ex.Message}");
+                return StatusCode(500, new { message = "Registration failed" });
             }
-
-            return Ok(result);
         }
 
         /// <summary>
-        /// Login existing user
-        /// POST: api/auth/login
+        /// POST /api/auth/login
+        /// Authenticates user and returns JWT token
         /// </summary>
-        /// <param name="loginDto">Username and password</param>
-        /// <returns>User info with JWT token</returns>
         [HttpPost("login")]
-        public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginDto loginDto)
+        public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
-            // Validate input
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                var result = await _authService.LoginAsync(dto);
+
+                if (result == null)
+                {
+                    return Unauthorized(new { message = "Invalid username or password" });
+                }
+
+                return Ok(result);
             }
-
-            var result = await _authService.LoginAsync(loginDto);
-
-            if (result == null)
+            catch (Exception ex)
             {
-                return Unauthorized(new { message = "Invalid username or password" });
+                Console.WriteLine($"[AuthController][Login] ERROR: {ex.Message}");
+                return StatusCode(500, new { message = "Login failed" });
             }
-
-            return Ok(result);
         }
     }
 }

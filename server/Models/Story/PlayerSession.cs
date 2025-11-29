@@ -11,6 +11,14 @@ namespace DragonGame.Models
         [Required]
         public string CharacterName { get; set; } = string.Empty;
 
+        // Add to existing PlayerSession class:
+
+        // Foreign key to User
+        public int UserId { get; set; }
+
+        // Navigation property
+        public User? User { get; set; }
+
         [Required]
         public int CharacterId { get; set; } // FK to Character
 

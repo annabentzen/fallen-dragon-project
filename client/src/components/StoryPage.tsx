@@ -3,6 +3,7 @@ import EndingScreen from "./EndingScreen";
 import CharacterBuilder from "./CharacterBuilder";
 import { useNavigate } from "react-router-dom";
 import styles from "../styles/Story.module.css";
+import { removeToken } from "../services/authApi";
 
 import {
   ActDto,
@@ -29,9 +30,11 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
   const [poses, setPoses] = useState<CharacterPose[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isEditingCharacter, setIsEditingCharacter] = useState(false);
+  const [username, setUsername] = useState<string>("");
 
   const navigate = useNavigate();
 
+  
   // ---------------- DETERMINE ENDING TYPE ----------------
   const getEndingType = (actNumber: number): 
     'heroDeath' | 'dragonKilled' | 'tragedy' | 'ignored' | 'recovery' | 'guardian' | 'default' => 
@@ -49,6 +52,14 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
   const handleRestart = () => {
     navigate("/", { replace: true });
   };
+
+  // ---------GET USERNAME ----------------
+  useEffect(() => {
+  // Get username from playerSession after it loads
+  if (playerSession) {
+    setUsername(playerSession.characterName);
+  }
+}, [playerSession]);
 
   // ---------------- LOAD SESSION & CHARACTER ----------------
   useEffect(() => {
@@ -137,6 +148,12 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
     }
   };
 
+  // handle logout
+  const handleLogout = () => {
+  removeToken();
+  navigate("/");
+};
+
   if (loading) return <div className={styles.loading}>Loading...</div>;
   if (errorMsg) return <div className={styles.error}>{errorMsg}</div>;
   if (!currentAct) return <div className={styles.noData}>No act data available.</div>;
@@ -150,16 +167,57 @@ return (
     <nav className={styles.navbar}>
       <span className={styles.navbarTitle}>The Fallen Dragon</span>
 
-      {character && !isEnding && (
-        <button
-          onClick={() => setIsEditingCharacter(true)}
-          className={styles.editButton}
-        >
-          Edit Character
-        </button>
-      )}
-    </nav>
+      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+        {/* Show username */}
+        {username && (
+          <span style={{ color: "white", fontSize: "14px" }}>
+            Welcome, {username}!
+          </span>
+        )}
 
+        {/* Back to Home button */}
+        {!isEnding && (
+          <button
+            onClick={() => navigate("/home")}
+            style={{
+              padding: "6px 12px",
+              backgroundColor: "#2196F3",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+          >
+            Home
+          </button>
+        )}
+
+        {/* Edit Character button */}
+        {character && !isEnding && (
+          <button
+            onClick={() => setIsEditingCharacter(true)}
+            className={styles.editButton}
+          >
+            Edit Character
+          </button>
+        )}
+
+        {/* Logout button */}
+        <button
+          onClick={handleLogout}
+          style={{
+            padding: "6px 12px",
+            backgroundColor: "#f44336",
+            color: "white",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
+        >
+          Logout
+        </button>
+      </div>
+    </nav>
     {/* ==================== ENDING SCREEN ==================== */}
     {isEnding && currentAct && (
       <EndingScreen

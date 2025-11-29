@@ -2,6 +2,7 @@ using DragonGame.Data;
 using DragonGame.Dtos;
 using DragonGame.Models;
 using DragonGame.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,6 +10,7 @@ namespace DragonGame.Controllers
 {
     [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class PlayerSessionController : ControllerBase
 {
     private readonly PlayerSessionService _service;

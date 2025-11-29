@@ -1,11 +1,13 @@
 using DragonGame.Dtos;
 using DragonGame.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DragonGame.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class ChoiceHistoryController : ControllerBase
     {
         private readonly IChoiceHistoryService _service;

@@ -1,49 +1,58 @@
 using DragonGame.Data;
-using DragonGame.Dtos.Auth;
+using DragonGame.Dtos;
 using DragonGame.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 namespace DragonGame.Services
 {
     /// <summary>
-    /// Handles user authentication, registration, and JWT token generation
+    /// Service for handling user authentication (register, login)
     /// </summary>
+    public interface IAuthService
+    {
+        Task<AuthResponseDto?> RegisterAsync(RegisterDto dto);
+        Task<AuthResponseDto?> LoginAsync(LoginDto dto);
+    }
+
     public class AuthService : IAuthService
     {
         private readonly AppDbContext _context;
-        private readonly IConfiguration _configuration;
+        private readonly IJwtService _jwtService;
 
-        public AuthService(AppDbContext context, IConfiguration configuration)
+        public AuthService(AppDbContext context, IJwtService jwtService)
         {
             _context = context;
-            _configuration = configuration;
+            _jwtService = jwtService;
         }
 
         /// <summary>
-        /// Register a new user with hashed password
+        /// Registers a new user account
+        /// Returns null if username or email already exists
         /// </summary>
-        public async Task<AuthResponseDto?> RegisterAsync(RegisterDto registerDto)
+        public async Task<AuthResponseDto?> RegisterAsync(RegisterDto dto)
         {
-            // check if username is already taken
-            var existingUser = await _context.Users
-                .FirstOrDefaultAsync(u => u.Username == registerDto.Username);
-
-            if (existingUser != null)
+            // Check if username already exists
+            if (await _context.Users.AnyAsync(u => u.Username == dto.Username))
             {
-                return null; // Username is already taken
+                Console.WriteLine($"[AuthService] Username '{dto.Username}' already exists");
+                return null;
             }
 
-            // Hash the password with BCrypt
-            var passwordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password);
+            // Check if email already exists
+            if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
+            {
+                Console.WriteLine($"[AuthService] Email '{dto.Email}' already exists");
+                return null;
+            }
+
+            // Hash the password using BCrypt
+            var passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
             // Create new user
             var user = new User
             {
-                Username = registerDto.Username,
+                Username = dto.Username,
+                Email = dto.Email,
                 PasswordHash = passwordHash,
                 CreatedAt = DateTime.UtcNow
             };
@@ -51,83 +60,55 @@ namespace DragonGame.Services
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            // Generer JWT token
-            var token = GenerateJwtToken(user);
+            Console.WriteLine($"[AuthService] User registered: {user.Username} (ID: {user.UserId})");
+
+            // Generate JWT token
+            var token = _jwtService.GenerateToken(user);
 
             return new AuthResponseDto
             {
                 UserId = user.UserId,
                 Username = user.Username,
+                Email = user.Email,
                 Token = token
             };
         }
 
         /// <summary>
-        /// Login user and return JWT token if credentials are valid
+        /// Authenticates a user with username and password
+        /// Returns null if credentials are invalid
         /// </summary>
-        public async Task<AuthResponseDto?> LoginAsync(LoginDto loginDto)
+        public async Task<AuthResponseDto?> LoginAsync(LoginDto dto)
         {
             // Find user by username
             var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Username == loginDto.Username);
+                .FirstOrDefaultAsync(u => u.Username == dto.Username);
 
             if (user == null)
             {
-                return null; // User not found
+                Console.WriteLine($"[AuthService] Login failed: User '{dto.Username}' not found");
+                return null;
             }
 
-            // Verify password
-            var isPasswordValid = BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash);
-
-            if (!isPasswordValid)
+            // Verify password using BCrypt
+            if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
             {
-                return null; // Invalid password
+                Console.WriteLine($"[AuthService] Login failed: Invalid password for '{dto.Username}'");
+                return null;
             }
+
+            Console.WriteLine($"[AuthService] User logged in: {user.Username} (ID: {user.UserId})");
 
             // Generate JWT token
-            var token = GenerateJwtToken(user);
+            var token = _jwtService.GenerateToken(user);
 
             return new AuthResponseDto
             {
                 UserId = user.UserId,
                 Username = user.Username,
+                Email = user.Email,
                 Token = token
             };
-        }
-
-        /// <summary>
-        /// Generate JWT token for authenticated user
-        /// </summary>
-        private string GenerateJwtToken(User user)
-        {
-            // Get JWT settings from appsettings.json
-            var jwtKey = _configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not configured");
-            var jwtIssuer = _configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("JWT Issuer not configured");
-
-            // Create claims (user info to be included in the token)
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(JwtRegisteredClaimNames.Sub, user.Username),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
-
-            // Create signing credentials
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            // Create token
-            var token = new JwtSecurityToken(
-                issuer: jwtIssuer,
-                audience: jwtIssuer,
-                claims: claims,
-                expires: DateTime.UtcNow.AddDays(7), // Token valid for 7 days
-                signingCredentials: credentials
-            );
-
-            // Return token as string
-            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }
