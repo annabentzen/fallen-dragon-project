@@ -17,17 +17,16 @@ namespace DragonGame.Tests.Services
             _sut = new CharacterService(_characterRepoMock.Object);
         }
 
-        // HELPER - MAX ID 3!!
-        private Character CreateValidCharacterById(int Id, string? hair = null, string? face = null, string? outfit = null, int? pose = null)
+        // HELPER
+        private Character CreateValidCharacterById(int id, string? head = null, string? body = null, int? pose = null)
         {
-            if (Id is < 0 or > 3) throw new ArgumentException(nameof(Id), "ID cannot currently go higher than 3 or lower than 1");
+            // this helper needs some change to allow for differences in more than just ID
             return new Character
             {
-                Id = Id,
-                Hair = hair ?? $"hair{Id}.png",
-                Face = face ?? $"face{Id}.png",
-                Outfit = outfit ?? $"clothing{Id}.png",
-                PoseId = pose ?? Id,
+                Id = id,
+                Head = head ?? $"knight-head.png",
+                Body = body ?? $"knight1-pose1.png",
+                PoseId = pose ?? id,
             };
         }
 
@@ -88,7 +87,7 @@ namespace DragonGame.Tests.Services
         public async Task GetAllAsync_WhenNoCharsExist_ReturnsEmpty()
         {
             // Given
-            _characterRepoMock.Setup(repo => repo.GetAllAsync()).ReturnsAsync(Enumerable.Empty<Character>);
+            _characterRepoMock.Setup(repo => repo.GetAllAsync()).ReturnsAsync(Enumerable.Empty<Character>());
 
             // When
             var result = await _sut.GetAllAsync();
@@ -112,9 +111,8 @@ namespace DragonGame.Tests.Services
             // Then
             result.Should().NotBeNull();
             result!.Id.Should().Be(1);
-            result.Hair.Should().Be(character.Hair);
-            result.Face.Should().Be(character.Face);
-            result.Outfit.Should().Be(character.Outfit);
+            result.Head.Should().Be(character.Head);
+            result.Body.Should().Be(character.Body);
             result.PoseId.Should().Be(character.PoseId);
             _characterRepoMock.Verify(repo => repo.GetByIdAsync(1), Times.Once);
 
@@ -139,7 +137,7 @@ namespace DragonGame.Tests.Services
         {
             // Given
             var existingChar = CreateValidCharacterById(1);
-            var updatedChar = CreateValidCharacterById(2);
+            var updatedChar = CreateValidCharacterById(2, "mage-head1.png", "mage1-pose1.png");
             _characterRepoMock.Setup(repo => repo.GetByIdAsync(1)).ReturnsAsync(existingChar);
             _characterRepoMock.Setup(repo => repo.UpdateAsync(existingChar)).Returns(Task.CompletedTask);
 
@@ -149,9 +147,8 @@ namespace DragonGame.Tests.Services
             // Then
             result.Should().NotBeNull();
             result!.Id.Should().Be(1);
-            result.Hair.Should().Be(updatedChar.Hair);
-            result.Face.Should().Be(updatedChar.Face);
-            result.Outfit.Should().Be(updatedChar.Outfit);
+            result.Head.Should().Be(updatedChar.Head);
+            result.Body.Should().Be(updatedChar.Body);
             result.PoseId.Should().Be(updatedChar.PoseId);
             _characterRepoMock.Verify(repo => repo.GetByIdAsync(1), Times.Once);
             _characterRepoMock.Verify(repo => repo.UpdateAsync(existingChar), Times.Once);
@@ -160,7 +157,7 @@ namespace DragonGame.Tests.Services
         public async Task UpdateAsync_NotExist_ReturnsNullAndNoUpdate()
         {
             // Given
-            var updatedChar = CreateValidCharacterById(2);
+            var updatedChar = CreateValidCharacterById(2, "mage-head1.png", "mage1-pose1.png");
             _characterRepoMock.Setup(repo => repo.GetByIdAsync(5678)).ReturnsAsync((Character?)null);
 
             // When
