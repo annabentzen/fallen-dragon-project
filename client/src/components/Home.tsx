@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createSession } from "../services/storyApi";
-import {
-  getAllPoses
-} from "../services/characterApi";
+import { getAllPoses } from "../services/characterApi";
 import CharacterBuilder from "./CharacterBuilder";
 import { Character, CharacterPose } from "../types/character";
 import styles from "../styles/Home.module.css";
@@ -52,89 +50,110 @@ export default function Home() {
   };
 
   // Start the story
-const startStory = async () => {
-  if (!characterName.trim()) {
-    setError("Please enter a hero name");
-    return;
-  }
-  if (character.poseId === null) {
-    setError("Please select a pose");
-    return;
-  }
+  const startStory = async () => {
+    if (!characterName.trim()) {
+      setError("Please enter a hero name");
+      return;
+    }
+    if (character.poseId === null) {
+      setError("Please select a pose");
+      return;
+    }
 
-  setLoading(true);
-  setError(null);
+    setLoading(true);
+    setError(null);
 
-  try {
-    // Only send the name — backend creates character from builder state
-    const session = await createSession(characterName.trim(), character);
-    console.log("Session created:", session);
-    navigate(`/story/${session.sessionId}`);
-  } catch (err) {
-    console.error("Failed to start story:", err);
-    setError("Failed to start story. Is backend running?");
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      // Only send the name — backend creates character from builder state
+      const session = await createSession(characterName.trim(), character);
+      console.log("Session created:", session);
+      navigate(`/story/${session.sessionId}`);
+    } catch (err) {
+      console.error("Failed to start story:", err);
+      setError("Failed to start story. Is backend running?");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>The Fallen Dragon</h1>
+    <div className={styles.pageWrapper}>
+      <div className={styles.container}>
+        <h1 className={styles.title}>The Fallen Dragon</h1>
 
-      <div className={styles.introSection}>
-        <p className={styles.introText}>
-          A dragon has fallen and landed in your village. Hero, will you use your special powers to save
-          it? The village is depending on you. Your choices will determine its fate.
-        </p>
-        <p className={styles.introText}>
-          <span className={styles.introHighlight}>
-            Create your hero and begin your journey...
-          </span>
-        </p>
+        <div className={styles.mainContent}>
+          {/* LEFT COLUMN - CHARACTER CREATOR */}
+          <div className={styles.leftColumn}>
+            <CharacterBuilder
+              character={character}
+              poses={poses}
+              onHeadChange={(head) =>
+                setCharacter((prev) => ({ ...prev, head }))
+              }
+              onBodyChange={(body) =>
+                setCharacter((prev) => ({
+                  ...prev,
+                  body,
+                  poseId: null, // Reset pose when body changes
+                }))
+              }
+              onPoseChange={(poseId) =>
+                setCharacter((prev) => ({ ...prev, poseId }))
+              }
+            />
+
+            <button
+              onClick={resetCharacter}
+              disabled={loading}
+              className={styles.resetButton}
+            >
+              Reset Character
+            </button>
+          </div>
+
+          {/* RIGHT COLUMN - MISSION BRIEFING & ACTION */}
+          <div className={styles.rightColumn}>
+            {/* Mission Briefing */}
+            <div className={styles.missionBriefing}>
+              <h2 className={styles.briefingTitle}>Mission</h2>
+              <p className={styles.introText}>
+                A dragon has fallen and landed in your village. Hero, will you
+                use your special powers to save it? The village is depending on
+                you. Your choices will determine its fate.
+              </p>
+              <p className={styles.introText}>
+                <span className={styles.introHighlight}>
+                  Create your hero and begin your journey...
+                </span>
+              </p>
+            </div>
+
+            {/* Hero Name & Begin Mission */}
+            <div className={styles.actionSection}>
+              {error && <div className={styles.errorMessage}>{error}</div>}
+              <div className={styles.heroNameSection}>
+                <label className={styles.label}></label>
+                <input
+                  type="text"
+                  placeholder="Enter your hero-name"
+                  value={characterName}
+                  onChange={(e) => setCharacterName(e.target.value)}
+                  className={styles.input}
+                  disabled={loading}
+                />
+              </div>
+
+              <button
+                onClick={startStory}
+                disabled={loading}
+                className={styles.beginButton}
+              >
+                {loading ? "Starting..." : "Start Mission"}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-
-      {error && <div className={styles.errorMessage}>{error}</div>}
-
-      <div className={styles.heroNameSection}>
-        <label className={styles.label}>Hero name:</label>
-        <input
-          type="text"
-          placeholder="Enter your hero-name"
-          value={characterName}
-          onChange={(e) => setCharacterName(e.target.value)}
-          className={styles.input}
-          disabled={loading}
-        />
-      </div>
-
-      <CharacterBuilder
-      character={character}
-      poses={poses}
-      onHeadChange={(head) => setCharacter((prev) => ({ ...prev, head }))}
-      onBodyChange={(body) => setCharacter((prev) => ({ 
-        ...prev, 
-        body,
-        poseId: null  // Reset pose when body changes
-      }))}
-      onPoseChange={(poseId) => setCharacter((prev) => ({ ...prev, poseId }))}
-    />
-
-      <button
-        onClick={startStory}
-        disabled={loading}
-        className={styles.buttonPrimary}
-      >
-        {loading ? "Starting..." : "Start Mission"}
-      </button>
-
-      <button
-        onClick={resetCharacter}
-        disabled={loading}
-        className={styles.buttonSecondary}
-      >
-        Reset Character
-      </button>
     </div>
   );
 }

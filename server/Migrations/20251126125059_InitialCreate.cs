@@ -20,7 +20,8 @@ namespace DragonGame.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
-                    ImageUrl = table.Column<string>(type: "TEXT", nullable: false)
+                    ImageUrl = table.Column<string>(type: "TEXT", nullable: false),
+                    CharacterType = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -41,14 +42,28 @@ namespace DragonGame.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    UserId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Username = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    PasswordHash = table.Column<string>(type: "TEXT", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.UserId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Characters",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Hair = table.Column<string>(type: "TEXT", nullable: true),
-                    Face = table.Column<string>(type: "TEXT", nullable: true),
-                    Outfit = table.Column<string>(type: "TEXT", nullable: true),
+                    Head = table.Column<string>(type: "TEXT", nullable: true),
+                    Body = table.Column<string>(type: "TEXT", nullable: true),
                     PoseId = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
@@ -169,16 +184,6 @@ namespace DragonGame.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "CharacterPoses",
-                columns: new[] { "Id", "ImageUrl", "Name" },
-                values: new object[,]
-                {
-                    { 1, "pose1.png", "Standing" },
-                    { 2, "pose2.png", "Fighting" },
-                    { 3, "pose3.png", "Flying" }
-                });
-
-            migrationBuilder.InsertData(
                 table: "Stories",
                 columns: new[] { "StoryId", "Title" },
                 values: new object[] { 1, "Fallen Dragon" });
@@ -241,6 +246,12 @@ namespace DragonGame.Migrations
                 name: "IX_PlayerSessions_StoryId",
                 table: "PlayerSessions",
                 column: "StoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Username",
+                table: "Users",
+                column: "Username",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -248,6 +259,9 @@ namespace DragonGame.Migrations
         {
             migrationBuilder.DropTable(
                 name: "ChoiceHistories");
+
+            migrationBuilder.DropTable(
+                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "Choices");
