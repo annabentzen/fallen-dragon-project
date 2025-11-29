@@ -1,4 +1,5 @@
 import React, { JSX, useEffect } from 'react';
+import { AuthProvider } from './contexts/AuthContext';
 import { BrowserRouter as Router, Routes, Route, useNavigate, Navigate, useParams } from 'react-router-dom';
 import Home from './components/Home';
 import StoryPage from './components/StoryPage';

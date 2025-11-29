@@ -41,7 +41,6 @@ namespace DragonGame.Services
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Email, user.Email)
             };
 
             // Create token with 7 day expiration

@@ -4,7 +4,6 @@ import { register, saveToken } from "../services/authApi";
 
 const RegisterPage: React.FC = () => {
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
@@ -31,7 +30,7 @@ const RegisterPage: React.FC = () => {
 
     try {
       // Call register API
-      const response = await register({ username, email, password });
+      const response = await register({ username, password });
       
       // Save token to localStorage
       saveToken(response.token);
@@ -66,17 +65,6 @@ const RegisterPage: React.FC = () => {
             onChange={(e) => setUsername(e.target.value)}
             required
             minLength={3}
-            style={{ width: "100%", padding: "8px", marginTop: "5px" }}
-          />
-        </div>
-
-        <div style={{ marginBottom: "15px" }}>
-          <label>Email:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
             style={{ width: "100%", padding: "8px", marginTop: "5px" }}
           />
         </div>

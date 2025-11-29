@@ -27,7 +27,6 @@ namespace DragonGame.Data
         public DbSet<CharacterPose> CharacterPoses { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<ChoiceHistory> ChoiceHistories { get; set; }
-        public DbSet<User> Users { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -99,7 +98,6 @@ namespace DragonGame.Data
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasIndex(u => u.Username).IsUnique();
-                entity.HasIndex(u => u.Email).IsUnique();
 
                 entity.HasMany(u => u.PlayerSessions)
                     .WithOne(ps => ps.User)

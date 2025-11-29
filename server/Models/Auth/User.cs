@@ -31,5 +31,8 @@ namespace DragonGame.Models
         /// When the user account was created
         /// </summary>
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+         // Navigation property for sessions
+        public ICollection<PlayerSession> PlayerSessions { get; set; } = new List<PlayerSession>();
     }
 }

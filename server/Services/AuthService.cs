@@ -1,5 +1,6 @@
 using DragonGame.Data;
 using DragonGame.Dtos;
+using DragonGame.Dtos.Auth;
 using DragonGame.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,11 +9,6 @@ namespace DragonGame.Services
     /// <summary>
     /// Service for handling user authentication (register, login)
     /// </summary>
-    public interface IAuthService
-    {
-        Task<AuthResponseDto?> RegisterAsync(RegisterDto dto);
-        Task<AuthResponseDto?> LoginAsync(LoginDto dto);
-    }
 
     public class AuthService : IAuthService
     {
@@ -38,13 +34,6 @@ namespace DragonGame.Services
                 return null;
             }
 
-            // Check if email already exists
-            if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
-            {
-                Console.WriteLine($"[AuthService] Email '{dto.Email}' already exists");
-                return null;
-            }
-
             // Hash the password using BCrypt
             var passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
@@ -52,7 +41,6 @@ namespace DragonGame.Services
             var user = new User
             {
                 Username = dto.Username,
-                Email = dto.Email,
                 PasswordHash = passwordHash,
                 CreatedAt = DateTime.UtcNow
             };
@@ -69,7 +57,6 @@ namespace DragonGame.Services
             {
                 UserId = user.UserId,
                 Username = user.Username,
-                Email = user.Email,
                 Token = token
             };
         }
@@ -106,9 +93,10 @@ namespace DragonGame.Services
             {
                 UserId = user.UserId,
                 Username = user.Username,
-                Email = user.Email,
                 Token = token
             };
         }
+
+    
     }
 }

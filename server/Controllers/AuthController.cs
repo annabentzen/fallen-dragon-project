@@ -1,4 +1,4 @@
-using DragonGame.Dtos;
+using DragonGame.Dtos.Auth;
 using DragonGame.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
