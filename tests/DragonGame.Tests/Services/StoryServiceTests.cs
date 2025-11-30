@@ -65,7 +65,19 @@ namespace DragonGame.Tests.Services
                 IsCompleted = false
             };
         }
-
+        private PlayerSession CreateMockSeshWithNoCurrAct(int sessionId = 2)
+        {
+            return new PlayerSession
+            {
+                SessionId = sessionId,
+                CharacterName = "Bob",
+                CharacterId = 2,
+                StoryId = 2,
+                CurrentActNumber = 2,
+                CurrentAct = null,
+                IsCompleted = false
+            };
+        }
 
         // TESTS 
 
@@ -110,9 +122,24 @@ namespace DragonGame.Tests.Services
             _sessionRepoMock.Verify(repo => repo.UpdateAsync(It.IsAny<PlayerSession>()), Times.Never);
             _sessionRepoMock.Verify(repo => repo.SaveChangesAsync(), Times.Never);
         }
-
         [Fact]
-        public async Task TestName()
+        public async Task MoveToNextActAsync_NoActFound_ReturnNull()
+        {
+            // Given
+            var session = CreateMockSeshWithNoCurrAct(2);
+            _sessionRepoMock.Setup(repo => repo.GetSessionByIdWithChoicesAsync(2)).ReturnsAsync(session);
+
+            // When
+            var result = await _sut.MoveToNextActAsync(2, 3);
+
+            // Then
+            result.Should().BeNull();
+            _choiceHistoryServiceMock.Verify(service => service.AddChoiceAsync(It.IsAny<ChoiceHistory>()), Times.Never);
+            _sessionRepoMock.Verify(service => service.UpdateAsync(It.IsAny<PlayerSession>()), Times.Never);
+            _sessionRepoMock.Verify(service => service.SaveChangesAsync(), Times.Never);
+        }
+        [Fact]
+        public async Task MoveToNextActAsync_NextActNumberNotValid()
         {
             // Given
 
@@ -120,5 +147,6 @@ namespace DragonGame.Tests.Services
 
             // Then
         }
+
     }
 }
