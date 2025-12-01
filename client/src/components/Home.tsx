@@ -52,11 +52,11 @@ export default function Home() {
   // Start the story
   const startStory = async () => {
     if (!characterName.trim()) {
-      setError("Please enter a hero name");
+      setError("Enter hero name");
       return;
     }
     if (character.poseId === null) {
-      setError("Please select a pose");
+      setError("Select a pose!");
       return;
     }
 
