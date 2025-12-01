@@ -1,11 +1,10 @@
-// src/components/EndingScreen.tsx
 import React from 'react';
 import styles from '../styles/Ending.module.css';
 import { NavigateFunction } from 'react-router-dom';
 
 interface EndingScreenProps {
   onRestart: () => void;
-  navigate?: NavigateFunction;  // Make it optional
+  navigate?: NavigateFunction;  
   endingType: 'heroDeath' | 'dragonKilled' | 'tragedy' | 'ignored' | 'recovery' | 'guardian' | 'default';
   endingText: string;
 }
@@ -35,7 +34,7 @@ const EndingScreen: React.FC<EndingScreenProps> = ({ onRestart, endingType, endi
   const subtitle = subtitles[endingType] ?? subtitles.default;
 
   const handleClick = () => {
-    console.log("Play Again clicked!"); // Debug log
+    console.log("Play Again clicked!"); 
     onRestart();
   };
 
