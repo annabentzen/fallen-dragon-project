@@ -8,7 +8,7 @@ namespace DragonGame.Models
         [Key]
         public int Id { get; set; }
 
-        public string? Head { get; set; } = "mage-head1.png";
+        public string? Head { get; set; } = "knight-head.png";
         public string? Body { get; set; } = "knight-body.png";
 
         [Display(Name = "Pose")]

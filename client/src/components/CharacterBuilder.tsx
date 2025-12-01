@@ -5,8 +5,8 @@ import { useEffect } from "react";
 interface CharacterBuilderProps {
   character: Character;
   poses: CharacterPose[];
-  onHeadChange: (head: string) => void;  // renamed from onHairChange
-  onBodyChange: (body: string) => void;  // renamed from onOutfitChange
+  onHeadChange: (head: string) => void;  
+  onBodyChange: (body: string) => void;  
   onPoseChange: (poseId: number | null) => void;
 }
 
@@ -19,19 +19,18 @@ export default function CharacterBuilder({
 }: CharacterBuilderProps) {
 
   const { head, body, poseId } = character;
-  //const selectedPose = poses.find(pose => pose.id === character.poseId);
 
-  // NEW: Avatar head and body options
+
   const headOptions = [
   "knight-head.png", 
-  "mage-head1.png", 
+  "mage1-head.png", 
   "mage2-head.png",  
   "rogue-head.png"
 ]; 
 
 const bodyOptions = [
   "knight-body.png", 
-  "mage-body.png", 
+  "mage1-body.png", 
   "mage2-body.png", 
   "rogue-body.png"
 ];

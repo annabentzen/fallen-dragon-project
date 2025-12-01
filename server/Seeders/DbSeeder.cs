@@ -292,17 +292,17 @@ When the smoke clears, several of your friends and neighbours lay dead or wounde
                 new CharacterPose { 
                     Name = "Mage Floating", 
                     ImageUrl = "mage1-pose1.png",  
-                    CharacterType = "mage"  
+                    CharacterType = "mage1"  
                 },
                 new CharacterPose { 
                     Name = "Mage Crouching", 
                     ImageUrl = "mage1-pose2.png",  
-                    CharacterType = "mage"  
+                    CharacterType = "mage1"  
                 },
                 new CharacterPose { 
                     Name = "Mage Dizzy", 
                     ImageUrl = "mage1-pose3.png",  
-                    CharacterType = "mage" 
+                    CharacterType = "mage1" 
                 },
                 new CharacterPose { 
                     Name = "Mage 2 Jumping", 
