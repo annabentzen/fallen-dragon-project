@@ -1,10 +1,8 @@
-// src/services/characterApi.ts
 import axios from "axios";
 import { CharacterPose } from "../types/character";
 
 const POSE_API = "http://localhost:5151/api/poses";
 
-// Fetch available poses
 export async function getAllPoses(): Promise<CharacterPose[]> {
   try {
     const response = await axios.get(POSE_API);
