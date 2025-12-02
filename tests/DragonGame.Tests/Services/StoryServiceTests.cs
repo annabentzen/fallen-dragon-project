@@ -5,6 +5,8 @@ using DragonGame.Services;
 using Moq;
 using FluentAssertions;
 using Microsoft.Identity.Client;
+using System.IO.Compression;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DragonGame.Tests.Services
 {
@@ -29,20 +31,13 @@ namespace DragonGame.Tests.Services
         }
 
         // HELPERS
-        private PlayerSession CreateMockSession(int sessionId = 1, int currentActNumber = 1, int nextActNumber = 11)
-        {
-            var act = new Act
-            {
-                ActNumber = currentActNumber,
-                StoryId = 1,
-                Text = "You come across a path leading two ways. Which way will you go?",
-                Choices = new List<Choice>
-                {
+        private List<Choice> defaultChoices = new List<Choice>
+         {
                     new Choice
                     {
                         ChoiceId = 101,
                         Text = "Go to the right",
-                        NextActNumber = nextActNumber
+                        NextActNumber = 11
                     },
                     new Choice
                     {
@@ -50,7 +45,17 @@ namespace DragonGame.Tests.Services
                         Text="Go to the left",
                         NextActNumber = 12
                     }
-                }
+        };
+        private PlayerSession CreateMockSession(List<Choice> choices, int sessionId = 1, int currentActNumber = 1)
+        {
+            var act = new Act
+            {
+                ActNumber = currentActNumber,
+                StoryId = 1,
+                Text = "You come across a path leading two ways. Which way will you go?",
+                Choices = choices
+
+
 
             };
 
@@ -85,7 +90,7 @@ namespace DragonGame.Tests.Services
         public async Task MoveToNextActAsync_SessionFound_MatchingChoice_SaveHistoryUpdateSession()
         {
             // Given
-            var session = CreateMockSession(1, 1, 11);
+            var session = CreateMockSession(defaultChoices, 1, 1);
             _sessionRepoMock.Setup(repo => repo.GetSessionByIdWithChoicesAsync(1)).ReturnsAsync(session);
             _sessionRepoMock.Setup(repo => repo.UpdateAsync(session)).Returns(Task.CompletedTask);
             _sessionRepoMock.Setup(repo => repo.SaveChangesAsync()).Returns(Task.CompletedTask);
@@ -139,13 +144,54 @@ namespace DragonGame.Tests.Services
             _sessionRepoMock.Verify(service => service.SaveChangesAsync(), Times.Never);
         }
         [Fact]
-        public async Task MoveToNextActAsync_NextActNumberNotValid()
+        public async Task MoveToNextActAsync_NextActChoiceNotValid_ThrowsError()
         {
             // Given
+            var session = CreateMockSession(defaultChoices, 1, 1);
+            _sessionRepoMock.Setup(repo => repo.GetSessionByIdWithChoicesAsync(1)).ReturnsAsync(session);
+
 
             // When
+            var callResult = async () => await _sut.MoveToNextActAsync(1, 99);
 
             // Then
+            await callResult.Should().ThrowAsync<InvalidOperationException>("Because choice does not match next act");
+            _choiceHistoryServiceMock.Verify(service => service.AddChoiceAsync(It.IsAny<ChoiceHistory>()), Times.Never);
+            _sessionRepoMock.Verify(repo => repo.UpdateAsync(It.IsAny<PlayerSession>()), Times.Never);
+            _sessionRepoMock.Verify(repo => repo.SaveChangesAsync(), Times.Never);
+        }
+        [Fact]
+        public async Task MoveToNextAcyAsyc_NextActZeroOrNegative_SessionCompleted()
+        {
+            // Given
+            var endingChoices = new List<Choice>
+            {
+                new Choice
+                {
+                    ChoiceId = 666,
+                    Text = "Go To Ending",
+                    NextActNumber = 0,
+                    ActId = 1,
+                }
+            };
+            var session = CreateMockSession(endingChoices, 1);
+            _sessionRepoMock.Setup(repo => repo.GetSessionByIdWithChoicesAsync(1)).ReturnsAsync(session);
+            _sessionRepoMock.Setup(repo => repo.UpdateAsync(session)).Returns(Task.CompletedTask);
+            _sessionRepoMock.Setup(repo => repo.SaveChangesAsync()).Returns(Task.CompletedTask);
+            _choiceHistoryServiceMock.Setup(service => service.AddChoiceAsync(It.IsAny<ChoiceHistory>())).Returns(Task.CompletedTask);
+
+            // When
+            var result = await _sut.MoveToNextActAsync(1, 0);
+
+            // Then
+            result.Should().NotBeNull();
+            result!.SessionId.Should().Be(1);
+            result.IsCompleted.Should().BeTrue();
+            // result.CurrentActNumber.Should().Be(0);  // <---- CHECK IF SHOULD ACTUALLY CHANGE TO GIVEN "nextActNumber"
+            _sessionRepoMock.Verify(repo => repo.GetSessionByIdWithChoicesAsync(1), Times.Once);
+            _sessionRepoMock.Verify(repo => repo.UpdateAsync(session), Times.Once);
+            _sessionRepoMock.Verify(repo => repo.SaveChangesAsync(), Times.Once);
+            _choiceHistoryServiceMock.Verify(service => service.AddChoiceAsync(It.Is<ChoiceHistory>(h => h.PlayerSessionId == 1 && h.ActNumber == 1 && h.ChoiceId == 666)), Times.Once);
         }
 
     }

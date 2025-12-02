@@ -149,61 +149,61 @@ namespace DragonGame.Services
         }
 
         // Moves player to next act (or ends game if nextActNumber <= 0)
-       public async Task<PlayerSession?> MoveToNextActAsync(int sessionId, int nextActNumber)
-{
-    try
-    {
-        Console.WriteLine($"[StoryService] Moving session {sessionId} → Act {nextActNumber}");
-
-        // Load session with current act and choices
-        var session = await _sessionRepo.GetSessionByIdWithChoicesAsync(sessionId);
-        if (session == null || session.CurrentAct == null)
+        public async Task<PlayerSession?> MoveToNextActAsync(int sessionId, int nextActNumber)
         {
-            Console.WriteLine($"[StoryService] Session or CurrentAct not found");
-            return null;
-        }
-
-        // Find the choice that leads to nextActNumber
-        var selectedChoice = session.CurrentAct.Choices
-            ?.FirstOrDefault(c => c.NextActNumber == nextActNumber);
-
-        // Record choice in history
-        if (selectedChoice != null)
-        {
-            var historyEntry = new ChoiceHistory
+            try
             {
-                PlayerSessionId = session.SessionId,
-                ActNumber = session.CurrentAct.ActNumber,
-                ChoiceId = selectedChoice.ChoiceId,
-                MadeAt = DateTime.UtcNow
-            };
+                Console.WriteLine($"[StoryService] Moving session {sessionId} → Act {nextActNumber}");
 
-            await _choiceHistoryService.AddChoiceAsync(historyEntry);
-            Console.WriteLine($"[StoryService] Recorded choice: Act {historyEntry.ActNumber} → Choice {selectedChoice.ChoiceId}");
+                // Load session with current act and choices
+                var session = await _sessionRepo.GetSessionByIdWithChoicesAsync(sessionId);
+                if (session == null || session.CurrentAct == null)
+                {
+                    Console.WriteLine($"[StoryService] Session or CurrentAct not found");
+                    return null;
+                }
+
+                // Find the choice that leads to nextActNumber
+                var selectedChoice = session.CurrentAct.Choices
+                    ?.FirstOrDefault(c => c.NextActNumber == nextActNumber);
+
+                // Record choice in history
+                if (selectedChoice != null) // <--- ENDRE TIL IF SELECTEDCHOICE == NULL -> THROW ERROR?
+                {
+                    var historyEntry = new ChoiceHistory
+                    {
+                        PlayerSessionId = session.SessionId,
+                        ActNumber = session.CurrentAct.ActNumber,
+                        ChoiceId = selectedChoice.ChoiceId,
+                        MadeAt = DateTime.UtcNow
+                    };
+
+                    await _choiceHistoryService.AddChoiceAsync(historyEntry);
+                    Console.WriteLine($"[StoryService] Recorded choice: Act {historyEntry.ActNumber} → Choice {selectedChoice.ChoiceId}");
+                }
+
+                // Update session state
+                if (nextActNumber <= 0)
+                {
+                    session.IsCompleted = true;
+                    Console.WriteLine($"[StoryService] Session {sessionId} completed!");
+                }
+                else
+                {
+                    session.CurrentActNumber = nextActNumber;
+                }
+
+                await _sessionRepo.UpdateAsync(session);
+                await _sessionRepo.SaveChangesAsync();
+
+                return session;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[StoryService][ERROR] {ex.Message}");
+                throw;
+            }
         }
-
-        // Update session state
-        if (nextActNumber <= 0)
-        {
-            session.IsCompleted = true;
-            Console.WriteLine($"[StoryService] Session {sessionId} completed!");
-        }
-        else
-        {
-            session.CurrentActNumber = nextActNumber;
-        }
-
-        await _sessionRepo.UpdateAsync(session);
-        await _sessionRepo.SaveChangesAsync();
-
-        return session;
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"[StoryService][ERROR] {ex.Message}");
-        throw;
-    }
-}
         // Gets just the Character entity for a session (used in edit mode)
         public async Task<Character?> GetCharacterForSessionAsync(int sessionId)
         {
