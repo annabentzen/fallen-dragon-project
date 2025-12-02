@@ -1,18 +1,12 @@
 using DragonGame.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace DragonGame.Services
+namespace DragonGame.Services;
+
+public interface IPoseService
 {
-    public interface IPoseService
-    {
-        Task<IEnumerable<CharacterPose>> GetAllPosesAsync();
-        Task<CharacterPose?> GetPoseByIdAsync(int id);
-        Task AddPoseAsync(CharacterPose pose);
-        Task UpdatePoseAsync(CharacterPose pose);
-        Task DeletePoseAsync(int id);
-    }
+    Task<IEnumerable<CharacterPose>> GetAllPosesAsync();
+    Task<CharacterPose?> GetPoseByIdAsync(int id);
+    Task AddPoseAsync(CharacterPose pose);
+    Task UpdatePoseAsync(CharacterPose pose);
+    Task DeletePoseAsync(int id);
 }
-
-
-

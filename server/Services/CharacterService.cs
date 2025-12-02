@@ -1,61 +1,52 @@
 using DragonGame.Models;
 using DragonGame.Repositories;
-using server.Services.Interfaces;
 
-namespace server.Services
+namespace DragonGame.Services;
+
+public class CharacterService : ICharacterService
 {
-    public class CharacterService : ICharacterService
+    private readonly ICharacterRepository _characterRepository;
+
+    public CharacterService(ICharacterRepository characterRepository)
     {
-        private readonly ICharacterRepository _characterRepository;
+        _characterRepository = characterRepository;
+    }
 
-        public CharacterService(ICharacterRepository characterRepository)
-        {
-            _characterRepository = characterRepository;
-        }
+    public async Task<IEnumerable<Character>> GetAllAsync()
+    {
+        return await _characterRepository.GetAllAsync();
+    }
 
-        // Get all characters with their pose
-        public async Task<IEnumerable<Character>> GetAllAsync()
-        {
-            return await _characterRepository.GetAllAsync();
-        }
+    public async Task<Character?> GetByIdAsync(int id)
+    {
+        return await _characterRepository.GetByIdAsync(id);
+    }
 
-        // Get character by ID with pose
-        public async Task<Character?> GetByIdAsync(int id)
-        {
-            return await _characterRepository.GetByIdAsync(id);
-        }
+    public async Task<Character> CreateAsync(Character character)
+    {
+        await _characterRepository.AddAsync(character);
+        return character;
+    }
 
-        // Create a new character
-        public async Task<Character> CreateAsync(Character character)
-        {
-            await _characterRepository.AddAsync(character);
-            return character;
-        }
+    public async Task<Character?> UpdateAsync(int id, Character character)
+    {
+        var existing = await _characterRepository.GetByIdAsync(id);
+        if (existing == null) return null;
 
-        // Update an existing character
-        public async Task<Character?> UpdateAsync(int id, Character updatedCharacter)
-        {
-            var existing = await _characterRepository.GetByIdAsync(id);
-            if (existing == null) return null;
+        existing.Head = character.Head;
+        existing.Body = character.Body;
+        existing.PoseId = character.PoseId;
 
-            existing.Head = updatedCharacter.Head;
-            existing.Body = updatedCharacter.Body;
-            existing.PoseId = updatedCharacter.PoseId;
+        await _characterRepository.UpdateAsync(existing);
+        return existing;
+    }
 
-            await _characterRepository.UpdateAsync(existing);
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var character = await _characterRepository.GetByIdAsync(id);
+        if (character == null) return false;
 
-            return existing;
-        }
-
-        // Delete a character by ID
-        public async Task<bool> DeleteAsync(int id)
-        {
-            var character = await _characterRepository.GetByIdAsync(id);
-            if (character == null) return false;
-
-            await _characterRepository.DeleteAsync(character.Id);
-            return true;
-        }
+        await _characterRepository.DeleteAsync(id);
+        return true;
     }
 }
-
