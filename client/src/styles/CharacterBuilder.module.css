@@ -15,7 +15,7 @@
   margin-top: 0;
   margin-bottom: var(--spacing-xl);
   color: var(--color-primary-dark);
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-lg);
   text-align: center;
   font-weight: var(--font-weight-bold);
   text-transform: uppercase;
@@ -155,7 +155,7 @@
 }
 
 .previewContainer:hover {
-  transform: scale(1.02);
+  transform: scale(1);
   transition: transform var(--transition-normal);
 }
 

@@ -102,18 +102,23 @@ export default function Home() {
               }
             />
 
-            <button
-              onClick={resetCharacter}
-              disabled={loading}
-              className={styles.resetButton}
-            >
-              Reset Character
-            </button>
+            {/* Hero Name Input */}
+            <div className={styles.heroNameSection}>
+              <label className={styles.label}></label>
+              <input
+                type="text"
+                placeholder="Enter your hero-name"
+                value={characterName}
+                onChange={(e) => setCharacterName(e.target.value)}
+                className={styles.input}
+                disabled={loading}
+              />
+              {error && <div className={styles.errorMessage}>{error}</div>}
+            </div>
           </div>
 
-          {/* RIGHT COLUMN - MISSION BRIEFING & ACTION */}
+          {/* RIGHT COLUMN - MISSION BRIEFING */}
           <div className={styles.rightColumn}>
-            {/* Mission Briefing */}
             <div className={styles.missionBriefing}>
               <h2 className={styles.briefingTitle}>Mission</h2>
               <p className={styles.introText}>
@@ -126,33 +131,29 @@ export default function Home() {
                   Create your hero and begin your journey...
                 </span>
               </p>
-            </div>
 
-            {/* Hero Name & Begin Mission */}
-            <div className={styles.actionSection}>
-              {error && <div className={styles.errorMessage}>{error}</div>}
-              <div className={styles.heroNameSection}>
-                <label className={styles.label}></label>
-                <input
-                  type="text"
-                  placeholder="Enter your hero-name"
-                  value={characterName}
-                  onChange={(e) => setCharacterName(e.target.value)}
-                  className={styles.input}
+              {/* Begin Mission - button */}
+              <div className={styles.actionSection}>
+                <button
+                  onClick={startStory}
                   disabled={loading}
-                />
+                  className={styles.beginButton}
+                >
+                  {loading ? "Starting..." : "Begin Mission"}
+                </button>
               </div>
-
-              <button
-                onClick={startStory}
-                disabled={loading}
-                className={styles.beginButton}
-              >
-                {loading ? "Starting..." : "Start Mission"}
-              </button>
             </div>
           </div>
         </div>
+
+        {/* Reset Character Button - fixed to bottom left */}
+        <button
+          onClick={resetCharacter}
+          disabled={loading}
+          className={styles.resetButton}
+        >
+          Reset Character
+        </button>
       </div>
     </div>
   );

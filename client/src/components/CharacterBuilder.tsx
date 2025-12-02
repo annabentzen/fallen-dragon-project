@@ -1,6 +1,6 @@
 import { Character, CharacterPose } from "../types/character";
 import styles from "../styles/CharacterBuilder.module.css";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface CharacterBuilderProps {
   character: Character;
@@ -19,6 +19,9 @@ export default function CharacterBuilder({
 }: CharacterBuilderProps) {
   const { head, body, poseId } = character;
 
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
   // Avatar head and body options
   const headOptions = [
     "knight-head.png",
@@ -34,7 +37,7 @@ export default function CharacterBuilder({
     "rogue-body.png",
   ];
 
-  // Extract character type from body filename (e.g., "knight-body.png" -> "knight")
+  // Extract character type from body filename
   const characterType = body.split("-")[0]; // "knight", "mage", or "rogue"
 
   // Filter poses to only show ones matching the current body type
@@ -50,6 +53,26 @@ export default function CharacterBuilder({
       onPoseChange(null);
     }
   }, [characterType, availablePoses, poseId, onPoseChange]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isDropdownOpen]);
 
   const currentHead = head;
   const currentBody = body;
@@ -68,9 +91,14 @@ export default function CharacterBuilder({
     setter(options[newIndex]);
   };
 
+  const handlePoseSelect = (pose: CharacterPose | null) => {
+    onPoseChange(pose ? pose.id : null);
+    setIsDropdownOpen(false);
+  };
+
   return (
     <div className={styles.container}>
-      <h3 className={styles.header}>Change your look</h3>
+      <h2 className={styles.header}>Change your look</h2>
 
       {/* Character preview with side arrows */}
       <div className={styles.characterSection}>
@@ -158,29 +186,43 @@ export default function CharacterBuilder({
             )}
           </div>
         </div>
-
-        {/* Info text */}
-        <div className={styles.infoText}>Mix and match heads and bodies!</div>
       </div>
 
       {/* Pose selector */}
       <div className={styles.poseSection}>
         <label className={styles.poseLabel}>Pose ({characterType}):</label>
-        <select
-          value={poseId || ""}
-          onChange={(e) =>
-            onPoseChange(e.target.value ? Number(e.target.value) : null)
-          }
-          className={styles.select}
-          aria-label="Select character pose"
-        >
-          <option value="">Select a pose</option>
-          {availablePoses.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
+        <div className={styles.customDropdown} ref={dropdownRef}>
+          {/* Dropdown button */}
+          <button
+            className={styles.dropdownButton}
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            aria-label="Select character pose"
+          >
+            <span>{selectedPose ? selectedPose.name : "Select a pose"}</span>
+            <span className={styles.dropdownArrow}>▼</span>
+          </button>
+
+          {/* Dropdown menu */}
+          {isDropdownOpen && (
+            <div className={styles.dropdownMenu}>
+              <button
+                className={styles.dropdownOption}
+                onClick={() => handlePoseSelect(null)}
+              >
+                Select a Pose
+              </button>
+              {availablePoses.map((pose) => (
+                <button
+                  key={pose.id}
+                  className={styles.dropdownOption}
+                  onClick={() => handlePoseSelect(pose)}
+                >
+                  {pose.name}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

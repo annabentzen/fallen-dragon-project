@@ -19,6 +19,7 @@
   display: flex;
   flex-direction: column;
   animation: fadeIn 0.6s ease forwards;
+  position: relative;
 }
 
 /* ========================================
@@ -81,7 +82,9 @@
 
 /* Reset button in character creator */
 .resetButton {
-  width: 80%;
+  position: absolute;
+  bottom: var(--spacing-lg);
+  left: var(--spacing-lg);
   padding: var(--spacing-sm) var(--spacing-md);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
@@ -95,11 +98,11 @@
   transition: all var(--transition-normal);
   text-transform: uppercase;
   letter-spacing: 1px;
+  z-index: 100;
 }
 
 .resetButton:hover:not(:disabled) {
   background-color: var(--color-bg-hover);
-  border-color: var(--color-primary);
   color: var(--color-primary-dark);
   transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
@@ -136,11 +139,16 @@
   box-shadow: var(--shadow-lg);
   position: relative;
   overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: fit-content;
 }
 
 .briefingTitle {
   text-align: center;
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-base);
   font-weight: var(--font-weight-bold);
   color: var(--color-primary-dark);
   text-transform: uppercase;
@@ -172,40 +180,6 @@
 }
 
 /* ========================================
-   HERO NAME & BEGIN MISSION SECTION
-   ======================================== */
-
-.actionSection {
-  background: url("/images/backgrounds/menu_bg.png");
-  background-position: center;
-  background-size: cover;
-  display: flex;
-  max-width: 400px;
-  padding: var(--spacing-xl) var(--spacing-lg);
-  flex-direction: column;
-  gap: var(--spacing-lg);
-  align-items: center;
-  justify-content: center;
-  border-width: 30px;
-  border-style: solid;
-  border-color: transparent;
-  border-image: url("/images/backgrounds/border.png") 30 stretch;
-  position: relative;
-}
-
-.actionSection::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    circle at center,
-    rgba(255, 215, 0, 0.05) 0%,
-    transparent 70%
-  );
-  pointer-events: none;
-}
-
-/* ========================================
    ERROR MESSAGE
    ======================================== */
 
@@ -232,8 +206,9 @@
 .heroNameSection {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
   width: 100%;
+  max-width: 300px;
   align-items: center;
 }
 
@@ -295,46 +270,45 @@
    ======================================== */
 
 .beginButton {
-  width: 100%;
-  max-height: fit-content;
-  padding: var(--spacing-sm) var(--spacing-lg);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-bold);
-  background: url("/images/game-images/ui/button_yellow.png");
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-  color: var(--color-text-primary);
-  border: none;
-  cursor: pointer;
-  transition: all var(--transition-normal);
-  text-transform: uppercase;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--spacing-xs);
-  margin-top: var(--spacing-sm);
+  max-height: fit-content;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: url("/images/game-images/ui/button_yellow.png");
+  border: none;
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  color: var(--color-text-primary);
+  text-transform: uppercase;
 }
-
-/*Play icon*/
 .beginButton::before {
   content: "";
   width: 16px;
   height: 16px;
+  display: block;
   background: url("/images/backgrounds/play.png");
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
 }
 
+.beginButton:hover:not(:disabled) {
+  filter: brightness(1.3);
+}
+
 .beginButton:hover:not(:disabled)::before {
-  filter: brightness(1.5);
+  filter: brightness(1.3);
 }
 
 .beginButton:disabled {
   cursor: not-allowed;
   opacity: 0.6;
-  filter: grayscale(1);
 }
 
 /* Loading state */
@@ -360,12 +334,20 @@
   .rightColumn {
     order: 1;
   }
+
+  .resetButton {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
+    bottom: var(--spacing-sm);
+    left: var(--spacing-sm);
+  }
 }
 
-/* Mobile) */
+/* Mobile */
 @media (max-width: 480px) {
   .container {
     padding: var(--spacing-md) var(--spacing-sm);
+    padding-bottom: 80px;
   }
 
   .title {
@@ -375,8 +357,7 @@
   }
 
   .leftColumn,
-  .missionBriefing,
-  .actionSection {
+  .missionBriefing {
     padding: var(--spacing-md);
   }
 
@@ -388,6 +369,13 @@
   .beginButton {
     font-size: var(--font-size-base);
     padding: var(--spacing-md);
+  }
+
+  .resetButton {
+    font-size: 12px;
+    padding: 6px 12px;
+    bottom: var(--spacing-xs);
+    left: var(--spacing-xs);
   }
 }
 
