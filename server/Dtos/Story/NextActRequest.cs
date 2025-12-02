@@ -1,7 +1,9 @@
-namespace DragonGame.Dtos
+using System.ComponentModel.DataAnnotations;
+
+namespace DragonGame.Dtos.Story;
+
+public class NextActRequestDto
 {
-    public class NextActRequest
-    {
-        public int NextActNumber { get; set; }
-    }
+    [Range(1, int.MaxValue, ErrorMessage = "Invalid act number")]
+    public int NextActNumber { get; set; }
 }

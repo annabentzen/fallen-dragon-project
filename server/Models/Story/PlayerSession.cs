@@ -1,47 +1,44 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace DragonGame.Models
+namespace DragonGame.Models;
+
+/// <summary>
+/// Represents a single playthrough of a story by a user.
+/// </summary>
+public class PlayerSession
 {
-    public class PlayerSession
-    {
-        [Key]
-        public int SessionId { get; set; }
+    [Key]
+    public int SessionId { get; set; }
 
-        [Required]
-        public string CharacterName { get; set; } = string.Empty;
+    [Required]
+    [StringLength(30)]
+    public string CharacterName { get; set; } = string.Empty;
 
-        // Add to existing PlayerSession class:
+    [ForeignKey(nameof(User))]
+    public int UserId { get; set; }
 
-        // Foreign key to User
-        public int UserId { get; set; }
+    public User? User { get; set; }
 
-        // Navigation property
-        public User? User { get; set; }
+    [ForeignKey(nameof(Character))]
+    public int CharacterId { get; set; }
 
-        [Required]
-        public int CharacterId { get; set; } // FK to Character
+    public Character Character { get; set; } = null!;
 
-        [ForeignKey(nameof(CharacterId))]
-        public Character Character { get; set; } = null!;
+    [ForeignKey(nameof(Story))]
+    public int StoryId { get; set; }
 
-        [Required]
-        public int StoryId { get; set; }
+    public Story Story { get; set; } = null!;
 
-        public Story Story { get; set; } = null!;
+    /// <summary>
+    /// References ActNumber (not ActId) to track position in branching narrative.
+    /// </summary>
+    public int CurrentActNumber { get; set; } = 1;
 
-        [Required]
-        public int CurrentActNumber { get; set; } = 1;
-        
-        [ForeignKey("CurrentActNumber")]
-        public Act? CurrentAct { get; set; }
+    public Act? CurrentAct { get; set; }
 
-        [Required]
-        public bool IsCompleted { get; set; } = false;
+    public bool IsCompleted { get; set; }
 
-        // Navigation property for ChoiceHistory
-        public ICollection<ChoiceHistory> Choices { get; set; } = new List<ChoiceHistory>();
-    }
+    public ICollection<ChoiceHistory> Choices { get; set; } = new List<ChoiceHistory>();
 }
-
 

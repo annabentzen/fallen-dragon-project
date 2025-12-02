@@ -1,100 +1,119 @@
 using Microsoft.AspNetCore.Mvc;
-using DragonGame.Services;
-using DragonGame.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using DragonGame.Data;
-using server.Services.Interfaces;
 using DragonGame.Dtos;
-using Microsoft.AspNetCore.Authorization;
+using DragonGame.Models;
+using server.Services.Interfaces;
 
-namespace DragonGame.Controllers
+namespace DragonGame.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+[Authorize]
+public class CharacterController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    [Authorize]
-    public class CharacterController : ControllerBase
+    private readonly ICharacterService _characterService;
+    private readonly AppDbContext _context;
+    private readonly ILogger<CharacterController> _logger;
+
+    public CharacterController(
+        ICharacterService characterService, 
+        AppDbContext context,
+        ILogger<CharacterController> logger)
     {
-        private readonly ICharacterService _characterService;
-        private readonly AppDbContext _context;
+        _characterService = characterService;
+        _context = context;
+        _logger = logger;
+    }
 
-        public CharacterController(ICharacterService characterService, AppDbContext context)
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var characters = await _characterService.GetAllAsync();
+        return Ok(characters);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var character = await _characterService.GetByIdAsync(id);
+        
+        if (character == null)
         {
-            _characterService = characterService;
-            _context = context;
+            _logger.LogWarning("Character not found: {CharacterId}", id);
+            return NotFound(new { message = "Character not found" });
+        }
+        
+        return Ok(character);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] Character character)
+    {
+        var created = await _characterService.CreateAsync(character);
+        
+        _logger.LogInformation("Character created: {CharacterId}", created.Id);
+        
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] Character character)
+    {
+        var updated = await _characterService.UpdateAsync(id, character);
+        
+        if (updated == null)
+        {
+            _logger.LogWarning("Update failed - character not found: {CharacterId}", id);
+            return NotFound(new { message = "Character not found" });
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
+        _logger.LogInformation("Character updated: {CharacterId}", id);
+        return Ok(updated);
+    }
+
+    /// <summary>
+    /// Updates character appearance during gameplay via session ID.
+    /// </summary>
+    [HttpPut("session/{sessionId}")]
+    public async Task<IActionResult> UpdateCharacterForSession(int sessionId, [FromBody] UpdateCharacterDto dto)
+    {
+        var session = await _context.PlayerSessions
+            .Include(s => s.Character)
+            .FirstOrDefaultAsync(s => s.SessionId == sessionId);
+
+        if (session?.Character == null)
         {
-            var chars = await _characterService.GetAllAsync();
-            return Ok(chars);
+            _logger.LogWarning("Update failed - session or character not found: {SessionId}", sessionId);
+            return NotFound(new { message = "Session or character not found" });
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        session.Character.Head = dto.Head;
+        session.Character.Body = dto.Body;
+        session.Character.PoseId = dto.PoseId;
+
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation(
+            "Character appearance updated for session {SessionId}: Head={Head}, Body={Body}, PoseId={PoseId}",
+            sessionId, dto.Head, dto.Body, dto.PoseId);
+
+        return Ok(session.Character);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var deleted = await _characterService.DeleteAsync(id);
+        
+        if (!deleted)
         {
-            var character = await _characterService.GetByIdAsync(id);
-            if (character == null) return NotFound();
-            return Ok(character);
+            _logger.LogWarning("Delete failed - character not found: {CharacterId}", id);
+            return NotFound(new { message = "Character not found" });
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(Character character)
-        {
-            var created = await _characterService.CreateAsync(character);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, Character character)
-        {
-            try
-            {
-                var updated = await _characterService.UpdateAsync(id, character);
-                if (updated == null) return NotFound();
-                return Ok(updated);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[CharacterController][Update] Error for id={id}: {ex}");
-                return StatusCode(500, ex.Message);
-            }
-        }
-
-        // NEW: Update character through session
-        [HttpPut("session/{sessionId}")]
-        public async Task<IActionResult> UpdateCharacterForSession(int sessionId, [FromBody] UpdateCharacterDto dto)
-        {
-            try
-            {
-                var session = await _context.PlayerSessions
-                    .Include(s => s.Character)
-                    .FirstOrDefaultAsync(s => s.SessionId == sessionId);
-
-                if (session == null || session.Character == null)
-                    return NotFound("Session or character not found");
-
-                // Update only the appearance properties
-                session.Character.Head = dto.Head;
-                session.Character.Body = dto.Body;
-                session.Character.PoseId = dto.PoseId;
-
-                await _context.SaveChangesAsync();
-                return Ok(session.Character);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[CharacterController][UpdateForSession] Error: {ex.Message}");
-                return StatusCode(500, $"Error updating character: {ex.Message}");
-            }
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var deleted = await _characterService.DeleteAsync(id);
-            if (!deleted) return NotFound();
-            return NoContent();
-        }
+        _logger.LogInformation("Character deleted: {CharacterId}", id);
+        return NoContent();
     }
 }

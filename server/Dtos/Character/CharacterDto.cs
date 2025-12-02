@@ -1,17 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace DragonGame.Dtos;
-
-public class UpdateCharacterDto
+public class CharacterDto
 {
-    public int Id { get; set; }
-
     [Required(ErrorMessage = "Head is required")]
-    [RegularExpression(@"^[\w-]+\.png$", ErrorMessage = "Head must be a valid image filename")]
     public string Head { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Body is required")]
-    [RegularExpression(@"^[\w-]+\.png$", ErrorMessage = "Body must be a valid image filename")]
     public string Body { get; set; } = string.Empty;
 
     [Range(1, int.MaxValue, ErrorMessage = "Invalid pose ID")]
