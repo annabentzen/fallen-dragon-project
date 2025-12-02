@@ -49,7 +49,7 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
   };
 
   const handleRestart = () => {
-    navigate("/", { replace: true });
+    navigate("/home", { replace: true });
   };
 
   useEffect(() => {
