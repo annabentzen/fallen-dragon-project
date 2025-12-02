@@ -1,48 +1,48 @@
-// Repositories/Repository.cs
 using DragonGame.Data;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace DragonGame.Repositories
+namespace DragonGame.Repositories;
+
+public class Repository<T> : IRepository<T> where T : class
 {
-    public class Repository<T> : IRepository<T> where T : class
+    protected readonly AppDbContext _context;
+    protected readonly DbSet<T> _dbSet;
+
+    public Repository(AppDbContext context)
     {
-        protected readonly AppDbContext _context;
-        protected readonly DbSet<T> _dbSet;
+        _context = context;
+        _dbSet = context.Set<T>();
+    }
 
-        public Repository(AppDbContext context)
+    public virtual async Task<T?> GetByIdAsync(int id)
+    {
+        return await _dbSet.FindAsync(id);
+    }
+
+    public virtual async Task<IEnumerable<T>> GetAllAsync()
+    {
+        return await _dbSet.ToListAsync();
+    }
+
+    public virtual async Task AddAsync(T entity)
+    {
+        await _dbSet.AddAsync(entity);
+        await _context.SaveChangesAsync();
+    }
+
+    public virtual async Task UpdateAsync(T entity)
+    {
+        _dbSet.Update(entity);
+        await _context.SaveChangesAsync();
+    }
+
+    public virtual async Task DeleteAsync(int id)
+    {
+        var entity = await _dbSet.FindAsync(id);
+        if (entity != null)
         {
-            _context = context;
-            _dbSet = context.Set<T>();
-        }
-
-        public virtual async Task<T?> GetByIdAsync(int id) => await _dbSet.FindAsync(id);
-
-        public virtual async Task<IEnumerable<T>> GetAllAsync() => await _dbSet.ToListAsync();
-
-        public virtual async Task AddAsync(T entity) => await _dbSet.AddAsync(entity);
-
-        public virtual void Update(T entity) => _dbSet.Update(entity);
-
-        public virtual void Delete(T entity) => _dbSet.Remove(entity);
-
-        public virtual async Task SaveChangesAsync() => await _context.SaveChangesAsync();
-
-        public virtual async Task UpdateAsync(T entity)
-        {
-            _context.Set<T>().Update(entity);
+            _dbSet.Remove(entity);
             await _context.SaveChangesAsync();
-        }
-
-        public virtual async Task DeleteAsync(int id)
-        {
-            var entity = await GetByIdAsync(id);
-            if (entity != null)
-            {
-                _dbSet.Remove(entity);
-                await _context.SaveChangesAsync();
-            }
         }
     }
 }
