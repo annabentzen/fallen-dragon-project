@@ -10,24 +10,23 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DragonGame.Tests.Services
 {
-    public class StoryServiceTests
+    public class PlayerSessionServiceTests
     {
         private readonly Mock<IStoryRepository> _storyRepoMock; // Mock of dependency
         private readonly Mock<IPlayerSessionRepository> _sessionRepoMock; // Mock of dependency
         private readonly Mock<ICharacterRepository> _characterRepoMock; // Mock of dependency
         private readonly Mock<IChoiceHistoryService> _choiceHistoryServiceMock;
 
-        private readonly StoryService _sut; // SUT = System Under Testing
-        public StoryServiceTests()
+        private readonly PlayerSessionService _sut; // SUT = System Under Testing
+        public PlayerSessionServiceTests()
         {
             // create and inject a mock repos for testing
             _storyRepoMock = new Mock<IStoryRepository>();
             _sessionRepoMock = new Mock<IPlayerSessionRepository>();
             _characterRepoMock = new Mock<ICharacterRepository>();
             _choiceHistoryServiceMock = new Mock<IChoiceHistoryService>();
-            AppDbContext contextStub = null!; // Has to be changed for methods that need DbContext.
 
-            _sut = new StoryService(_sessionRepoMock.Object, _storyRepoMock.Object, _characterRepoMock.Object, contextStub, _choiceHistoryServiceMock.Object);
+            _sut = new PlayerSessionService(_sessionRepoMock.Object, _characterRepoMock.Object, _choiceHistoryServiceMock.Object);
         }
 
         // HELPERS
