@@ -35,8 +35,8 @@ const bodyOptions = [
   "rogue-body.png"
 ];
 
-// Extract character type from body filename (e.g., "knight-body.png" -> "knight")
-  const characterType = body.split('-')[0]; // "knight", "mage", or "rogue"
+// Extract character type from body to filter compatible poses
+  const characterType = body.split('-')[0]; 
   
   // Filter poses to only show ones matching the current body type
   const availablePoses = poses.filter(pose => 
@@ -51,9 +51,6 @@ const bodyOptions = [
       onPoseChange(null);
     }
   }, [characterType, availablePoses, poseId, onPoseChange]);
-
-
-
 
   const currentHead = head; 
   const currentBody = body; 
@@ -75,10 +72,9 @@ const bodyOptions = [
     <div className={styles.container}>
       <h3 className={styles.header}>Customize Your Character</h3>
 
-     {/* Character preview with side arrows */}
       <div className={styles.characterSection}>
         
-        {/* Head arrows - TOP */}
+        {/* Head arrows */}
         <div className={styles.arrowRow}>
           <button 
             onClick={() => cycleOption(currentHead, headOptions, onHeadChange, 'prev')} 
@@ -97,9 +93,8 @@ const bodyOptions = [
           </button>
         </div>
 
-        {/* Character preview */}
         <div className={styles.previewContainer}>
-          {/* Body layer - only show if NO pose is selected */}
+          {/* Body hidden when pose selected since poses replaces default body */}
           {!poseId && (
             <img 
               src={`/images/avatar/body/${currentBody}`} 
@@ -108,22 +103,20 @@ const bodyOptions = [
             />
           )}
 
-          {/* Head layer - on top of body */}
           <img 
             src={`/images/avatar/heads/${currentHead}`} 
             alt="head" 
             className={styles.characterImage}
           />
 
-          {/* Pose image replaces body when selected */}
           {poseId && selectedPose && (
             <img
               src={`/images/avatar/poses/${selectedPose.imageUrl}`}
               alt="pose"
-className={`${styles.characterImage} ${styles[`pose${characterType.charAt(0).toUpperCase() + characterType.slice(1)}`]} ${selectedPose.name ? styles[`pose${selectedPose.name.replace(/\s+/g, '')}`] : ''}`}            />
+              className={`${styles.characterImage} ${styles[`pose${characterType.charAt(0).toUpperCase() + characterType.slice(1)}`]} ${selectedPose.name ? styles[`pose${selectedPose.name.replace(/\s+/g, '')}`] : ''}`}            />
           )}
 
-          {/* Body arrows - MIDDLE (overlaid on character) */}
+          {/* Body arrows overlaid on character */}
           <button 
             onClick={() => cycleOption(currentBody, bodyOptions, onBodyChange, 'prev')} 
             className={`${styles.arrowButtonOverlay} ${styles.arrowLeft}`}
@@ -140,7 +133,6 @@ className={`${styles.characterImage} ${styles[`pose${characterType.charAt(0).toU
           </button>
         </div>
 
-        {/* Info text - BOTTOM */}
         <div className={styles.arrowRow}>
           <div className={styles.infoText}>
             Mix and match heads and bodies!
@@ -148,7 +140,6 @@ className={`${styles.characterImage} ${styles[`pose${characterType.charAt(0).toU
         </div>
       </div>
 
-      {/* Pose selector */}
     <div className={styles.poseSection}>
       <label className={styles.poseLabel}>Pose ({characterType}):</label>
       <select

@@ -1,8 +1,8 @@
 using DragonGame.Models;
 
-namespace DragonGame.Repositories
+namespace DragonGame.Repositories;
+
+public interface ICharacterPoseRepository : IRepository<CharacterPose>
 {
-    public interface ICharacterPoseRepository : IRepository<CharacterPose>
-    {
-    }
+    Task<List<CharacterPose>> GetAllPosesAsync();
 }

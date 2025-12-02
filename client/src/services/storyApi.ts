@@ -24,7 +24,6 @@ export interface PlayerSessionDto {
   isCompleted: boolean;
 }
 
-// Helper function to create headers with auth token
 const getHeaders = () => {
   const token = getToken();
   return {
@@ -33,7 +32,6 @@ const getHeaders = () => {
   };
 };
 
-// Create new game session
 export const createSession = async (characterName: string, character: Character) => {
   const response = await fetch(`${API_BASE}/api/story/start`, {
     method: "POST",
@@ -52,7 +50,6 @@ export const createSession = async (characterName: string, character: Character)
   return response.json();
 };
 
-// Load current act
 export const getCurrentAct = async (sessionId: number): Promise<ActDto> => {
   console.log("[storyApi] Loading current act for session", sessionId);
   const response = await fetch(`${API_BASE}/api/story/currentAct/${sessionId}`, {
@@ -69,7 +66,6 @@ export const getCurrentAct = async (sessionId: number): Promise<ActDto> => {
   return act;
 };
 
-// Make a choice → go to next act
 export const makeChoice = async (sessionId: number, nextActNumber: number): Promise<ActDto> => {
   console.log("[storyApi] Choosing next act:", nextActNumber);
 
@@ -85,7 +81,6 @@ export const makeChoice = async (sessionId: number, nextActNumber: number): Prom
   return act;
 };
 
-// Get character (for display on story page)
 export const getCharacter = async (sessionId: number) => {
   console.log("[storyApi] Fetching character for session", sessionId);
   const response = await fetch(`${API_BASE}/api/story/${sessionId}/character`, {
@@ -97,7 +92,6 @@ export const getCharacter = async (sessionId: number) => {
   return data;
 };
 
-// Load the full session object (used for character name, etc.)
 export const getSession = async (sessionId: number): Promise<PlayerSessionDto> => {
   const response = await fetch(`${API_BASE}/api/story/session/${sessionId}`, {
     headers: getHeaders(),
@@ -106,12 +100,10 @@ export const getSession = async (sessionId: number): Promise<PlayerSessionDto> =
   return response.json();
 };
 
-// Legacy alias — some places still use this name
 export const getCharacterForSession = async (sessionId: number) => {
   return getCharacter(sessionId);
 };
 
-// Move to next act when a choice is made
 export const moveToNextAct = async (sessionId: number, nextActNumber: number): Promise<void> => {
   const response = await fetch(`${API_BASE}/api/story/nextAct/${sessionId}`, {
     method: "POST",
@@ -124,7 +116,6 @@ export const moveToNextAct = async (sessionId: number, nextActNumber: number): P
   }
 };
 
-// Update character appearance during the game (edit modal)
 export const updateCharacter = async (sessionId: number, character: any): Promise<void> => {
   const response = await fetch(`${API_BASE}/api/character/session/${sessionId}`, {
     method: "PUT",

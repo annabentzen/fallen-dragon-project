@@ -1,13 +1,17 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace DragonGame.Models
+namespace DragonGame.Models;
+
+public class Story
 {
-    public class Story
-    {
-        [Key]
-        public int StoryId { get; set; }
-        public string Title { get; set; } = null!;
-        public List<Act> Acts { get; set; } = null!;
-        public ICollection<PlayerSession> PlayerSessions { get; set; } = new List<PlayerSession>();
-    }
+    [Key]
+    public int StoryId { get; set; }
+
+    [Required]
+    [StringLength(100)]
+    public string Title { get; set; } = string.Empty;
+
+    public List<Act> Acts { get; set; } = new();
+
+    public ICollection<PlayerSession> PlayerSessions { get; set; } = new List<PlayerSession>();
 }

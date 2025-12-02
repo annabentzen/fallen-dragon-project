@@ -35,7 +35,7 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
   const navigate = useNavigate();
 
   
-  // ---------------- DETERMINE ENDING TYPE ----------------
+  // Act numbers map to correct story ending based on narrative branches
   const getEndingType = (actNumber: number): 
     'heroDeath' | 'dragonKilled' | 'tragedy' | 'ignored' | 'recovery' | 'guardian' | 'default' => 
   {
@@ -48,20 +48,16 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
     return "default";
   };
 
-  // ---------------- RESTART ----------------
   const handleRestart = () => {
     navigate("/", { replace: true });
   };
 
-  // ---------GET USERNAME ----------------
   useEffect(() => {
-  // Get username from playerSession after it loads
   if (playerSession) {
     setUsername(playerSession.characterName);
   }
 }, [playerSession]);
 
-  // ---------------- LOAD SESSION & CHARACTER ----------------
   useEffect(() => {
     const loadSession = async () => {
       try {
@@ -80,7 +76,6 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
     loadSession();
   }, [sessionId]);
 
-  // ---------------- LOAD CURRENT ACT ----------------
   const loadAct = async () => {
     setLoading(true);
     setErrorMsg(null);
@@ -121,7 +116,6 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
     if (sessionId) loadAct();
   }, [sessionId]);
 
-  // ---------------- FETCH POSES ----------------
   useEffect(() => {
     const fetchPoses = async () => {
       try {
@@ -134,7 +128,6 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
     fetchPoses();
   }, []);
 
-  // ---------------- HANDLE CHOICE ----------------
   const handleChoiceClick = async (nextActNumber: number) => {
     setLoading(true);
     try {
@@ -148,7 +141,6 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
     }
   };
 
-  // handle logout
   const handleLogout = () => {
   removeToken();
   navigate("/");
@@ -163,19 +155,16 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
 
 return (
   <div className={styles.storyContainer}>
-    {/* ==================== NAVBAR ==================== */}
     <nav className={styles.navbar}>
       <span className={styles.navbarTitle}>The Fallen Dragon</span>
 
       <div className={styles.navbarActions}>
-        {/* Show username */}
         {username && (
           <span className={styles.welcomeText}>
             Welcome, {username}!
           </span>
         )}
 
-        {/* Back to Home button */}
         {!isEnding && (
           <button
             onClick={() => navigate("/home")}
@@ -185,7 +174,6 @@ return (
           </button>
         )}
 
-        {/* Edit Character button */}
         {character && !isEnding && (
           <button
             onClick={() => setIsEditingCharacter(true)}
@@ -195,7 +183,6 @@ return (
           </button>
         )}
 
-        {/* Logout button */}
         <button
           onClick={handleLogout}
           className={styles.logoutButton}
@@ -205,7 +192,6 @@ return (
       </div>
     </nav>
 
-    {/* ==================== ENDING SCREEN ==================== */}
     {isEnding && currentAct && (
       <EndingScreen
         endingType={getEndingType(currentAct.actNumber)}
@@ -215,24 +201,17 @@ return (
       />
     )}
 
-    {/* ==================== NORMAL STORY CONTENT ==================== */}
     {!isEnding && currentAct && (
       <>
-        {/* Atmospheric overlay */}
         <div className={styles.atmosphereOverlay} />
-        
-        {/* Story Scene Container with Background */}
         <div className={styles.storyScene}>
-          {/* Top Center: Noteboard with Act Text */}
           <div className={styles.noteboardSection}>
-            {/* Noteboard Background */}
             <div className={styles.noteboardContainer}>
               <div className={styles.actText}>
                 {currentAct.text}
               </div>
             </div>
 
-            {/* Choice Buttons Below Noteboard */}
             <div className={styles.choicesContainer}>
               {choices.map((choice, index) => (
                 <div
@@ -249,7 +228,6 @@ return (
             </div>
           </div>
 
-          {/* Middle Right: Dragon Image */}
           <div className={styles.dragonSection}>
             <img
               src="/images/game-images/dragon/Death3.png"
@@ -258,19 +236,16 @@ return (
             />
           </div>
 
-          {/* Bottom Left: Character */}
           {playerSession && character && (
             <div className={styles.characterSection}>
-              {/* Character Name */}
               <div className={styles.characterNameBadge}>
                 <p className={styles.characterName}>
                   {playerSession.characterName}
                 </p>
               </div>
 
-              {/* Character Preview */}
               <div className={styles.characterPreview}>
-                {/* Body - only show if NO pose is selected */}
+                {/* Body only show if no pose is selected */}
                 {!character.poseId && character.body && (
                   <img
                     src={`/images/avatar/body/${character.body}`}
@@ -279,7 +254,6 @@ return (
                   />
                 )}
                 
-                {/* Head - always show */}
                 {character.head && (
                   <img
                     src={`/images/avatar/heads/${character.head}`}
@@ -288,7 +262,6 @@ return (
                   />
                 )}
                 
-                {/* Pose (replaces body when selected) */}
                 {character.poseId && selectedPose && (
                   <img
                     src={`/images/avatar/poses/${selectedPose.imageUrl}`}
@@ -301,7 +274,6 @@ return (
           )}
         </div>
 
-        {/* Character Edit Modal */}
         {isEditingCharacter && character && (
           <div
             className={styles.modalOverlay}

@@ -14,13 +14,11 @@ const RegisterPage: React.FC = () => {
     e.preventDefault();
     setError("");
 
-    // Validate passwords match
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
     }
 
-    // Validate password length
     if (password.length < 6) {
       setError("Password must be at least 6 characters");
       return;
@@ -29,15 +27,11 @@ const RegisterPage: React.FC = () => {
     setLoading(true);
 
     try {
-      // Call register API
       const response = await register({ username, password });
-      
-      // Save token to localStorage
       saveToken(response.token);
       
       console.log("Registration successful:", response.username);
       
-      // Navigate to home page
       navigate("/home");
     } catch (err: any) {
       setError(err.message || "Registration failed");

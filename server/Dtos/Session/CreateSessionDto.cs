@@ -1,11 +1,16 @@
-using DragonGame.Models;
+using System.ComponentModel.DataAnnotations;
 
-namespace DragonGame.Dtos
+namespace DragonGame.Dtos;
+
+public class CreateSessionDto
 {
-    public class CreateSessionDto
-    {
-        public int StoryId { get; set; }
-        public string CharacterName { get; set; } = string.Empty;
-         public Character Character { get; set; } = new Character();
-    }
+    [Range(1, int.MaxValue, ErrorMessage = "Invalid story ID")]
+    public int StoryId { get; set; }
+
+    [Required(ErrorMessage = "Character name is required")]
+    [StringLength(30, MinimumLength = 1, ErrorMessage = "Character name must be 1-30 characters")]
+    public string CharacterName { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Character is required")]
+    public CharacterDto Character { get; set; } = new();
 }

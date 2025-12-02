@@ -9,5 +9,5 @@ export interface CharacterPose {
   id: number;
   name: string;
   imageUrl: string;
-  characterType?: string; // knight, mage1, mage2 or rogue
+  characterType?: string; 
 }

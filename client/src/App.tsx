@@ -8,7 +8,6 @@ import LoginPage from "./components/LogInPage";
 import RegisterPage from "./components/RegisterPage";
 import { isAuthenticated } from "./services/authApi";
 
-// Protected Route Component - only allows access if user is logged in
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   return isAuthenticated() ? children : <Navigate to="/" />;
 };
@@ -18,11 +17,9 @@ const App: React.FC = () => {
     <AuthProvider>
     <Router>
       <Routes>
-        {/* Public routes - Login is now the landing page */}
         <Route path="/" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        {/* Protected routes - require authentication */}
         <Route 
           path="/home" 
           element={
@@ -55,19 +52,17 @@ const App: React.FC = () => {
   );
 };
 
-// Wrapper for EndingScreen to handle navigation
 const EndingScreenWrapper: React.FC = () => {
   const navigate = useNavigate();
   const { sessionId } = useParams<{ sessionId: string }>();
 
   const handleRestart = () => {
-    navigate('/home'); // Navigate back to home to start a new session
+    navigate('/home'); 
   };
 
   return <EndingScreen onRestart={handleRestart} endingType={'default'} endingText={''} />;
 };
 
-// Wrapper to pass sessionId from URL to StoryPage
 const StoryPageWrapper: React.FC = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
 
