@@ -24,7 +24,7 @@ namespace DragonGame.Tests.Services
             {
                 Id = id,
                 Head = head ?? $"knight-head.png",
-                Body = body ?? $"knight1-pose1.png",
+                Body = body ?? $"knight-body.png",
                 PoseId = pose ?? id,
             };
         }
