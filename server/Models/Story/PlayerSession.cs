@@ -1,39 +1,44 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace DragonGame.Models
+namespace DragonGame.Models;
+
+/// <summary>
+/// Represents a single playthrough of a story by a user.
+/// </summary>
+public class PlayerSession
 {
-    public class PlayerSession
-    {
-        [Key]
-        public int SessionId { get; set; }
+    [Key]
+    public int SessionId { get; set; }
 
-        [Required]
-        public string CharacterName { get; set; } = string.Empty;
+    [Required]
+    [StringLength(30)]
+    public string CharacterName { get; set; } = string.Empty;
 
-        [Required]
-        public int CharacterId { get; set; } // FK to Character
+    [ForeignKey(nameof(User))]
+    public int UserId { get; set; }
 
-        [ForeignKey(nameof(CharacterId))]
-        public Character Character { get; set; } = null!;
+    public User? User { get; set; }
 
-        [Required]
-        public int StoryId { get; set; }
+    [ForeignKey(nameof(Character))]
+    public int CharacterId { get; set; }
 
-        public Story Story { get; set; } = null!;
+    public Character Character { get; set; } = null!;
 
-        [Required]
-        public int CurrentActNumber { get; set; } = 1;
-        
-        [ForeignKey("CurrentActNumber")]
-        public Act? CurrentAct { get; set; }
+    [ForeignKey(nameof(Story))]
+    public int StoryId { get; set; }
 
-        [Required]
-        public bool IsCompleted { get; set; } = false;
+    public Story Story { get; set; } = null!;
 
-        // Navigation property for ChoiceHistory
-        public ICollection<ChoiceHistory> Choices { get; set; } = new List<ChoiceHistory>();
-    }
+    /// <summary>
+    /// References ActNumber (not ActId) to track position in branching narrative.
+    /// </summary>
+    public int CurrentActNumber { get; set; } = 1;
+
+    public Act? CurrentAct { get; set; }
+
+    public bool IsCompleted { get; set; }
+
+    public ICollection<ChoiceHistory> Choices { get; set; } = new List<ChoiceHistory>();
 }
-
 

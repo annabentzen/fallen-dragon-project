@@ -33,11 +33,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = (userId: number, username: string, newToken: string) => {
     const userData = { userId, username };
     
-    // Save in state
     setUser(userData);
     setToken(newToken);
     
-    // Save in localStorage (so the user stays logged in)
     localStorage.setItem('token', newToken);
     localStorage.setItem('user', JSON.stringify(userData));
   };
@@ -58,7 +56,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
 };
 
-// Custom hook for easier access to AuthContext
+// Throws an error if used outside of AuthProvider
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

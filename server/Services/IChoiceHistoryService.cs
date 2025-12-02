@@ -1,10 +1,9 @@
 using DragonGame.Models;
 
-namespace DragonGame.Services
+namespace DragonGame.Services;
+
+public interface IChoiceHistoryService
 {
-    public interface IChoiceHistoryService
-    {
-        Task<IEnumerable<ChoiceHistory>> GetChoicesBySessionIdAsync(int sessionId);
-        Task AddChoiceAsync(ChoiceHistory choice);
-    }
+    Task<IEnumerable<ChoiceHistory>> GetChoicesBySessionIdAsync(int sessionId);
+    Task AddChoiceAsync(ChoiceHistory choice);
 }

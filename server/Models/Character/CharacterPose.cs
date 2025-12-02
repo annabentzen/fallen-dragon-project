@@ -1,14 +1,23 @@
-namespace DragonGame.Models
+using System.ComponentModel.DataAnnotations;
+
+namespace DragonGame.Models;
+
+public class CharacterPose
 {
-    public class CharacterPose
-    {
-        public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string ImageUrl { get; set; } = string.Empty;
-        public string? CharacterType { get; set; } // "knight", "mage", or "rogue"
-    
-        public ICollection<Character> Characters { get; set; } = new List<Character>();
+    [Key]
+    public int Id { get; set; }
 
-    }
+    [Required]
+    [StringLength(50)]
+    public string Name { get; set; } = string.Empty;
+
+    [Required]
+    public string ImageUrl { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Restricts pose to specific character types ("knight", "mage1", "mage2", "rogue").
+    /// </summary>
+    public string? CharacterType { get; set; }
+
+    public ICollection<Character> Characters { get; set; } = new List<Character>();
 }
-
