@@ -13,12 +13,12 @@ namespace DragonGame.Controllers;
 [Authorize]
 public class PlayerSessionController : ControllerBase
 {
-    private readonly PlayerSessionService _service;
+    private readonly IPlayerSessionService _service;
     private readonly AppDbContext _context;
     private readonly ILogger<PlayerSessionController> _logger;
 
     public PlayerSessionController(
-        PlayerSessionService service, 
+        IPlayerSessionService service, 
         AppDbContext context,
         ILogger<PlayerSessionController> logger)
     {
@@ -56,4 +56,42 @@ public class PlayerSessionController : ControllerBase
 
         return Ok(session.Character);
     }
+
+   [HttpDelete("{sessionId}")]
+public async Task<ActionResult> DeleteSession(int sessionId)
+{
+    // Debug: Log all claims
+    _logger.LogInformation("All claims: {Claims}", 
+        string.Join(", ", User.Claims.Select(c => $"{c.Type}={c.Value}")));
+    
+    var userIdClaim = User.FindFirst("userId")?.Value 
+        ?? User.FindFirst("sub")?.Value 
+        ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    
+    _logger.LogInformation("Extracted userId: {UserId}, sessionId requested: {SessionId}", 
+        userIdClaim, sessionId);
+    
+    if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+    {
+        _logger.LogWarning("Unauthorized delete attempt for session {SessionId}", sessionId);
+        return Unauthorized(new { message = "Invalid user token" });
+    }
+
+    // Debug: Check if session exists at all
+    var sessionExists = await _context.PlayerSessions.AnyAsync(s => s.SessionId == sessionId);
+    var sessionWithUser = await _context.PlayerSessions.AnyAsync(s => s.SessionId == sessionId && s.UserId == userId);
+    _logger.LogInformation("Session {SessionId} exists: {Exists}, belongs to user {UserId}: {BelongsToUser}", 
+        sessionId, sessionExists, userId, sessionWithUser);
+
+    var deleted = await _service.DeleteSessionAsync(sessionId, userId);
+    
+    if (!deleted)
+    {
+        _logger.LogWarning("Delete failed for session {SessionId}, user {UserId}", sessionId, userId);
+        return NotFound(new { message = "Session not found or access denied" });
+    }
+
+    _logger.LogInformation("Session {SessionId} deleted by user {UserId}", sessionId, userId);
+    return NoContent();
+}
 }

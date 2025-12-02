@@ -127,3 +127,14 @@ export const updateCharacter = async (sessionId: number, character: any): Promis
     throw new Error(`Failed to update character: ${err}`);
   }
 };
+
+export const deleteSession = async (sessionId: number): Promise<void> => {
+  const response = await fetch(`${API_BASE}/api/PlayerSession/${sessionId}`, {
+    method: 'DELETE',
+    headers: getHeaders(), 
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to delete session');
+  }
+};

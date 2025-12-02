@@ -13,17 +13,14 @@ const LoginPage: React.FC = () => {
     e.preventDefault();
     setError("");
     setLoading(true);
-
+ 
     try {
-      // Call login API
       const response = await login({ username, password });
       
-      // Save token to localStorage
       saveToken(response.token);
       
       console.log("Login successful:", response.username);
       
-      // Navigate to home page (character creation)
       navigate("/home");
     } catch (err: any) {
       setError(err.message || "Login failed");

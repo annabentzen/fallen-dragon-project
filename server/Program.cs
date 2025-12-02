@@ -68,6 +68,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 // ---------------------- Dependency Injection ----------------------
+builder.Services.AddScoped<AppDbContext>();
 
 // Register generic repository for all entities
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));

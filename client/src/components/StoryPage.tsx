@@ -197,7 +197,7 @@ return (
         endingType={getEndingType(currentAct.actNumber)}
         endingText={currentAct.text}
         onRestart={handleRestart}
-        navigate={navigate} 
+        sessionId={sessionId} 
       />
     )}
 
