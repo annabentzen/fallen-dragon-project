@@ -44,4 +44,29 @@ public class PlayerSessionRepository : Repository<PlayerSession>, IPlayerSession
     {
         return _dbSet.AsQueryable();
     }
+
+    public async Task<bool> DeleteAsync(int sessionId, int userId)
+{
+    var session = await _dbSet
+        .Include(s => s.Character)
+        .Include(s => s.Choices)
+        .FirstOrDefaultAsync(s => s.SessionId == sessionId && s.UserId == userId);
+
+    if (session == null) return false;
+
+    if (session.Choices?.Any() == true)
+    {
+        _context.ChoiceHistories.RemoveRange(session.Choices);
+    }
+
+    if (session.Character != null)
+    {
+        _context.Characters.Remove(session.Character);
+    }
+
+    _dbSet.Remove(session);
+    await _context.SaveChangesAsync();
+    return true;
+}
+
 }

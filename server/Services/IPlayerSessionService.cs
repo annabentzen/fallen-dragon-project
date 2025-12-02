@@ -11,5 +11,5 @@ public interface IPlayerSessionService
     Task<Character?> GetCharacterForSessionAsync(int sessionId);
     Task<PlayerSession?> UpdateCharacterAsync(int sessionId, Character character);
     Task<PlayerSession?> MoveToNextActAsync(int sessionId, int nextActNumber);
-
+    Task<bool> DeleteSessionAsync(int sessionId, int userId);
 }

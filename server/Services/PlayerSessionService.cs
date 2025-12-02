@@ -147,4 +147,10 @@ public class PlayerSessionService : IPlayerSessionService
 
         return session;
     }
+
+    public async Task<bool> DeleteSessionAsync(int sessionId, int userId)
+    {
+        return await _sessionRepo.DeleteAsync(sessionId, userId);
+    }
+
 }
