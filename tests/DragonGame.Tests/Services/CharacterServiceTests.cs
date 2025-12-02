@@ -17,10 +17,9 @@ namespace DragonGame.Tests.Services
             _sut = new CharacterService(_characterRepoMock.Object);
         }
 
-        // HELPER
+        /* ------------ HELPERS ------------ */
         private Character CreateValidCharacterById(int id, string? head = null, string? body = null, int? pose = null)
         {
-            // this helper needs some change to allow for differences in more than just ID
             return new Character
             {
                 Id = id,
@@ -30,7 +29,9 @@ namespace DragonGame.Tests.Services
             };
         }
 
-        // CREATE
+
+        /* ----------- TESTS ------------ */
+        /* ---- CREATE ---- */
         [Fact]
         public async Task CreateAsync_ValidChar_CallsAddReturnsChar()
         {
@@ -61,7 +62,7 @@ namespace DragonGame.Tests.Services
             _characterRepoMock.Verify(repo => repo.AddAsync(character), Times.Once);
         }
 
-        // READ
+        /* ---- READ ---- */
         [Fact]
         public async Task GetAllAsync__WhenCharExists_ReturnsAll()
         {
@@ -131,7 +132,7 @@ namespace DragonGame.Tests.Services
             _characterRepoMock.Verify(repo => repo.GetByIdAsync(9999), Times.Once);
         }
 
-        // UPDATE
+        /* ---- UPDATE ---- */
         [Fact]
         public async Task UpdateAsync_Exists_UpdateFieldsAndReturnsChar()
         {
@@ -170,7 +171,7 @@ namespace DragonGame.Tests.Services
         }
 
 
-        // DELETE
+        /* ---- DELETE ---- */
         [Fact]
         public async Task DeleteAsync_Exist_DeleteCharReturnTrue()
         {

@@ -1,28 +1,24 @@
-using DragonGame.Data;
 using DragonGame.Repositories;
 using DragonGame.Models;
 using DragonGame.Services;
 using Moq;
 using FluentAssertions;
-using Microsoft.Identity.Client;
-using System.IO.Compression;
-using Microsoft.EntityFrameworkCore.Migrations;
-using Castle.Core.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace DragonGame.Tests.Services
 {
     public class PlayerSessionServiceTests
     {
-        private readonly Mock<ILogger<PlayerSessionService>> _loggerMock; // Mock of dependency
-        private readonly Mock<IPlayerSessionRepository> _sessionRepoMock; // Mock of dependency
-        private readonly Mock<ICharacterRepository> _characterRepoMock; // Mock of dependency
+        // MockS of dependencies
+        private readonly Mock<ILogger<PlayerSessionService>> _loggerMock;
+        private readonly Mock<IPlayerSessionRepository> _sessionRepoMock;
+        private readonly Mock<ICharacterRepository> _characterRepoMock;
         private readonly Mock<IChoiceHistoryService> _choiceHistoryServiceMock;
 
         private readonly PlayerSessionService _sut; // SUT = System Under Testing
         public PlayerSessionServiceTests()
         {
-            // create and inject a mock repos for testing
+            // create and inject a mocks
             _loggerMock = new Mock<ILogger<PlayerSessionService>>();
             _sessionRepoMock = new Mock<IPlayerSessionRepository>();
             _characterRepoMock = new Mock<ICharacterRepository>();
@@ -31,7 +27,7 @@ namespace DragonGame.Tests.Services
             _sut = new PlayerSessionService(_sessionRepoMock.Object, _characterRepoMock.Object, _choiceHistoryServiceMock.Object, _loggerMock.Object);
         }
 
-        // HELPERS
+        /* ------------ HELPERS ------------ */
         private List<Choice> defaultChoices = new List<Choice>
          {
                     new Choice
@@ -82,8 +78,21 @@ namespace DragonGame.Tests.Services
             };
         }
 
-        // TESTS 
+        /* ------------ TESTS ------------ */
+        /* ---- CREATE ---- */
+        [Fact]
+        public async Task TestName()
+        {
+            // Given
 
+            // When
+
+            // Then
+        }
+
+
+
+        /* ---- UPDATE ---- */
         [Fact]
         public async Task MoveToNextActAsync_SessionFound_MatchingChoice_SaveHistoryUpdateSession()
         {
@@ -179,7 +188,6 @@ namespace DragonGame.Tests.Services
             result.Should().NotBeNull();
             result!.SessionId.Should().Be(1);
             result.IsCompleted.Should().BeTrue();
-            // result.CurrentActNumber.Should().Be(0);  // <---- CHECK IF SHOULD ACTUALLY CHANGE TO GIVEN "nextActNumber"
             _sessionRepoMock.Verify(repo => repo.GetWithChoicesAsync(1), Times.Once);
             _sessionRepoMock.Verify(repo => repo.UpdateAsync(session), Times.Once);
             _choiceHistoryServiceMock.Verify(service => service.AddChoiceAsync(It.Is<ChoiceHistory>(h => h.PlayerSessionId == 1 && h.ActNumber == 1 && h.ChoiceId == 666)), Times.Once);
