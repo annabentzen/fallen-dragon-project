@@ -13,7 +13,7 @@ export default function Home() {
 
   const [characterName, setCharacterName] = useState("");
   const [character, setCharacter] = useState<Character>({
-    head: "mage-head1.png",
+    head: "mage1-head.png",
     body: "knight-body.png",
     poseId: null,
     id: 0, 

@@ -85,7 +85,7 @@ public class PlayerSessionService : IPlayerSessionService
         return session?.Character;
     }
 
-    public async Task UpdateCharacterAsync(int sessionId, Character updatedCharacter)
+    public async Task<PlayerSession?> UpdateCharacterAsync(int sessionId, Character updatedCharacter)
     {
         var session = await _sessionRepo.GetWithCharacterAsync(sessionId);
         if (session?.Character == null)
@@ -100,6 +100,8 @@ public class PlayerSessionService : IPlayerSessionService
         await _characterRepo.UpdateAsync(session.Character);
 
         _logger.LogInformation("Character updated for session {SessionId}", sessionId);
+
+        return session;
     }
 
     public async Task<PlayerSession?> MoveToNextActAsync(int sessionId, int nextActNumber)

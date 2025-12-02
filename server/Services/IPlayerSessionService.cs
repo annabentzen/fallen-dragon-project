@@ -9,7 +9,7 @@ public interface IPlayerSessionService
     Task<PlayerSession?> GetSessionAsync(int sessionId);
     Task<PlayerSessionDto?> GetSessionDtoAsync(int sessionId);
     Task<Character?> GetCharacterForSessionAsync(int sessionId);
-    Task UpdateCharacterAsync(int sessionId, Character character);
+    Task<PlayerSession?> UpdateCharacterAsync(int sessionId, Character character);
     Task<PlayerSession?> MoveToNextActAsync(int sessionId, int nextActNumber);
 
 }

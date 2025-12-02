@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using DragonGame.Data;
 using DragonGame.Dtos;
+using DragonGame.Dtos.Story;
 using DragonGame.Models;
 using DragonGame.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -14,18 +15,15 @@ namespace DragonGame.Controllers;
 [Authorize]
 public class StoryController : ControllerBase
 {
-    private readonly IStoryService _storyService;
     private readonly AppDbContext _context;
     private readonly IPlayerSessionService _sessionService;
     private readonly ILogger<StoryController> _logger;
 
     public StoryController(
-        IStoryService storyService, 
         IPlayerSessionService sessionService, 
         AppDbContext context,
         ILogger<StoryController> logger)
     {
-        _storyService = storyService;
         _sessionService = sessionService;
         _context = context;
         _logger = logger;
@@ -89,7 +87,7 @@ public class StoryController : ControllerBase
     [HttpGet("{sessionId}/character")]
     public async Task<ActionResult<Character>> GetCharacterForSession(int sessionId)
     {
-        var character = await _storyService.GetCharacterForSessionAsync(sessionId);
+        var character = await _sessionService.GetCharacterForSessionAsync(sessionId);
         
         if (character == null)
         {
@@ -111,7 +109,7 @@ public class StoryController : ControllerBase
             PoseId = dto.PoseId
         };
 
-        var updatedSession = await _storyService.UpdateCharacterAsync(sessionId, character);
+        var updatedSession = await _sessionService.UpdateCharacterAsync(sessionId, character);
         
         if (updatedSession == null)
         {
@@ -185,14 +183,14 @@ public class StoryController : ControllerBase
     }
 
     [HttpPost("nextAct/{sessionId}")]
-    public async Task<IActionResult> NextAct(int sessionId, [FromBody] NextActRequest request)
+    public async Task<IActionResult> NextAct(int sessionId, [FromBody] NextActRequestDto request)
     {
         _logger.LogInformation(
             "Session {SessionId} advancing to act {NextActNumber}", 
             sessionId, 
             request.NextActNumber);
 
-        var session = await _storyService.MoveToNextActAsync(sessionId, request.NextActNumber);
+        var session = await _sessionService.MoveToNextActAsync(sessionId, request.NextActNumber);
         
         if (session == null)
         {

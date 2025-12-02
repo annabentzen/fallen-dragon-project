@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using DragonGame.Data;
 using DragonGame.Dtos;
 using DragonGame.Models;
-using server.Services.Interfaces;
+using DragonGame.Services;
 
 namespace DragonGame.Controllers;
 
