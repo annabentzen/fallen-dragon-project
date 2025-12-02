@@ -14,6 +14,7 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
     <PackageReference Include="Moq" Version="4.20.69" />
     <PackageReference Include="FluentAssertions" Version="6.12.0" />
+    <PackageReference Include="Microsoft.EntityFrameWorkCore.InMemory" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>

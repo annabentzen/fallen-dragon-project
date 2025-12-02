@@ -5,8 +5,6 @@ using DragonGame.Dtos;
 using Moq;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using System.IO.Compression;
-using System.Threading.Tasks;
 
 namespace DragonGame.Tests.Services
 {
