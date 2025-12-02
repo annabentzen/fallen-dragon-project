@@ -15,12 +15,12 @@ public class PlayerSessionService : IPlayerSessionService
     public PlayerSessionService(
         IPlayerSessionRepository sessionRepo,
         ICharacterRepository characterRepo,
-        IChoiceHistoryService choiceHistoryService, 
+        IChoiceHistoryService choiceHistoryService,
         ILogger<PlayerSessionService> logger)
     {
         _sessionRepo = sessionRepo;
         _characterRepo = characterRepo;
-        _choiceHistoryService = choiceHistoryService; 
+        _choiceHistoryService = choiceHistoryService;
         _logger = logger;
     }
 
@@ -47,8 +47,8 @@ public class PlayerSessionService : IPlayerSessionService
         await _sessionRepo.AddAsync(session);
 
         _logger.LogInformation(
-            "Session {SessionId} created for user {UserId}", 
-            session.SessionId, 
+            "Session {SessionId} created for user {UserId}",
+            session.SessionId,
             userId);
 
         return session;
@@ -116,22 +116,21 @@ public class PlayerSessionService : IPlayerSessionService
         var selectedChoice = session.CurrentAct.Choices
             ?.FirstOrDefault(c => c.NextActNumber == nextActNumber);
 
-        if (selectedChoice != null)
+        if (selectedChoice == null) throw new InvalidOperationException("Next Act does not match choice");
+        var historyEntry = new ChoiceHistory
         {
-            var historyEntry = new ChoiceHistory
-            {
-                PlayerSessionId = session.SessionId,
-                ActNumber = session.CurrentAct.ActNumber,
-                ChoiceId = selectedChoice.ChoiceId,
-                MadeAt = DateTime.UtcNow
-            };
+            PlayerSessionId = session.SessionId,
+            ActNumber = session.CurrentAct.ActNumber,
+            ChoiceId = selectedChoice.ChoiceId,
+            MadeAt = DateTime.UtcNow
+        };
 
-            await _choiceHistoryService.AddChoiceAsync(historyEntry);
-            
-            _logger.LogInformation(
-                "Choice recorded: Session {SessionId}, Act {ActNumber} → Choice {ChoiceId}",
-                sessionId, historyEntry.ActNumber, selectedChoice.ChoiceId);
-        }
+        await _choiceHistoryService.AddChoiceAsync(historyEntry);
+
+        _logger.LogInformation(
+            "Choice recorded: Session {SessionId}, Act {ActNumber} → Choice {ChoiceId}",
+            sessionId, historyEntry.ActNumber, selectedChoice.ChoiceId);
+
 
         if (nextActNumber <= 0)
         {
