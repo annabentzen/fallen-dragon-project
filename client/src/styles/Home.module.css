@@ -13,7 +13,7 @@
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--spacing-xl) var(--spacing-lg);
+  padding: var(--spacing-lg) var(--spacing-lg);
   animation: fadeIn 0.6s ease forwards;
   min-height: 100vh;
   display: flex;
@@ -73,6 +73,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: var(--spacing-lg);
   background: rgba(250, 248, 243, 0.98);
   padding: var(--spacing-lg);
@@ -149,9 +150,10 @@
 .rightColumn {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: var(--spacing-xl);
+  align-items: center;
   height: 100%;
+  padding-top: 60px;
+  padding-left: 20px;
 }
 
 /* Mission briefing box */
@@ -198,14 +200,20 @@
    ======================================== */
 
 .errorMessage {
-  background-color: var(--color-error-bg);
-  color: var(--color-error);
+  background: linear-gradient(135deg, #2c1810 0%, #4a2c1f 100%);
+  color: #ffddaa;
   border-radius: var(--radius-md);
-  border-left: 3px solid var(--color-error);
-  font-weight: var(--font-weight-medium);
+  border: 2px solid #8b6f47;
+  font-weight: var(--font-weight-base);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.5px;
   width: 100%;
   max-width: 200px;
   text-align: center;
+  /* overlay on top of content */
+  position: absolute;
+  top: 45%;
+  z-index: 100;
 }
 
 .errorMessage::before {
@@ -230,15 +238,14 @@
 }
 
 .label {
-  font-weight: var(--font-weight-bold);
-  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-base);
+  font-size: var(--font-size-lg);
   font-family: inherit;
-  text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 1px;
   text-align: center;
-  color: var(--color-game-text-gold);
+  color: var(--color-game-text-primary);
   margin: 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(255, 215, 0, 0.3);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), rgba(255, 215, 0, 0.3);
   padding: var(--spacing-xs);
 }
 

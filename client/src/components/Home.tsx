@@ -82,11 +82,13 @@ export default function Home() {
           <div className={styles.leftColumn}>
             <h2 className={styles.header}>Change your look</h2>
             {/* Hero Name Input */}
+
             <div className={styles.heroNameSection}>
-              <label className={styles.label}></label>
+              <label className={styles.label}>Who are you, hero...</label>
+
               <input
                 type="text"
-                placeholder="Enter hero-name"
+                placeholder="Hero-name"
                 value={characterName}
                 onChange={(e) => setCharacterName(e.target.value)}
                 className={styles.input}
