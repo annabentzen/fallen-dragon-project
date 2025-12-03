@@ -449,6 +449,33 @@ namespace DragonGame.Tests.Services
 
 
         /* ---- DELETE ---- */
+        [Fact]
+        public async Task DeleteSessionAsync_WhenRepoTrue_ReturnTrue()
+        {
+            // Given
+            var session = CreateMockSession(defaultChoices, 7, 111, 1, null, 12);
+            _sessionRepoMock.Setup(r => r.DeleteAsync(session.SessionId, session.UserId)).ReturnsAsync(true);
 
+            // When
+            var result = await _sut.DeleteSessionAsync(session.SessionId, session.UserId);
+
+            // Then
+            result.Should().BeTrue();
+            _sessionRepoMock.Verify(r => r.DeleteAsync(session.SessionId, session.UserId), Times.Once);
+        }
+        [Fact]
+        public async Task DeleteSessionAsync_WhenRepoFalse_ReturnFalse()
+        {
+            // Given
+            var session = CreateMockSession(defaultChoices, 9, 113, 2, null, 14);
+            _sessionRepoMock.Setup(r => r.DeleteAsync(session.SessionId, session.UserId)).ReturnsAsync(false);
+
+            // When
+            var result = await _sut.DeleteSessionAsync(session.SessionId, session.UserId);
+
+            // Then
+            result.Should().BeFalse();
+            _sessionRepoMock.Verify(r => r.DeleteAsync(session.SessionId, session.UserId), Times.Once);
+        }
     }
 }
