@@ -1,29 +1,27 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace DragonGame.Models
+namespace DragonGame.Models;
+
+/// <summary>
+/// Records each choice a player makes during a session for replay and analytics functionalities
+/// </summary>
+public class ChoiceHistory
 {
-    public class ChoiceHistory
-    {
-        [Key]
-        public int Id { get; set; }
+    [Key]
+    public int Id { get; set; }
 
-        [Required]
-        public int PlayerSessionId { get; set; }
+    [ForeignKey(nameof(PlayerSession))]
+    public int PlayerSessionId { get; set; }
 
-        [ForeignKey(nameof(PlayerSessionId))]
-        public PlayerSession PlayerSession { get; set; } = null!;
+    public PlayerSession PlayerSession { get; set; } = null!;
 
-        [Required]
-        public int ActNumber { get; set; }
+    public int ActNumber { get; set; }
 
-        [Required]
-        public int ChoiceId { get; set; }
+    [ForeignKey(nameof(Choice))]
+    public int ChoiceId { get; set; }
 
-        [ForeignKey(nameof(ChoiceId))]
-        public Choice Choice { get; set; } = null!;
+    public Choice Choice { get; set; } = null!;
 
-        [Required]
-        public DateTime MadeAt { get; set; } = DateTime.UtcNow;
-    }
+    public DateTime MadeAt { get; set; } = DateTime.UtcNow;
 }

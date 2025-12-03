@@ -1,11 +1,11 @@
-// src/components/EndingScreen.tsx
 import React from 'react';
 import styles from '../styles/Ending.module.css';
-import { NavigateFunction } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { deleteSession } from '../services/storyApi';
 
 interface EndingScreenProps {
   onRestart: () => void;
-  navigate?: NavigateFunction;  // Make it optional
+  sessionId: number;
   endingType: 'heroDeath' | 'dragonKilled' | 'tragedy' | 'ignored' | 'recovery' | 'guardian' | 'default';
   endingText: string;
 }
@@ -30,22 +30,51 @@ const subtitles: Record<string, string> = {
   default: "Thank you for playing."
 };
 
-const EndingScreen: React.FC<EndingScreenProps> = ({ onRestart, endingType, endingText }) => {
+const EndingScreen: React.FC<EndingScreenProps> = ({ onRestart, sessionId, endingType, endingText }) => {
   const title = titles[endingType] ?? titles.default;
   const subtitle = subtitles[endingType] ?? subtitles.default;
+  const navigate = useNavigate();
 
-  const handleClick = () => {
-    console.log("Play Again clicked!"); // Debug log
-    onRestart();
+  // Debug
+  console.log('EndingScreen - sessionId:', sessionId);
+
+  const handleDeletePlaythrough = async () => {
+    if (!sessionId || sessionId <= 0) {
+      console.warn('Delete blocked: invalid sessionId', sessionId);
+      alert('This playthrough cannot be deleted.');
+      return;
+    }
+
+    if (!window.confirm('Permanently delete this playthrough?')) return;
+
+    try {
+      await deleteSession(sessionId);
+      navigate('/home');
+    } catch (error) {
+      console.error('Failed to delete session:', error);
+      alert('Failed to delete. Please try again later.');
+    }
   };
 
-  return (
+  const canDelete = sessionId > 0;
+
+return (
     <div className={`${styles.endingContainer} ${styles[`ending--${endingType}`]}`}>
       <h1 className={styles.title}>{title}</h1>
       <p className={styles.subtitle}>{subtitle}</p>
       <p className={styles.endingText}>{endingText}</p>
-      <button onClick={handleClick} className={styles.restartButton}>
+      
+      <button onClick={onRestart} className={styles.restartButton}>
         Play Again
+      </button>
+      
+      <button
+        onClick={handleDeletePlaythrough}
+        className={styles.deleteButton}
+        disabled={!canDelete}
+        title={canDelete ? 'Permanently delete this playthrough' : 'Nothing to delete'}
+      >
+        Clear This Playthrough
       </button>
     </div>
   );

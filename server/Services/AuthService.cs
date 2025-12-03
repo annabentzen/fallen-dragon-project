@@ -2,132 +2,71 @@ using DragonGame.Data;
 using DragonGame.Dtos.Auth;
 using DragonGame.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
-namespace DragonGame.Services
+namespace DragonGame.Services;
+
+public class AuthService : IAuthService
 {
-    /// <summary>
-    /// Handles user authentication, registration, and JWT token generation
-    /// </summary>
-    public class AuthService : IAuthService
+    private readonly AppDbContext _context;
+    private readonly IJwtService _jwtService;
+    private readonly ILogger<AuthService> _logger;
+
+    public AuthService(
+        AppDbContext context, 
+        IJwtService jwtService,
+        ILogger<AuthService> logger)
     {
-        private readonly AppDbContext _context;
-        private readonly IConfiguration _configuration;
+        _context = context;
+        _jwtService = jwtService;
+        _logger = logger;
+    }
 
-        public AuthService(AppDbContext context, IConfiguration configuration)
+    public async Task<AuthResponseDto?> RegisterAsync(RegisterDto dto)
+    {
+        if (await _context.Users.AnyAsync(u => u.Username == dto.Username))
         {
-            _context = context;
-            _configuration = configuration;
+            _logger.LogWarning("Registration failed - username exists: {Username}", dto.Username);
+            return null;
         }
 
-        /// <summary>
-        /// Register a new user with hashed password
-        /// </summary>
-        public async Task<AuthResponseDto?> RegisterAsync(RegisterDto registerDto)
+        var user = new User
         {
-            // check if username is already taken
-            var existingUser = await _context.Users
-                .FirstOrDefaultAsync(u => u.Username == registerDto.Username);
+            Username = dto.Username,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+            CreatedAt = DateTime.UtcNow
+        };
 
-            if (existingUser != null)
-            {
-                return null; // Username is already taken
-            }
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
 
-            // Hash the password with BCrypt
-            var passwordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password);
+        _logger.LogInformation("User registered: {Username} (ID: {UserId})", user.Username, user.UserId);
 
-            // Create new user
-            var user = new User
-            {
-                Username = registerDto.Username,
-                PasswordHash = passwordHash,
-                CreatedAt = DateTime.UtcNow
-            };
+        return new AuthResponseDto
+        {
+            UserId = user.UserId,
+            Username = user.Username,
+            Token = _jwtService.GenerateToken(user)
+        };
+    }
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+    public async Task<AuthResponseDto?> LoginAsync(LoginDto dto)
+    {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Username == dto.Username);
 
-            // Generer JWT token
-            var token = GenerateJwtToken(user);
-
-            return new AuthResponseDto
-            {
-                UserId = user.UserId,
-                Username = user.Username,
-                Token = token
-            };
+        if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
+        {
+            _logger.LogWarning("Login failed for: {Username}", dto.Username);
+            return null;
         }
 
-        /// <summary>
-        /// Login user and return JWT token if credentials are valid
-        /// </summary>
-        public async Task<AuthResponseDto?> LoginAsync(LoginDto loginDto)
+        _logger.LogInformation("User logged in: {Username}", user.Username);
+
+        return new AuthResponseDto
         {
-            // Find user by username
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Username == loginDto.Username);
-
-            if (user == null)
-            {
-                return null; // User not found
-            }
-
-            // Verify password
-            var isPasswordValid = BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash);
-
-            if (!isPasswordValid)
-            {
-                return null; // Invalid password
-            }
-
-            // Generate JWT token
-            var token = GenerateJwtToken(user);
-
-            return new AuthResponseDto
-            {
-                UserId = user.UserId,
-                Username = user.Username,
-                Token = token
-            };
-        }
-
-        /// <summary>
-        /// Generate JWT token for authenticated user
-        /// </summary>
-        private string GenerateJwtToken(User user)
-        {
-            // Get JWT settings from appsettings.json
-            var jwtKey = _configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not configured");
-            var jwtIssuer = _configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("JWT Issuer not configured");
-
-            // Create claims (user info to be included in the token)
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(JwtRegisteredClaimNames.Sub, user.Username),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
-
-            // Create signing credentials
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            // Create token
-            var token = new JwtSecurityToken(
-                issuer: jwtIssuer,
-                audience: jwtIssuer,
-                claims: claims,
-                expires: DateTime.UtcNow.AddDays(7), // Token valid for 7 days
-                signingCredentials: credentials
-            );
-
-            // Return token as string
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
+            UserId = user.UserId,
+            Username = user.Username,
+            Token = _jwtService.GenerateToken(user)
+        };
     }
 }

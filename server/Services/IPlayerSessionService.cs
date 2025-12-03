@@ -1,11 +1,15 @@
+using DragonGame.Dtos;
 using DragonGame.Models;
 
-namespace DragonGame.Services
+namespace DragonGame.Services;
+
+public interface IPlayerSessionService
 {
-    public interface IPlayerSessionService
-    {
-        Task<PlayerSession?> GetByIdAsync(int id);
-        Task AddAsync(PlayerSession session);
-        Task SaveChangesAsync();  // add this line
-    }
+    Task<PlayerSession> CreateSessionAsync(CreateSessionDto dto, int userId);
+    Task<PlayerSession?> GetSessionAsync(int sessionId);
+    Task<PlayerSessionDto?> GetSessionDtoAsync(int sessionId);
+    Task<Character?> GetCharacterForSessionAsync(int sessionId);
+    Task<PlayerSession?> UpdateCharacterAsync(int sessionId, Character character);
+    Task<PlayerSession?> MoveToNextActAsync(int sessionId, int nextActNumber);
+    Task<bool> DeleteSessionAsync(int sessionId, int userId);
 }

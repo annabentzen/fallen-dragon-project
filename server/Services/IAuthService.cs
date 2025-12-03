@@ -1,20 +1,9 @@
 using DragonGame.Dtos.Auth;
 
-namespace DragonGame.Services
-{
-    /// <summary>
-    /// Service for handling user authentication and registration
-    /// </summary>
-    public interface IAuthService
-    {
-        /// <summary>
-        /// Register a new user
-        /// </summary>
-        Task<AuthResponseDto?> RegisterAsync(RegisterDto registerDto);
+namespace DragonGame.Services;
 
-        /// <summary>
-        /// Login existing user and return JWT token
-        /// </summary>
-        Task<AuthResponseDto?> LoginAsync(LoginDto loginDto);
-    }
+public interface IAuthService
+{
+    Task<AuthResponseDto?> RegisterAsync(RegisterDto dto);
+    Task<AuthResponseDto?> LoginAsync(LoginDto dto);
 }

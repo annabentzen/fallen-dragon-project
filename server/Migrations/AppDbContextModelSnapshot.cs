@@ -187,6 +187,9 @@ namespace DragonGame.Migrations
                     b.Property<int>("StoryId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("SessionId");
 
                     b.HasIndex("CharacterId");
@@ -194,6 +197,8 @@ namespace DragonGame.Migrations
                     b.HasIndex("CurrentActNumber");
 
                     b.HasIndex("StoryId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("PlayerSessions");
                 });
@@ -316,11 +321,19 @@ namespace DragonGame.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("DragonGame.Models.User", "User")
+                        .WithMany("PlayerSessions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Character");
 
                     b.Navigation("CurrentAct");
 
                     b.Navigation("Story");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("DragonGame.Models.Act", b =>
@@ -347,6 +360,11 @@ namespace DragonGame.Migrations
                 {
                     b.Navigation("Acts");
 
+                    b.Navigation("PlayerSessions");
+                });
+
+            modelBuilder.Entity("DragonGame.Models.User", b =>
+                {
                     b.Navigation("PlayerSessions");
                 });
 #pragma warning restore 612, 618

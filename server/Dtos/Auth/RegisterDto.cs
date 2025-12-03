@@ -1,19 +1,15 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace DragonGame.Dtos.Auth
-{
-    /// <summary>
-    /// Data for registering a new user
-    /// </summary>
-    public class RegisterDto
-    {
-        [Required(ErrorMessage = "Username is required")]
-        [MinLength(3, ErrorMessage = "Username must be at least 3 characters")]
-        [MaxLength(50, ErrorMessage = "Username cannot exceed 50 characters")]
-        public string Username { get; set; } = string.Empty;
+namespace DragonGame.Dtos.Auth;
 
-        [Required(ErrorMessage = "Password is required")]
-        [MinLength(6, ErrorMessage = "Password must be at least 6 characters")]
-        public string Password { get; set; } = string.Empty;
-    }
+public class RegisterDto
+{
+    [Required(ErrorMessage = "Username is required")]
+    [StringLength(50, MinimumLength = 3, ErrorMessage = "Username must be 3-50 characters")]
+    [RegularExpression(@"^[a-zA-Z0-9_]+$", ErrorMessage = "Username can only contain letters, numbers, and underscores")]
+    public string Username { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Password is required")]
+    [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters")]
+    public string Password { get; set; } = string.Empty;
 }

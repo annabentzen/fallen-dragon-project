@@ -11,13 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DragonGame.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-<<<<<<<< HEAD:server/Migrations/20251126125059_InitialCreate.Designer.cs
-    [Migration("20251126125059_InitialCreate")]
-    partial class InitialCreate
-========
-    [Migration("20251129181023_SyncModelChanges")]
-    partial class SyncModelChanges
->>>>>>>> main:server/Migrations/20251129181023_SyncModelChanges.Designer.cs
+    [Migration("20251125204747_AddUserAuthentication")]
+    partial class AddUserAuthentication
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -242,6 +237,10 @@ namespace DragonGame.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -253,10 +252,13 @@ namespace DragonGame.Migrations
 
                     b.HasKey("UserId");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("DragonGame.Models.Act", b =>

@@ -19,26 +19,22 @@ export default function CharacterBuilder({
 }: CharacterBuilderProps) {
   const { head, body, poseId } = character;
 
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Avatar head and body options
   const headOptions = [
     "knight-head.png",
-    "mage-head1.png",
+    "mage1-head.png",
     "mage2-head.png",
     "rogue-head.png",
   ];
 
   const bodyOptions = [
     "knight-body.png",
-    "mage-body.png",
+    "mage1-body.png",
     "mage2-body.png",
     "rogue-body.png",
   ];
 
-  // Extract character type from body filename
-  const characterType = body.split("-")[0]; // "knight", "mage", or "rogue"
+  // Extract character type from body to filter compatible poses
+  const characterType = body.split("-")[0];
 
   // Filter poses to only show ones matching the current body type
   const availablePoses = poses.filter(

@@ -9,21 +9,18 @@ import styles from "../styles/Home.module.css";
 export default function Home() {
   const navigate = useNavigate();
 
-  // Character state
   const [characterName, setCharacterName] = useState("");
   const [character, setCharacter] = useState<Character>({
-    head: "mage-head1.png",
+    head: "mage1-head.png",
     body: "knight-body.png",
     poseId: null,
-    id: 0, // placeholder, backend will assign real id
+    id: 0,
   });
 
-  // UI state
   const [poses, setPoses] = useState<CharacterPose[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load poses on mount
   useEffect(() => {
     const fetchPoses = async () => {
       try {
@@ -37,7 +34,6 @@ export default function Home() {
     fetchPoses();
   }, []);
 
-  // Reset character to defaults
   const resetCharacter = () => {
     setCharacterName("");
     setCharacter({
@@ -64,7 +60,6 @@ export default function Home() {
     setError(null);
 
     try {
-      // Only send the name — backend creates character from builder state
       const session = await createSession(characterName.trim(), character);
       console.log("Session created:", session);
       navigate(`/story/${session.sessionId}`);

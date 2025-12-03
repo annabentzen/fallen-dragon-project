@@ -1,47 +1,68 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import React, { JSX, useEffect } from 'react';
+import { AuthProvider } from './contexts/AuthContext';
+import { BrowserRouter as Router, Routes, Route, useNavigate, Navigate, useParams } from 'react-router-dom';
 import Home from './components/Home';
 import StoryPage from './components/StoryPage';
 import EndingScreen from './components/EndingScreen';
-import { AuthProvider } from './contexts/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
-import LoginPage from './components/LoginPage';
+import LoginPage from "./components/LogInPage";
+import RegisterPage from "./components/RegisterPage";
+import { isAuthenticated } from "./services/authApi";
+
+const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+  return isAuthenticated() ? children : <Navigate to="/" />;
+};
 
 const App: React.FC = () => {
   return (
     <AuthProvider>
     <Router>
       <Routes>
-        {/* Login route - PUBLIC */}
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
-        {/* Home / character builder - PROTECTED */}
-        <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+        <Route 
+          path="/home" 
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          } 
+        />
 
-        {/* Story page with dynamic sessionId - PROTECTED */}
-        <Route path="/story/:sessionId" element={<ProtectedRoute><StoryPageWrapper /></ProtectedRoute>} />
-        {/* Optional direct ending screen - PROTECTED */}
-        <Route path="/ending/:sessionId" element={<ProtectedRoute><EndingScreenWrapper /></ProtectedRoute>} />
+        <Route 
+          path="/story/:sessionId" 
+          element={
+            <ProtectedRoute>
+              <StoryPageWrapper />
+            </ProtectedRoute>
+          } 
+        />
+
+        <Route 
+          path="/ending/:sessionId" 
+          element={
+            <ProtectedRoute>
+              <EndingScreenWrapper />
+            </ProtectedRoute>
+          } 
+        />
       </Routes>
     </Router>
     </AuthProvider>
   );
 };
 
-// Wrapper for Endingscreen to handle navigation
 const EndingScreenWrapper: React.FC = () => {
   const navigate = useNavigate();
   const { sessionId } = useParams<{ sessionId: string }>();
 
   const handleRestart = () => {
-    navigate('/'); // Navigate back to home to start a new session
+    navigate('/home'); 
   };
 
-  return <EndingScreen onRestart={handleRestart} />;
+  return <EndingScreen onRestart={handleRestart} endingType={'default'} endingText={''} />;
 };
 
-// Wrapper to pass sessionId from URL to StoryPage
-import { useParams } from 'react-router-dom';
 const StoryPageWrapper: React.FC = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
 
@@ -52,6 +73,5 @@ const StoryPageWrapper: React.FC = () => {
 
   return <StoryPage sessionId={parsedId} />;
 };
-
 
 export default App;

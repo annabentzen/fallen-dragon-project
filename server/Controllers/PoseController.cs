@@ -2,105 +2,90 @@ using Microsoft.AspNetCore.Mvc;
 using DragonGame.Models;
 using DragonGame.Services;
 
-namespace DragonGame.Controllers
-{
-    [ApiController]
+namespace DragonGame.Controllers;
+
+[ApiController]
 [Route("api/poses")]
 public class PoseController : ControllerBase
 {
     private readonly IPoseService _poseService;
+    private readonly ILogger<PoseController> _logger;
 
-    public PoseController(IPoseService poseService)
+    public PoseController(IPoseService poseService, ILogger<PoseController> logger)
     {
         _poseService = poseService;
+        _logger = logger;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<CharacterPose>>> GetAllPoses()
     {
-        try
-        {
-            var poses = await _poseService.GetAllPosesAsync();
-            return Ok(poses);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[PoseController][GetAllPoses] Error: {ex}");
-            return StatusCode(500, ex.Message);
-        }
+        var poses = await _poseService.GetAllPosesAsync();
+        return Ok(poses);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<CharacterPose>> GetPose(int id)
     {
-        try
+        var pose = await _poseService.GetPoseByIdAsync(id);
+        
+        if (pose == null)
         {
-            var pose = await _poseService.GetPoseByIdAsync(id);
-            if (pose == null) return NotFound();
-            return Ok(pose);
+            _logger.LogWarning("Pose not found: {PoseId}", id);
+            return NotFound(new { message = "Pose not found" });
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[PoseController][GetPose] Error for id={id}: {ex}");
-            return StatusCode(500, ex.Message);
-        }
+        
+        return Ok(pose);
     }
 
     [HttpPost]
-    public async Task<ActionResult<CharacterPose>> CreatePose(CharacterPose pose)
+    public async Task<ActionResult<CharacterPose>> CreatePose([FromBody] CharacterPose pose)
     {
-        try
-        {
-            await _poseService.AddPoseAsync(pose);
-            return CreatedAtAction(nameof(GetPose), new { id = pose.Id }, pose);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[PoseController][CreatePose] Error: {ex}");
-            return StatusCode(500, ex.Message);
-        }
+        await _poseService.AddPoseAsync(pose);
+        
+        _logger.LogInformation("Pose created: {PoseId} ({PoseName})", pose.Id, pose.Name);
+        
+        return CreatedAtAction(nameof(GetPose), new { id = pose.Id }, pose);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdatePose(int id, CharacterPose pose)
+    public async Task<IActionResult> UpdatePose(int id, [FromBody] CharacterPose pose)
     {
-        try
+        if (id != pose.Id)
         {
-            if (id != pose.Id) return BadRequest();
-
-            var existing = await _poseService.GetPoseByIdAsync(id);
-            if (existing == null) return NotFound();
-
-            existing.Name = pose.Name;
-            existing.ImageUrl = pose.ImageUrl;
-
-            await _poseService.UpdatePoseAsync(existing);
-            return NoContent();
+            return BadRequest(new { message = "ID mismatch" });
         }
-        catch (Exception ex)
+
+        var existing = await _poseService.GetPoseByIdAsync(id);
+        
+        if (existing == null)
         {
-            Console.WriteLine($"[PoseController][UpdatePose] Error for id={id}: {ex}");
-            return StatusCode(500, ex.Message);
+            _logger.LogWarning("Update failed - pose not found: {PoseId}", id);
+            return NotFound(new { message = "Pose not found" });
         }
+
+        existing.Name = pose.Name;
+        existing.ImageUrl = pose.ImageUrl;
+        await _poseService.UpdatePoseAsync(existing);
+
+        _logger.LogInformation("Pose updated: {PoseId}", id);
+        return NoContent();
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeletePose(int id)
     {
-        try
+        var existing = await _poseService.GetPoseByIdAsync(id);
+        
+        if (existing == null)
         {
-            var existing = await _poseService.GetPoseByIdAsync(id);
-            if (existing == null) return NotFound();
+            _logger.LogWarning("Delete failed - pose not found: {PoseId}", id);
+            return NotFound(new { message = "Pose not found" });
+        }
 
-            await _poseService.DeletePoseAsync(id);
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[PoseController][DeletePose] Error for id={id}: {ex}");
-            return StatusCode(500, ex.Message);
-        }
+        await _poseService.DeletePoseAsync(id);
+        
+        _logger.LogInformation("Pose deleted: {PoseId}", id);
+        return NoContent();
     }
-}
-
 }

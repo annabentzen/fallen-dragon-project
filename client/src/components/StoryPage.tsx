@@ -3,6 +3,7 @@ import EndingScreen from "./EndingScreen";
 import CharacterBuilder from "./CharacterBuilder";
 import { useNavigate } from "react-router-dom";
 import styles from "../styles/Story.module.css";
+import { removeToken } from "../services/authApi";
 
 import {
   ActDto,
@@ -29,10 +30,12 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
   const [poses, setPoses] = useState<CharacterPose[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isEditingCharacter, setIsEditingCharacter] = useState(false);
+  const [username, setUsername] = useState<string>("");
 
   const navigate = useNavigate();
 
-  // ---------------- DETERMINE ENDING TYPE ----------------
+  
+  // Act numbers map to correct story ending based on narrative branches
   const getEndingType = (actNumber: number): 
     'heroDeath' | 'dragonKilled' | 'tragedy' | 'ignored' | 'recovery' | 'guardian' | 'default' => 
   {
@@ -45,12 +48,16 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
     return "default";
   };
 
-  // ---------------- RESTART ----------------
   const handleRestart = () => {
     navigate("/", { replace: true });
   };
 
-  // ---------------- LOAD SESSION & CHARACTER ----------------
+  useEffect(() => {
+  if (playerSession) {
+    setUsername(playerSession.characterName);
+  }
+}, [playerSession]);
+
   useEffect(() => {
     const loadSession = async () => {
       try {
@@ -69,7 +76,6 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
     loadSession();
   }, [sessionId]);
 
-  // ---------------- LOAD CURRENT ACT ----------------
   const loadAct = async () => {
     setLoading(true);
     setErrorMsg(null);
@@ -110,7 +116,6 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
     if (sessionId) loadAct();
   }, [sessionId]);
 
-  // ---------------- FETCH POSES ----------------
   useEffect(() => {
     const fetchPoses = async () => {
       try {
@@ -123,7 +128,6 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
     fetchPoses();
   }, []);
 
-  // ---------------- HANDLE CHOICE ----------------
   const handleChoiceClick = async (nextActNumber: number) => {
     setLoading(true);
     try {
@@ -137,6 +141,11 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
     }
   };
 
+  const handleLogout = () => {
+  removeToken();
+  navigate("/");
+};
+
   if (loading) return <div className={styles.loading}>Loading...</div>;
   if (errorMsg) return <div className={styles.error}>{errorMsg}</div>;
   if (!currentAct) return <div className={styles.noData}>No act data available.</div>;
@@ -146,51 +155,70 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
 
 return (
   <div className={styles.storyContainer}>
-    {/* ==================== NAVBAR ==================== */}
     <nav className={styles.navbar}>
       <span className={styles.navbarTitle}>The Fallen Dragon</span>
 
-      {character && !isEnding && (
+      <div className={styles.navbarActions}>
+        {username && (
+          <span className={styles.welcomeText}>
+            Welcome, {username}!
+          </span>
+        )}
+
+        {!isEnding && (
+          <button
+            onClick={() => navigate("/home")}
+            className={styles.navButton}
+          >
+            Home
+          </button>
+        )}
+
+        {character && !isEnding && (
+          <button
+            onClick={() => setIsEditingCharacter(true)}
+            className={styles.editButton}
+          >
+            Edit Character
+          </button>
+        )}
+
         <button
-          onClick={() => setIsEditingCharacter(true)}
-          className={styles.editButton}
+          onClick={handleLogout}
+          className={styles.logoutButton}
         >
-          Edit Character
+          Logout
         </button>
-      )}
+      </div>
     </nav>
 
-    {/* ==================== ENDING SCREEN ==================== */}
     {isEnding && currentAct && (
       <EndingScreen
         endingType={getEndingType(currentAct.actNumber)}
         endingText={currentAct.text}
         onRestart={handleRestart}
-        navigate={navigate} 
+        sessionId={sessionId} 
       />
     )}
 
-    {/* ==================== NORMAL STORY CONTENT ==================== */}
     {!isEnding && currentAct && (
       <>
-        {/* Story Scene Container with Background */}
+        <div className={styles.atmosphereOverlay} />
         <div className={styles.storyScene}>
-          {/* Top Left: Noteboard with Act Text */}
           <div className={styles.noteboardSection}>
-            {/* Noteboard Background */}
             <div className={styles.noteboardContainer}>
               <div className={styles.actText}>
                 {currentAct.text}
               </div>
             </div>
 
-            {/* Choice Buttons Below Noteboard */}
             <div className={styles.choicesContainer}>
-              {choices.map((choice) => (
+              {choices.map((choice, index) => (
                 <div
                   key={choice.choiceId}
                   onClick={() => handleChoiceClick(choice.nextActNumber)}
                   className={styles.choiceButton}
+                  style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <span className={styles.choiceText}>
                     {choice.text}
@@ -200,7 +228,6 @@ return (
             </div>
           </div>
 
-          {/* Middle Right: Dragon Image */}
           <div className={styles.dragonSection}>
             <img
               src="/images/game-images/dragon/Death3.png"
@@ -209,19 +236,16 @@ return (
             />
           </div>
 
-          {/* Bottom Left: Character */}
           {playerSession && character && (
             <div className={styles.characterSection}>
-              {/* Character Name */}
               <div className={styles.characterNameBadge}>
                 <p className={styles.characterName}>
                   {playerSession.characterName}
                 </p>
               </div>
 
-              {/* Character Preview */}
               <div className={styles.characterPreview}>
-                {/* Body - only show if NO pose is selected */}
+                {/* Body only show if no pose is selected */}
                 {!character.poseId && character.body && (
                   <img
                     src={`/images/avatar/body/${character.body}`}
@@ -230,7 +254,6 @@ return (
                   />
                 )}
                 
-                {/* Head - always show */}
                 {character.head && (
                   <img
                     src={`/images/avatar/heads/${character.head}`}
@@ -239,7 +262,6 @@ return (
                   />
                 )}
                 
-                {/* Pose (replaces body when selected) */}
                 {character.poseId && selectedPose && (
                   <img
                     src={`/images/avatar/poses/${selectedPose.imageUrl}`}
@@ -252,7 +274,6 @@ return (
           )}
         </div>
 
-        {/* Character Edit Modal */}
         {isEditingCharacter && character && (
           <div
             className={styles.modalOverlay}
@@ -262,6 +283,7 @@ return (
               className={styles.modalContent}
               onClick={(e) => e.stopPropagation()}
             >
+              <h2 className={styles.modalTitle}>Edit Your Character</h2>
               <CharacterBuilder
                 character={character}
                 poses={poses}
@@ -286,7 +308,7 @@ return (
                   }}
                   className={styles.closeButton}
                 >
-                  Close and Save
+                  Save & Close
                 </button>
               </div>
             </div>

@@ -5,7 +5,6 @@ export interface Story {
   acts: Act[];
 }
 
-// API response model for active player session
 export interface PlayerSessionFromApi {
   sessionId: number;
   characterName: string;

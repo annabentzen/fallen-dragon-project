@@ -1,9 +1,12 @@
 using DragonGame.Models;
-using DragonGame.Repositories;
+
+namespace DragonGame.Repositories;
 
 public interface IPlayerSessionRepository : IRepository<PlayerSession>
-    {
-        Task<PlayerSession?> GetSessionWithCharacterAsync(int sessionId);
-        Task<PlayerSession?> GetSessionByIdWithChoicesAsync(int sessionId);
-        IQueryable<PlayerSession> Query();
-    }
+{
+    Task<PlayerSession?> GetWithCharacterAsync(int sessionId);
+    Task<PlayerSession?> GetWithChoicesAsync(int sessionId);
+    IQueryable<PlayerSession> Query();
+    Task<bool> DeleteAsync(int sessionId, int userId);
+
+}

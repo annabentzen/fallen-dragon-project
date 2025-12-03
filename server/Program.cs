@@ -2,8 +2,6 @@ using DragonGame.Data;
 using DragonGame.Repositories;
 using DragonGame.Services;
 using Microsoft.EntityFrameworkCore;
-using server.Services;
-using server.Services.Interfaces;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -40,29 +38,15 @@ builder.Services.AddControllers()
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=App_Data/DragonGame.db"));
 
-// ---------------------- Dependency Injection ----------------------
 
-// Register generic repository for all entities
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
-// Register specific repositories
-builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
-builder.Services.AddScoped<ICharacterPoseRepository, CharacterPoseRepository>();
-builder.Services.AddScoped<IPlayerSessionRepository, PlayerSessionRepository>();
-builder.Services.AddScoped<IStoryRepository, StoryRepository>();
-builder.Services.AddScoped<IChoiceHistoryRepository, ChoiceHistoryRepository>();
-
-// Register services
-builder.Services.AddScoped<IStoryService, StoryService>();
-builder.Services.AddScoped<IPlayerSessionService, PlayerSessionService>();
-builder.Services.AddScoped<ICharacterService, CharacterService>();
-builder.Services.AddScoped<IPoseService, PoseService>();
-builder.Services.AddScoped<IChoiceHistoryService, ChoiceHistoryService>();
+// JWT Authentication 
+builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-// ---------------------- JWT Authentication ----------------------
-var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not configured");
-var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("JWT Issuer not configured");
+// Configure JWT authentication
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not configured");
 
 builder.Services.AddAuthentication(options =>
 {
@@ -77,11 +61,32 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtIssuer,
-        ValidAudience = jwtIssuer,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
     };
 });
+
+// ---------------------- Dependency Injection ----------------------
+builder.Services.AddScoped<AppDbContext>();
+
+// Register generic repository for all entities
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+// Register specific repositories
+builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
+builder.Services.AddScoped<ICharacterPoseRepository, CharacterPoseRepository>();
+builder.Services.AddScoped<IPlayerSessionRepository, PlayerSessionRepository>();
+builder.Services.AddScoped<IStoryRepository, StoryRepository>();
+builder.Services.AddScoped<IChoiceHistoryRepository, ChoiceHistoryRepository>();
+
+// Register services
+builder.Services.AddScoped<IPlayerSessionService, PlayerSessionService>();
+builder.Services.AddScoped<ICharacterService, CharacterService>();
+builder.Services.AddScoped<IPoseService, PoseService>();
+builder.Services.AddScoped<IChoiceHistoryService, ChoiceHistoryService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
 
 // ---------------------- CORS ----------------------
 builder.Services.AddCors(options =>
@@ -118,7 +123,7 @@ using (var scope = app.Services.CreateScope())
     context.Database.Migrate();
 
     // 2. Seed the full story (The Fallen Dragon) — guaranteed to finish before first request
-    await DbSeeder.Seed(context);
+    await DbSeeder.SeedAsync(context);
 
     Console.WriteLine("Database migrated and fully seeded. Ready for players!");
 }
@@ -137,7 +142,7 @@ app.UseCors();                  // Fallback default policy (optional)
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-app.UseAuthentication();
+app.UseAuthentication(); 
 app.UseAuthorization();
 
 // ---------------------- Default route ----------------------
