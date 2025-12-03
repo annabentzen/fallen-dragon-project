@@ -2,8 +2,6 @@ using DragonGame.Data;
 using DragonGame.Repositories;
 using DragonGame.Services;
 using Microsoft.EntityFrameworkCore;
-using server.Services;
-using server.Services.Interfaces;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -70,6 +68,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 // ---------------------- Dependency Injection ----------------------
+builder.Services.AddScoped<AppDbContext>();
 
 // Register generic repository for all entities
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
@@ -82,7 +81,6 @@ builder.Services.AddScoped<IStoryRepository, StoryRepository>();
 builder.Services.AddScoped<IChoiceHistoryRepository, ChoiceHistoryRepository>();
 
 // Register services
-builder.Services.AddScoped<IStoryService, StoryService>();
 builder.Services.AddScoped<IPlayerSessionService, PlayerSessionService>();
 builder.Services.AddScoped<ICharacterService, CharacterService>();
 builder.Services.AddScoped<IPoseService, PoseService>();
@@ -125,7 +123,7 @@ using (var scope = app.Services.CreateScope())
     context.Database.Migrate();
 
     // 2. Seed the full story (The Fallen Dragon) — guaranteed to finish before first request
-    await DbSeeder.Seed(context);
+    await DbSeeder.SeedAsync(context);
 
     Console.WriteLine("Database migrated and fully seeded. Ready for players!");
 }

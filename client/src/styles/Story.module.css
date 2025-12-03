@@ -33,112 +33,12 @@
 }
 
 /* ========================================
-   NAVBAR STYLES
-   ======================================== */
-
-.navbar {
-  width: 100%;
-  padding: 12px 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: linear-gradient(180deg, rgba(30, 30, 50, 0.98) 0%, rgba(20, 20, 35, 0.95) 100%);
-  color: white;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  border-bottom: 2px solid rgba(139, 105, 20, 0.5);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-}
-
-.navbarTitle {
-  font-weight: bold;
-  font-size: 22px;
-  font-family: Georgia, 'Times New Roman', serif;
-  color: #ffd700;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-  letter-spacing: 1px;
-}
-
-.navbarActions {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.welcomeText {
-  color: #e0e0e0;
-  font-size: 14px;
-  font-style: italic;
-  margin-right: 8px;
-}
-
-/* Shared navbar link styles - text only, no button frame */
-.navButton,
-.editButton,
-.logoutButton {
-  padding: 8px 12px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 14px;
-  font-family: Georgia, 'Times New Roman', serif;
-  transition: all 0.2s ease;
-  color: #ffd700;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-  position: relative;
-}
-
-/* Subtle underline effect on hover */
-.navButton::after,
-.editButton::after,
-.logoutButton::after {
-  content: '';
-  position: absolute;
-  bottom: 4px;
-  left: 50%;
-  transform: translateX(-50%) scaleX(0);
-  width: 80%;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #ffd700, transparent);
-  transition: transform 0.2s ease;
-}
-
-.navButton:hover,
-.editButton:hover,
-.logoutButton:hover {
-  color: #fff8dc;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.6), 1px 1px 3px rgba(0, 0, 0, 0.5);
-}
-
-.navButton:hover::after,
-.editButton:hover::after,
-.logoutButton:hover::after {
-  transform: translateX(-50%) scaleX(1);
-}
-
-/* Logout gets a slightly different color to stand out */
-.logoutButton {
-  color: #ff9966;
-}
-
-.logoutButton:hover {
-  color: #ffb899;
-  text-shadow: 0 0 10px rgba(255, 153, 102, 0.6), 1px 1px 3px rgba(0, 0, 0, 0.5);
-}
-
-.logoutButton::after {
-  background: linear-gradient(90deg, transparent, #ff9966, transparent);
-}
-
-/* ========================================
    STORY SCENE LAYOUT
    ======================================== */
 
 .storyScene {
   min-height: calc(100vh - 60px);
-  background-image: url('/images/backgrounds/nature_3/origbig.png');
+  background-image: url("/images/backgrounds/nature_3/origbig.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -149,7 +49,7 @@
 
 /* Subtle parallax-like depth layers */
 .storyScene::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -184,13 +84,13 @@
 }
 
 .noteboardContainer {
-  background-image: url('/images/game-images/UI/symbols/PNG/05ogin&pass/beige_border2.png');
+  background-image: url("/images/game-images/ui/symbols/PNG/05ogin&pass/beige_border2.png");
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-position: center;
   padding: 70px 55px 55px 55px;
-  max-height: 320px;     
-  overflow-y: auto;  
+  max-height: 700px;
+  overflow-y: auto;
   height: auto;
   min-height: 200px;
   position: relative;
@@ -218,7 +118,7 @@
   font-size: 17px;
   line-height: 1.7;
   text-align: left;
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: Georgia, "Times New Roman", serif;
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
 }
 
@@ -236,7 +136,7 @@
 }
 
 .choiceButton {
-  background-image: url('/images/game-images/UI/symbols/PNG/05ogin&pass/button.png');
+  background-image: url("/images/game-images/ui/button_yellow.png");
   background-size: 100% 100%;
   background-repeat: no-repeat;
   padding: 18px 28px;
@@ -276,10 +176,8 @@
 
 .choiceText {
   color: #1a1a2e;
-  font-size: 15px;
   font-weight: 600;
   text-align: center;
-  font-family: Georgia, 'Times New Roman', serif;
   text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.6);
   line-height: 1.4;
 }
@@ -308,7 +206,8 @@
 
 /* Enhanced float animation for dragon */
 @keyframes dragonFloat {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px) rotate(0deg);
   }
   25% {
@@ -324,8 +223,8 @@
 
 /* Dragon glow effect on hover (subtle) */
 .dragonSection:hover .dragonImage {
-  filter: drop-shadow(0 15px 40px rgba(0, 0, 0, 0.5)) 
-          drop-shadow(0 0 30px rgba(147, 112, 219, 0.3));
+  filter: drop-shadow(0 15px 40px rgba(0, 0, 0, 0.5))
+    drop-shadow(0 0 30px rgba(147, 112, 219, 0.3));
 }
 
 /* ========================================
@@ -363,32 +262,30 @@
 }
 
 .characterNameBadge::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 0;
   right: 0;
   height: 28px;
   transform: translateY(-50%);
-  background: linear-gradient(180deg, #c9a227 0%, #8b6914 50%, #6b4f0f 100%);
+  background: linear-gradient(180deg, #90caf9 0%, #287abe 50%, #2c3e50 100%);
   border-radius: 4px;
-  box-shadow: 
-    0 3px 10px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 215, 0, 0.4),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 215, 0, 0.4), inset 0 -1px 0 rgba(0, 0, 0, 0.3);
   z-index: -1;
 }
 
 /* Ribbon ends */
 .characterNameBadge::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: -8px;
   right: -8px;
   height: 20px;
   transform: translateY(-50%);
-  background: linear-gradient(180deg, #a08020 0%, #705810 100%);
+  background: linear-gradient(180deg, #90caf9 0%, #42a5f5 100%);
   border-radius: 3px;
   z-index: -2;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
@@ -396,11 +293,9 @@
 
 .characterName {
   font-weight: bold;
-  font-size: 14px;
   color: #fff8dc;
   margin: 0;
   padding: 6px 16px;
-  font-family: Georgia, 'Times New Roman', serif;
   text-transform: capitalize;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
   letter-spacing: 0.5px;
@@ -528,8 +423,12 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .modalContent {
@@ -540,9 +439,7 @@
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 
-    0 25px 80px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(139, 105, 20, 0.3);
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(139, 105, 20, 0.3);
   border: 3px solid #8b6914;
   animation: modalSlideIn 0.3s ease;
 }
@@ -561,7 +458,6 @@
 .modalTitle {
   text-align: center;
   color: #2c3e50;
-  font-family: Georgia, 'Times New Roman', serif;
   font-size: 24px;
   margin-bottom: 24px;
   padding-bottom: 16px;
@@ -608,11 +504,11 @@
   font-size: 24px;
   color: #ffd700;
   background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%);
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: Georgia, "Times New Roman", serif;
 }
 
 .loading::after {
-  content: '';
+  content: "";
   width: 24px;
   height: 24px;
   margin-left: 12px;
@@ -623,7 +519,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .error {

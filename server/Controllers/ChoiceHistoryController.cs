@@ -1,4 +1,5 @@
 using DragonGame.Dtos;
+using DragonGame.Dtos.ChoiceHistory;
 using DragonGame.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

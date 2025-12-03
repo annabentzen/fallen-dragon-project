@@ -3,19 +3,8 @@
    ======================================== */
 
 .container {
-  padding: var(--spacing-xl);
-  border: 3px solid var(--color-primary-light);
-  border-radius: var(--radius-xl);
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.95) 0%,
-    rgba(250, 248, 243, 0.95) 100%
-  );
-  margin-bottom: var(--spacing-xl);
-  box-shadow: var(--shadow-lg);
+  padding: 0;
   position: relative;
-  overflow: visible;
-  /*overflow: hidden; */
 }
 
 /* ========================================
@@ -26,7 +15,7 @@
   margin-top: 0;
   margin-bottom: var(--spacing-xl);
   color: var(--color-primary-dark);
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-lg);
   text-align: center;
   font-weight: var(--font-weight-bold);
   text-transform: uppercase;
@@ -34,19 +23,102 @@
 }
 
 /* ========================================
+   CHARACTER SECTION (WRAPPER)
+   ======================================== */
+
+.characterSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* ========================================
+   CHARACTER WRAPPER (holds preview + arrows)
+   ======================================== */
+
+.characterWrapper {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  margin: 0 auto;
+}
+/* ========================================
+   ARROW BUTTONS (all arrows - common styles)
+   ======================================== */
+
+.arrowButton {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all var(--transition-fast);
+  z-index: 10;
+}
+
+.arrowButton:hover {
+  filter: brightness(1.05);
+}
+
+.arrowButton:active {
+  transform: scale(0.95);
+}
+
+/* ========================================
+   HEAD ARROWS (top portion)
+   ======================================== */
+
+.arrowHeadLeft {
+  left: -40px;
+  top: 40%; /* Align with head area */
+  background-image: url("/images/game-images/ui/backward_button.png");
+}
+
+.arrowHeadRight {
+  right: -40px;
+  top: 40%; /* Align with head area */
+  background-image: url("/images/game-images/ui/forward_button.png");
+}
+
+/* ========================================
+   BODY ARROWS (middle portion)
+   ======================================== */
+
+.arrowBodyLeft {
+  left: -40px;
+  top: 70%; /* Align with body/center */
+  background-image: url("/images/game-images/ui/backward_button.png");
+}
+
+.arrowBodyRight {
+  right: -40px;
+  top: 70%; /* Align with body/center */
+  background-image: url("/images/game-images/ui/forward_button.png");
+}
+
+/* ========================================
    CHARACTER PREVIEW
    ======================================== */
 
 .previewContainer {
-  width: 240px;
-  height: 240px;
+  width: 180px;
+  height: 180px;
   position: relative;
-  margin: 0 auto var(--spacing-xl);
   border: none;
   border-radius: var(--radius-lg);
-  background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
+  background: url("/images/game-images/ui/background2/Bright/clouds_back_layer2.png");
+  background-size: cover;
+  background-position: center;
   box-shadow: var(--shadow-md), inset 0 0 20px rgba(76, 175, 80, 0.1);
   overflow: hidden;
+
   /* Pixel art optimization */
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;
@@ -54,6 +126,7 @@
 }
 
 /* Magical glow effect */
+
 .previewContainer::after {
   content: "";
   position: absolute;
@@ -80,389 +153,26 @@
   opacity: 0.3;
 }
 
+.previewContainer:hover {
+  transform: scale(1);
+  transition: transform var(--transition-normal);
+}
+
 .characterImage {
   position: absolute;
   width: 100%;
   height: 100%;
   object-fit: contain;
+
   /* Pixel art rendering */
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;
   image-rendering: crisp-edges;
-}
-
-.previewContainer {
-  position: relative; /* Make sure this exists */
-}
-
-.poseKnight {
-  transform: translateX(15px);
-}
-
-.poseMage {
-  transform: translateX(15px);
-}
-.poseMage2 {
-  transform: translateX(15px); 
-}
-
-.poseRogue {
-  transform: translateX(8px);
-}
-
-/* ========================================
-   SELECTOR ROWS
-   ======================================== */
-
-.selectorRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--spacing-lg);
-  padding: var(--spacing-md);
-  background-color: rgba(255, 255, 255, 0.5);
-  border-radius: var(--radius-md);
-  transition: all var(--transition-normal);
-}
-
-.selectorRow:hover {
-  background-color: var(--color-bg-hover);
-  transform: translateX(4px);
-}
-
-.selectorRow:last-child {
-  margin-bottom: 0;
-}
-
-/* ========================================
-   LABELS
-   ======================================== */
-
-.label {
-  font-weight: var(--font-weight-bold);
-  min-width: 90px;
-  color: var(--color-text-primary);
-  font-size: var(--font-size-base);
-  display: flex;
-  align-items: center;
-}
-
-/* ========================================
-   CONTROLS SECTION
-   ======================================== */
-
-.controls {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  flex: 1;
-}
-
-/* ========================================
-   ARROW BUTTONS
-   ======================================== */
-
-.arrowButton {
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: linear-gradient(
-    135deg,
-    #9c27b0 0%,
-    /* PURPLE */ #7b1fa2 100% /* DARK PURPLE */
-  );
-  color: white;
-  border: 2px solid #4a148c; /* DARK PURPLE BORDER */
-  border-radius: 0; /* PIXEL STYLE = NO ROUND CORNERS */
-  font-size: var(--font-size-lg);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  box-shadow: 2px 2px 0px #4a148c, /* PIXEL SHADOW */ var(--shadow-sm);
-  min-width: 40px;
-  font-weight: var(--font-weight-bold);
-  font-family: monospace; /* PIXEL FONT */
-}
-
-.arrowButton:hover {
-  transform: translate(-1px, -1px); /* PIXEL HOVER */
-  box-shadow: 3px 3px 0px #4a148c, var(--shadow-md);
-  background: linear-gradient(
-    135deg,
-    #ab47bc 0%,
-    /* LIGHTER PURPLE */ #9c27b0 100%
-  );
-}
-
-.arrowButton:active {
-  transform: translate(1px, 1px); /* ← PIXEL PRESS */
-  box-shadow: 1px 1px 0px #4a148c;
-}
-
-/* Directional styling */
-.arrowButton:first-child {
-  border-radius: var(--radius-md) var(--radius-sm) var(--radius-sm)
-    var(--radius-md);
-}
-
-.arrowButton:last-child {
-  border-radius: var(--radius-sm) var(--radius-md) var(--radius-md)
-    var(--radius-sm);
-}
-
-/* ========================================
-   CURRENT VALUE DISPLAY
-   ======================================== */
-
-.currentValue {
-  min-width: 120px;
-  text-align: center;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  font-weight: var(--font-weight-medium);
-  padding: var(--spacing-sm);
-  background-color: rgba(255, 255, 255, 0.7);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--color-border);
-}
-
-/* ========================================
-   DROPDOWN SELECT
-   ======================================== */
-
-.select {
-  flex: 1;
-  padding: var(--spacing-md);
-  font-size: var(--font-size-base);
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background-color: white;
-  color: var(--color-text-primary);
-  cursor: pointer;
-  transition: all var(--transition-normal);
-  font-family: inherit;
-  font-weight: var(--font-weight-medium);
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234CAF50' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right var(--spacing-md) center;
-  padding-right: var(--spacing-xl);
-}
-
-.select:hover {
-  border-color: var(--color-primary);
-  background-color: var(--color-bg-hover);
-}
-
-.select:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: var(--glow-green);
-}
-
-/* Dropdown option styling */
-.select option {
-  padding: var(--spacing-md);
-  background-color: white;
-  color: var(--color-text-primary);
-}
-
-.select option:first-child {
-  color: var(--color-text-light);
-  font-style: italic;
-}
-
-/* ========================================
-   RESPONSIVE DESIGN
-   ======================================== */
-
-/* Tablet */
-@media (max-width: 768px) {
-  .container {
-    padding: var(--spacing-lg);
-  }
-
-  .previewContainer {
-    width: 200px;
-    height: 200px;
-  }
-
-  .selectorRow {
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--spacing-sm);
-  }
-
-  .label {
-    min-width: auto;
-    margin-bottom: var(--spacing-sm);
-  }
-
-  .controls {
-    justify-content: center;
-  }
-
-  .currentValue {
-    min-width: 100px;
-  }
-}
-
-/* Mobile (future-proofing) */
-@media (max-width: 480px) {
-  .previewContainer {
-    width: 180px;
-    height: 180px;
-  }
-
-  .header {
-    font-size: var(--font-size-lg);
-  }
-
-  .arrowButton {
-    min-width: 36px;
-    padding: var(--spacing-xs) var(--spacing-sm);
-  }
-}
-
-/* ========================================
-   ANIMATIONS
-   ======================================== */
-
-/* Fade in when character changes */
-@keyframes characterChange {
-  0% {
-    opacity: 0.7;
-    transform: scale(0.98);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.characterImage {
   animation: characterChange 0.3s ease;
 }
 
-/* Hover effect on preview */
-.previewContainer:hover {
-  transform: scale(1.02);
-  transition: transform var(--transition-normal);
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 0.3;
-  }
-  50% {
-    opacity: 0.6;
-  }
-}
-
-
-
-
 /* ========================================
-   ARROW ROW (for top/bottom arrows)
-   ======================================== */
-
-.arrowRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--spacing-md);
-  gap: var(--spacing-md);
-}
-
-.spacer {
-  flex: 1;
-}
-
-/* ========================================
-   TOP/BOTTOM ARROW BUTTONS
-   ======================================== */
-
-.arrowButtonLeft,
-.arrowButtonRight {
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
-  color: white;
-  border: 2px solid #4a148c;
-  border-radius: var(--radius-sm);
-  font-size: var(--font-size-lg);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  box-shadow: 2px 2px 0px #4a148c, var(--shadow-sm);
-  min-width: 50px;
-  font-weight: var(--font-weight-bold);
-  font-family: monospace;
-}
-
-.arrowButtonLeft:hover,
-.arrowButtonRight:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px #4a148c, var(--shadow-md);
-  background: linear-gradient(135deg, #ab47bc 0%, #9c27b0 100%);
-}
-
-.arrowButtonLeft:active,
-.arrowButtonRight:active {
-  transform: translate(1px, 1px);
-  box-shadow: 1px 1px 0px #4a148c;
-}
-
-/* ========================================
-   OVERLAY ARROW BUTTONS (for body - middle)
-   ======================================== */
-
-.arrowButtonOverlay {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  padding: var(--spacing-md);
-  background: linear-gradient(135deg, rgba(156, 39, 176, 0.9) 0%, rgba(123, 31, 162, 0.9) 100%);
-  color: white;
-  border: 2px solid #4a148c;
-  border-radius: var(--radius-sm);
-  font-size: var(--font-size-xl);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  box-shadow: 2px 2px 0px #4a148c, var(--shadow-md);
-  min-width: 45px;
-  min-height: 45px;
-  font-weight: var(--font-weight-bold);
-  font-family: monospace;
-  z-index: 10; /* Make sure they're on top */
-  backdrop-filter: blur(4px); /* Slight blur effect */
-}
-
-.arrowButtonOverlay:hover {
-  transform: translateY(-50%) scale(1.1);
-  box-shadow: 3px 3px 0px #4a148c, var(--shadow-lg);
-  background: linear-gradient(135deg, rgba(171, 71, 188, 0.95) 0%, rgba(156, 39, 176, 0.95) 100%);
-}
-
-.arrowButtonOverlay:active {
-  transform: translateY(-50%) scale(0.95);
-  box-shadow: 1px 1px 0px #4a148c;
-}
-
-.arrowLeft {
-  left: -20px; /* Position outside the preview box */
-}
-
-.arrowRight {
-  right: -20px; /* Position outside the preview box */
-}
-
-/* ========================================
-   CHARACTER SECTION
-   ======================================== */
-
-.characterSection {
-  margin-bottom: var(--spacing-xl);
-}
-
-/* ========================================
-   INFO TEXT
+   INFO TEXT (Bottom of character section)
    ======================================== */
 
 .infoText {
@@ -471,6 +181,7 @@
   color: var(--color-text-secondary);
   font-style: italic;
   padding: var(--spacing-sm);
+  margin-top: var(--spacing-md);
 }
 
 /* ========================================
@@ -480,6 +191,7 @@
 .poseSection {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: var(--spacing-md);
   margin-top: var(--spacing-lg);
 }
@@ -491,10 +203,119 @@
   min-width: 120px;
 }
 
+/* ========================================
+   DROPDOWN CUSTOM
+   ======================================== */
 
+.customDropdown {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  flex: 1;
+}
+
+/* Dropdown button */
+.dropdownButton {
+  width: 100%;
+  max-width: 368px;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-base);
+  font-family: inherit;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  background: url("/images/game-images/ui/button_type3_1part_yellow.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: filter var(--transition-normal);
+  image-rendering: pixelated;
+  text-align: left;
+}
+
+.dropdownButton:hover {
+  filter: brightness(1.1);
+}
+
+.dropdownButton:focus {
+  outline: none;
+  filter: brightness(1.15);
+}
+
+.dropdownArrow {
+  margin-left: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  transition: transform var(--transition-normal);
+}
+
+/* Dropdown menu */
+.dropdownMenu {
+  position: absolute;
+  top: calc(100% + var(--spacing-xs));
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-width: 368px;
+  margin: 0 auto;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  max-height: 300px;
+  overflow-y: auto;
+  image-rendering: pixelated;
+  animation: dropdownSlide 0.2s ease;
+}
+
+/* Dropdown options */
+.dropdownOption {
+  width: 100%;
+  max-width: 368px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-base);
+  font-family: inherit;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  background: url("/images/game-images/ui/button_type2.png");
+  background-size: 100% 100%;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition-normal);
+  image-rendering: pixelated;
+}
+
+.dropdownOption:hover {
+  background: url("/images/game-images/ui/button_yellow.png");
+  background-size: 100% 100%;
+}
+
+.dropdownOption:first-child {
+  color: var(--color-primary-dark);
+}
+
+.dropdownOptionSelected {
+  filter: brightness(1.2);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary-dark);
+}
+
+/* Dropdown slide animation */
+@keyframes dropdownSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 /* ========================================
-   INDIVIDUAL BODY POSITIONING
+   BODY POSITIONING (for default bodies)
    ======================================== */
 
 .bodyKnight {
@@ -514,7 +335,7 @@
 }
 
 /* ========================================
-   INDIVIDUAL POSE POSITIONING
+   POSE POSITIONING (for special poses)
    ======================================== */
 
 /* Knight poses */
@@ -553,11 +374,11 @@
 }
 
 .poseMage2Jumping {
-  transform: translateX(-12px) translateY(-1px);
+  transform: translateX(-50%) translateX(-12px) translateY(-1px);
 }
 
 .poseMage2Standing {
-  transform: translateX(0px) translateY(-2px);
+  transform: translateX(0px) translateX(0px) translateY(-2px);
 }
 
 /* Rogue poses */
@@ -567,4 +388,118 @@
 
 .poseRogueDizzy {
   transform: translateX(-8px) translateY(7px);
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+/* Fade in when character changes */
+@keyframes characterChange {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+/* Tablet */
+@media (max-width: 768px) {
+  .characterWrapper,
+  .previewContainer {
+    width: 120px;
+    height: 120px;
+  }
+
+  .arrowRow {
+    width: auto;
+  }
+
+  .arrowButtonOverlay.arrowLeft {
+    left: -50px;
+  }
+
+  .arrowButtonOverlay.arrowRight {
+    right: -50px;
+  }
+
+  .poseLabel {
+    width: 100%;
+    max-width: 368px;
+  }
+
+  .customDropdown {
+    flex: none;
+    width: 100%;
+    max-width: 368px;
+  }
+
+  .poseSection {
+    justify-content: center;
+  }
+
+  .dropdownMenu {
+    width: 100%;
+    max-width: 368px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .previewContainer {
+    width: 180px;
+    height: 180px;
+  }
+
+  .arrowRow {
+    width: 180px;
+  }
+
+  .header {
+    font-size: var(--font-size-lg);
+  }
+
+  .arrowButtonLeft,
+  .arrowButtonRight,
+  .arrowButtonOverlay {
+    width: 40px;
+    height: 40px;
+  }
+
+  .arrowButtonOverlay.arrowLeft {
+    left: -45px;
+  }
+
+  .arrowButtonOverlay.arrowRight {
+    right: -45px;
+  }
 }

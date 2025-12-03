@@ -1,102 +1,72 @@
 using DragonGame.Data;
-using DragonGame.Dtos;
 using DragonGame.Dtos.Auth;
 using DragonGame.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace DragonGame.Services
+namespace DragonGame.Services;
+
+public class AuthService : IAuthService
 {
-    /// <summary>
-    /// Service for handling user authentication (register, login)
-    /// </summary>
+    private readonly AppDbContext _context;
+    private readonly IJwtService _jwtService;
+    private readonly ILogger<AuthService> _logger;
 
-    public class AuthService : IAuthService
+    public AuthService(
+        AppDbContext context, 
+        IJwtService jwtService,
+        ILogger<AuthService> logger)
     {
-        private readonly AppDbContext _context;
-        private readonly IJwtService _jwtService;
+        _context = context;
+        _jwtService = jwtService;
+        _logger = logger;
+    }
 
-        public AuthService(AppDbContext context, IJwtService jwtService)
+    public async Task<AuthResponseDto?> RegisterAsync(RegisterDto dto)
+    {
+        if (await _context.Users.AnyAsync(u => u.Username == dto.Username))
         {
-            _context = context;
-            _jwtService = jwtService;
+            _logger.LogWarning("Registration failed - username exists: {Username}", dto.Username);
+            return null;
         }
 
-        /// <summary>
-        /// Registers a new user account
-        /// Returns null if username or email already exists
-        /// </summary>
-        public async Task<AuthResponseDto?> RegisterAsync(RegisterDto dto)
+        var user = new User
         {
-            // Check if username already exists
-            if (await _context.Users.AnyAsync(u => u.Username == dto.Username))
-            {
-                Console.WriteLine($"[AuthService] Username '{dto.Username}' already exists");
-                return null;
-            }
+            Username = dto.Username,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+            CreatedAt = DateTime.UtcNow
+        };
 
-            // Hash the password using BCrypt
-            var passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
 
-            // Create new user
-            var user = new User
-            {
-                Username = dto.Username,
-                PasswordHash = passwordHash,
-                CreatedAt = DateTime.UtcNow
-            };
+        _logger.LogInformation("User registered: {Username} (ID: {UserId})", user.Username, user.UserId);
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+        return new AuthResponseDto
+        {
+            UserId = user.UserId,
+            Username = user.Username,
+            Token = _jwtService.GenerateToken(user)
+        };
+    }
 
-            Console.WriteLine($"[AuthService] User registered: {user.Username} (ID: {user.UserId})");
+    public async Task<AuthResponseDto?> LoginAsync(LoginDto dto)
+    {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Username == dto.Username);
 
-            // Generate JWT token
-            var token = _jwtService.GenerateToken(user);
-
-            return new AuthResponseDto
-            {
-                UserId = user.UserId,
-                Username = user.Username,
-                Token = token
-            };
+        if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
+        {
+            _logger.LogWarning("Login failed for: {Username}", dto.Username);
+            return null;
         }
 
-        /// <summary>
-        /// Authenticates a user with username and password
-        /// Returns null if credentials are invalid
-        /// </summary>
-        public async Task<AuthResponseDto?> LoginAsync(LoginDto dto)
+        _logger.LogInformation("User logged in: {Username}", user.Username);
+
+        return new AuthResponseDto
         {
-            // Find user by username
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Username == dto.Username);
-
-            if (user == null)
-            {
-                Console.WriteLine($"[AuthService] Login failed: User '{dto.Username}' not found");
-                return null;
-            }
-
-            // Verify password using BCrypt
-            if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
-            {
-                Console.WriteLine($"[AuthService] Login failed: Invalid password for '{dto.Username}'");
-                return null;
-            }
-
-            Console.WriteLine($"[AuthService] User logged in: {user.Username} (ID: {user.UserId})");
-
-            // Generate JWT token
-            var token = _jwtService.GenerateToken(user);
-
-            return new AuthResponseDto
-            {
-                UserId = user.UserId,
-                Username = user.Username,
-                Token = token
-            };
-        }
-
-    
+            UserId = user.UserId,
+            Username = user.Username,
+            Token = _jwtService.GenerateToken(user)
+        };
     }
 }

@@ -6,8 +6,8 @@
 :root {
   /* Colors - Fantasy Theme */
   --color-primary: #4caf50; /* Nature green */
-  --color-primary-light: #81c784; /* Light green */
-  --color-primary-dark: #388e3c; /* Dark green */
+  --color-primary-light: #c0cbd5; /* Light green */
+  --color-primary-dark: #2c3e50; /* Dark green */
 
   --color-secondary: #64b5f6; /* Magic blue */
   --color-secondary-light: #90caf9;
@@ -17,6 +17,7 @@
   --color-accent-light: #ffe44d;
 
   --color-dragon: #7c4dff; /* Dragon purple */
+  --color-game-text-gold: #ffd700; /* Golden text for game UI */
 
   /* Neutrals */
   --color-bg-main: #faf8f3; /* Warm cream */
@@ -33,6 +34,12 @@
 
   --color-error: #f44336;
   --color-error-bg: #ffebee;
+
+  /* Game specific colors */
+  --color-game-text-light: #f5e6d3; /* light cream text */
+  --color-game-border: #5d4a3a; /* dark brown border */
+  --color-game-bg-dark: #3a3020; /* dark brown background */
+  --color-game-bg-medium: #4a3828; /* medium brown background */
 
   /* Spacing */
   --spacing-xs: 4px;
@@ -66,12 +73,12 @@
   --transition-slow: 0.5s ease;
 
   /* Font sizes */
-  --font-size-xs: 12px;
-  --font-size-sm: 14px;
-  --font-size-base: 16px;
-  --font-size-lg: 18px;
-  --font-size-xl: 24px;
-  --font-size-2xl: 32px;
+  --font-size-xs: 16px;
+  --font-size-sm: 18px;
+  --font-size-base: 20px;
+  --font-size-lg: 24px;
+  --font-size-xl: 28px;
+  --font-size-2xl: 36px;
   --font-size-3xl: 48px;
 
   /* Font weights */
@@ -92,13 +99,25 @@
 }
 
 body {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "VT323", "Segoe UI", monospace;
   font-size: var(--font-size-base);
   color: var(--color-text-primary);
   background: linear-gradient(135deg, #faf8f3 0%, #e8f5e9 50%, #e3f2fd 100%);
   background-attachment: fixed;
   line-height: 1.6;
   min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Press Start 2P", "VT323", cursive;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.4;
+  margin-bottom: var(--spacing-md);
 }
 
 /* Optional: Add a subtle texture overlay */
@@ -112,39 +131,6 @@ body::before {
   background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234CAF50' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   pointer-events: none;
   z-index: -1;
-}
-
-/* ========================================
-   TYPOGRAPHY
-   ======================================== */
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-weight: var(--font-weight-bold);
-  line-height: 1.2;
-  margin-bottom: var(--spacing-md);
-}
-
-h1 {
-  font-size: var(--font-size-3xl);
-  color: var(--color-text-primary);
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-h2 {
-  font-size: var(--font-size-2xl);
-}
-
-h3 {
-  font-size: var(--font-size-xl);
-}
-
-p {
-  margin-bottom: var(--spacing-md);
 }
 
 /* ========================================

@@ -30,7 +30,7 @@
 
 .endingText {
   font-size: var(--font-size-lg);
-  max-width: 900px;
+  max-width: 1100px;
   margin: 0 auto var(--spacing-xl);
   line-height: 1.7;
   opacity: 0.95;
@@ -52,6 +52,27 @@
 }
 
 .restartButton:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl), 0 0 35px rgba(255, 140, 0, 0.8);
+}
+
+.deleteButton {
+  padding: var(--spacing-md) var(--spacing-xl);
+  margin-top: 15px;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  background: linear-gradient(145deg, #e4745a, #e22020);
+  color: white;
+  border: none;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg), 0 0 25px rgba(255, 140, 0, 0.6);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  position: relative;
+  z-index: 10;
+}
+
+.deleteButton:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-xl), 0 0 35px rgba(255, 140, 0, 0.8);
 }

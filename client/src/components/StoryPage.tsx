@@ -16,6 +16,8 @@ import {
 import { getAllPoses } from "../services/characterApi";
 import { Act, Choice, PlayerSessionFromApi } from "../types/story";
 import { Character, CharacterPose } from "../types/character";
+import Navbar from "./NavBar";
+
 
 interface StoryPageProps {
   sessionId: number;
@@ -29,8 +31,8 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
   const [character, setCharacter] = useState<Character | null>(null);
   const [poses, setPoses] = useState<CharacterPose[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [isEditingCharacter, setIsEditingCharacter] = useState(false);
   const [username, setUsername] = useState<string>("");
+  const [showCharacterBuilder, setShowCharacterBuilder] = useState(false);
 
   const navigate = useNavigate();
 
@@ -155,49 +157,17 @@ const StoryPage: React.FC<StoryPageProps> = ({ sessionId }) => {
 
 return (
   <div className={styles.storyContainer}>
-    <nav className={styles.navbar}>
-      <span className={styles.navbarTitle}>The Fallen Dragon</span>
-
-      <div className={styles.navbarActions}>
-        {username && (
-          <span className={styles.welcomeText}>
-            Welcome, {username}!
-          </span>
-        )}
-
-        {!isEnding && (
-          <button
-            onClick={() => navigate("/home")}
-            className={styles.navButton}
-          >
-            Home
-          </button>
-        )}
-
-        {character && !isEnding && (
-          <button
-            onClick={() => setIsEditingCharacter(true)}
-            className={styles.editButton}
-          >
-            Edit Character
-          </button>
-        )}
-
-        <button
-          onClick={handleLogout}
-          className={styles.logoutButton}
-        >
-          Logout
-        </button>
-      </div>
-    </nav>
+     <Navbar 
+      onOpenCharacterBuilder={() => setShowCharacterBuilder(true)}
+      showCharacterButton={true}
+    />
 
     {isEnding && currentAct && (
       <EndingScreen
         endingType={getEndingType(currentAct.actNumber)}
         endingText={currentAct.text}
         onRestart={handleRestart}
-        navigate={navigate} 
+        sessionId={sessionId} 
       />
     )}
 
@@ -274,10 +244,10 @@ return (
           )}
         </div>
 
-        {isEditingCharacter && character && (
+        {showCharacterBuilder && character && (
           <div
             className={styles.modalOverlay}
-            onClick={() => setIsEditingCharacter(false)}
+            onClick={() => setShowCharacterBuilder(false)}
           >
             <div
               className={styles.modalContent}
@@ -301,7 +271,7 @@ return (
               <div className={styles.modalButtonContainer}>
                 <button
                   onClick={async () => {
-                    setIsEditingCharacter(false);
+                    setShowCharacterBuilder(false);
                     if (character) {
                       await updateCharacter(sessionId, character);
                     }
