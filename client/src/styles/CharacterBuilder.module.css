@@ -76,13 +76,13 @@
    ======================================== */
 
 .arrowHeadLeft {
-  left: -60px;
+  left: -40px;
   top: 40%; /* Align with head area */
   background-image: url("/images/game-images/ui/backward_button.png");
 }
 
 .arrowHeadRight {
-  right: -60px;
+  right: -40px;
   top: 40%; /* Align with head area */
   background-image: url("/images/game-images/ui/forward_button.png");
 }
@@ -92,13 +92,13 @@
    ======================================== */
 
 .arrowBodyLeft {
-  left: -60px;
+  left: -40px;
   top: 70%; /* Align with body/center */
   background-image: url("/images/game-images/ui/backward_button.png");
 }
 
 .arrowBodyRight {
-  right: -60px;
+  right: -40px;
   top: 70%; /* Align with body/center */
   background-image: url("/images/game-images/ui/forward_button.png");
 }
@@ -434,8 +434,6 @@
 
 /* Tablet */
 @media (max-width: 768px) {
-  .container {
-  }
   .characterWrapper,
   .previewContainer {
     width: 120px;

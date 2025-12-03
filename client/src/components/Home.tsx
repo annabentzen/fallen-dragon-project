@@ -36,8 +36,13 @@ export default function Home() {
 
   const resetCharacter = () => {
     setCharacterName("");
+
+    const standingPose = poses.find(
+      (pose) => pose.name.toLowerCase() === "standing"
+    );
+
     setCharacter({
-      head: "mage-head1.png",
+      head: "mage1-head.png",
       body: "knight-body.png",
       poseId: null,
       id: 0,
@@ -49,10 +54,6 @@ export default function Home() {
   const startStory = async () => {
     if (!characterName.trim()) {
       setError("Enter hero name");
-      return;
-    }
-    if (character.poseId === null) {
-      setError("Select a pose!");
       return;
     }
 
