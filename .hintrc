@@ -15,7 +15,12 @@
       "default",
       {
         "ignore": [
-          "backdrop-filter"
+          "backdrop-filter",
+          "min-height: auto",
+          "scrollbar-width",
+          "scrollbar-color",
+          "scrollbar-width: thin",
+          "image-rendering: crisp-edges"
         ]
       }
     ]
