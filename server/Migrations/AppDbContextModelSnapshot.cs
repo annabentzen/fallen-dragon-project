@@ -90,6 +90,7 @@ namespace DragonGame.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -176,6 +177,7 @@ namespace DragonGame.Migrations
 
                     b.Property<string>("CharacterName")
                         .IsRequired()
+                        .HasMaxLength(30)
                         .HasColumnType("TEXT");
 
                     b.Property<int>("CurrentActNumber")
@@ -211,6 +213,7 @@ namespace DragonGame.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.HasKey("StoryId");
