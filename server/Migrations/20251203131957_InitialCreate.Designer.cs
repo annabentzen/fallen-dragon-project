@@ -11,7 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DragonGame.Migrations
 {
     [DbContext(typeof(AppDbContext))]
+<<<<<<<< HEAD:server/Migrations/20251203131957_InitialCreate.Designer.cs
     [Migration("20251203131957_InitialCreate")]
+========
+    [Migration("20251203105044_InitialCreate")]
+>>>>>>>> origin/styling-home-page:server/Migrations/20251203105044_InitialCreate.Designer.cs
     partial class InitialCreate
     {
         /// <inheritdoc />
