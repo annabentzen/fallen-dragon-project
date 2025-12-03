@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DragonGame.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251120124034_InitialCreate")]
+    [Migration("20251202183524_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -62,13 +62,10 @@ namespace DragonGame.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Face")
+                    b.Property<string>("Body")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Hair")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Outfit")
+                    b.Property<string>("Head")
                         .HasColumnType("TEXT");
 
                     b.Property<int?>("PoseId")
@@ -87,37 +84,21 @@ namespace DragonGame.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("CharacterType")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("ImageUrl")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.ToTable("CharacterPoses", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            ImageUrl = "pose1.png",
-                            Name = "Standing"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            ImageUrl = "pose2.png",
-                            Name = "Fighting"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            ImageUrl = "pose3.png",
-                            Name = "Flying"
-                        });
                 });
 
             modelBuilder.Entity("DragonGame.Models.Choice", b =>
@@ -199,6 +180,7 @@ namespace DragonGame.Migrations
 
                     b.Property<string>("CharacterName")
                         .IsRequired()
+                        .HasMaxLength(30)
                         .HasColumnType("TEXT");
 
                     b.Property<int>("CurrentActNumber")
@@ -210,6 +192,9 @@ namespace DragonGame.Migrations
                     b.Property<int>("StoryId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("SessionId");
 
                     b.HasIndex("CharacterId");
@@ -217,6 +202,8 @@ namespace DragonGame.Migrations
                     b.HasIndex("CurrentActNumber");
 
                     b.HasIndex("StoryId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("PlayerSessions");
                 });
@@ -229,6 +216,7 @@ namespace DragonGame.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.HasKey("StoryId");
@@ -241,6 +229,32 @@ namespace DragonGame.Migrations
                             StoryId = 1,
                             Title = "Fallen Dragon"
                         });
+                });
+
+            modelBuilder.Entity("DragonGame.Models.User", b =>
+                {
+                    b.Property<int>("UserId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("UserId");
+
+                    b.HasIndex("Username")
+                        .IsUnique();
+
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("DragonGame.Models.Act", b =>
@@ -257,7 +271,7 @@ namespace DragonGame.Migrations
             modelBuilder.Entity("DragonGame.Models.Character", b =>
                 {
                     b.HasOne("DragonGame.Models.CharacterPose", "Pose")
-                        .WithMany()
+                        .WithMany("Characters")
                         .HasForeignKey("PoseId");
 
                     b.Navigation("Pose");
@@ -313,11 +327,19 @@ namespace DragonGame.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("DragonGame.Models.User", "User")
+                        .WithMany("PlayerSessions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Character");
 
                     b.Navigation("CurrentAct");
 
                     b.Navigation("Story");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("DragonGame.Models.Act", b =>
@@ -330,6 +352,11 @@ namespace DragonGame.Migrations
                     b.Navigation("PlayerSessions");
                 });
 
+            modelBuilder.Entity("DragonGame.Models.CharacterPose", b =>
+                {
+                    b.Navigation("Characters");
+                });
+
             modelBuilder.Entity("DragonGame.Models.PlayerSession", b =>
                 {
                     b.Navigation("Choices");
@@ -339,6 +366,11 @@ namespace DragonGame.Migrations
                 {
                     b.Navigation("Acts");
 
+                    b.Navigation("PlayerSessions");
+                });
+
+            modelBuilder.Entity("DragonGame.Models.User", b =>
+                {
                     b.Navigation("PlayerSessions");
                 });
 #pragma warning restore 612, 618
