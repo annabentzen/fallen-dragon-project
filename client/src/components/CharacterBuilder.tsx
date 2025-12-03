@@ -19,6 +19,9 @@ export default function CharacterBuilder({
 }: CharacterBuilderProps) {
   const { head, body, poseId } = character;
 
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
   const headOptions = [
     "knight-head.png",
     "mage1-head.png",
