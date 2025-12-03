@@ -11,13 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DragonGame.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-<<<<<<<< HEAD:server/Migrations/20251203145315_initialcommit.Designer.cs
-    [Migration("20251203145315_initialcommit")]
-    partial class initialcommit
-========
-    [Migration("20251203134817_InitialCreate")]
-    partial class InitialCreate
->>>>>>>> 4f1892ed8d3b0a7c5397956b80ab568d60823724:server/Migrations/20251203134817_InitialCreate.Designer.cs
+    [Migration("20251203154242_initialcreate")]
+    partial class initialcreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

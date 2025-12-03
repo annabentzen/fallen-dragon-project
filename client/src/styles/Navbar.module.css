@@ -1,9 +1,5 @@
-/* ========================================
-   NAVBAR COMPONENT STYLES
-   Fixed navigation bar for site-wide navigation
-   ======================================== */
+/* NAVBAR COMPONENT  */
 
-/* Main navbar container */
 .navbar {
   width: 100%;
   padding: 12px 24px;
@@ -19,14 +15,12 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
-/* Left section - contains title and username */
 .navLeft {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-/* Site title - clickable to return home */
 .title {
   color: #f0c433;
   font-size: 1.5rem;
@@ -40,21 +34,18 @@
   color: #eada7d;
 }
 
-/* Username display */
 .username {
   color: #e0e0e0;
   font-size: 1rem;
   font-style: italic;
 }
 
-/* Right section - contains action buttons */
 .navRight {
   display: flex;
   gap: 12px;
   align-items: center;
 }
 
-/* Base button styles - text-only links with no background */
 .navButton {
   padding: 8px 12px;
   background: transparent;
@@ -68,7 +59,6 @@
   position: relative;
 }
 
-/* Animated underline effect on hover */
 .navButton::after {
   content: '';
   position: absolute;
@@ -90,9 +80,7 @@
   transform: translateX(-50%) scaleX(1);
 }
 
-/* ========================================
-   RESPONSIVE DESIGN
-   ======================================== */
+/* RESPONSIVE DESIGN  */
 
 /* Tablets */
 @media (max-width: 1024px) {
@@ -136,7 +124,6 @@
   }
 }
 
-/* Small mobile devices */
 @media (max-width: 480px) {
   .navbar {
     padding: 8px 12px;
@@ -152,18 +139,14 @@
   }
 }
 
-/* ========================================
-   ACCESSIBILITY
-   ======================================== */
+/* ACCESSIBILITY */
 
-/* Keyboard focus styles */
 .navButton:focus,
 .title:focus {
   outline: 2px solid #ffd700;
   outline-offset: 2px;
 }
 
-/* Reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {
   .navButton,
   .title {

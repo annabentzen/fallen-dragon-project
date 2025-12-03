@@ -1,9 +1,4 @@
-/* ========================================
-   STORY PAGE STYLES
-   Interactive story gameplay view with character, dragon, and narrative text
-   ======================================== */
-
-/* Main story container */
+/*  STORY PAGE STYLES */
 .storyContainer {
   min-height: 100vh;
   background-color: #1a1a2e;
@@ -11,11 +6,6 @@
   overflow: hidden;
 }
 
-/* ========================================
-   ATMOSPHERIC EFFECTS
-   ======================================== */
-
-/* Vignette overlay for depth and focus */
 .atmosphereOverlay {
   position: fixed;
   top: 0;
@@ -32,11 +22,8 @@
   );
 }
 
-/* ========================================
-   MAIN STORY SCENE LAYOUT
-   ======================================== */
+/* MAIN STORY SCENE LAYOUT */
 
-/* Background scene with nature imagery */
 .storyScene {
   min-height: calc(100vh - 60px);
   background-image: url('/images/backgrounds/nature_3/origbig.png');
@@ -48,7 +35,6 @@
   overflow: hidden;
 }
 
-/* Subtle color overlay for depth */
 .storyScene::before {
   content: '';
   position: absolute;
@@ -67,11 +53,9 @@
   z-index: 1;
 }
 
-/* ========================================
-   NARRATIVE TEXT SECTION (Top Center)
-   ======================================== */
 
-/* Container for noteboard and choices */
+/*STORY TEXT SECTION */
+
 .noteboardSection {
   position: absolute;
   top: 20px;
@@ -85,7 +69,7 @@
   align-items: center;
 }
 
-/* Parchment-style noteboard for story text */
+
 .noteboardContainer {
   background-image: url('/images/game-images/ui/symbols/PNG/05ogin&pass/beige_border2.png');
   background-size: 100% 100%;
@@ -116,7 +100,6 @@
   border-radius: 4px;
 }
 
-/* Story narrative text */
 .actText {
   color: #2c3e50;
   font-size: 17px;
@@ -125,11 +108,9 @@
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
 }
 
-/* ========================================
-   CHOICE BUTTONS (Below Noteboard)
-   ======================================== */
 
-/* Container for player choice buttons */
+/* CHOICE BUTTONS  */
+
 .choicesContainer {
   margin-top: 15px;
   display: flex;
@@ -139,7 +120,6 @@
   max-width: 600px;
 }
 
-/* Individual choice button with custom background */
 .choiceButton {
   background-image: url("/images/game-images/ui/button_yellow.png");
   background-size: 100% 100%;
@@ -158,7 +138,6 @@
   opacity: 0;
 }
 
-/* Staggered fade-in animation for choices */
 @keyframes fadeSlideIn {
   from {
     opacity: 0;
@@ -170,19 +149,16 @@
   }
 }
 
-/* Interactive hover effect */
 .choiceButton:hover {
   transform: scale(1.03) translateY(-2px);
   filter: brightness(1.15);
 }
 
-/* Click feedback */
 .choiceButton:active {
   transform: scale(0.98);
   filter: brightness(0.95);
 }
 
-/* Choice text styling */
 .choiceText {
   color: #1a1a2e;
   font-weight: 600;
@@ -191,11 +167,7 @@
   line-height: 1.4;
 }
 
-/* ========================================
-   DRAGON DISPLAY (Middle Right)
-   ======================================== */
-
-/* Dragon image container */
+/* DRAGON DISPLAY (Middle Right) */
 .dragonSection {
   position: absolute;
   top: 45%;
@@ -206,7 +178,6 @@
   z-index: 5;
 }
 
-/* Dragon sprite with floating animation */
 .dragonImage {
   width: 100%;
   height: auto;
@@ -215,7 +186,6 @@
   image-rendering: pixelated;
 }
 
-/* Gentle floating animation */
 @keyframes dragonFloat {
   0%, 100% {
     transform: translateY(0px) rotate(0deg);
@@ -231,17 +201,12 @@
   }
 }
 
-/* Subtle glow effect on hover */
 .dragonSection:hover .dragonImage {
   filter: drop-shadow(0 15px 40px rgba(0, 0, 0, 0.5)) 
           drop-shadow(0 0 30px rgba(147, 112, 219, 0.3));
 }
 
-/* ========================================
-   CHARACTER DISPLAY (Bottom Left)
-   ======================================== */
-
-/* Character display container */
+/* CHARACTER DISPLAY */
 .characterSection {
   position: absolute;
   bottom: 30px;
@@ -252,7 +217,6 @@
   animation: characterEnter 0.6s ease forwards;
 }
 
-/* Entry animation for character */
 @keyframes characterEnter {
   from {
     opacity: 0;
@@ -264,7 +228,6 @@
   }
 }
 
-/* Character name tag with tape background */
 .characterNameBadge {
   text-align: center;
   position: relative;
@@ -276,7 +239,6 @@
   margin-bottom: 5px;
 }
 
-/* Tape image background */
 .characterNameBadge::before {
   content: '';
   position: absolute;
@@ -293,7 +255,6 @@
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
-/* Character name text */
 .characterName {
   font-weight: bold;
   color: #2c3e50;
@@ -307,7 +268,6 @@
   z-index: 1;
 }
 
-/* Character sprite preview container */
 .characterPreview {
   width: 100%;
   aspect-ratio: 1;
@@ -318,7 +278,6 @@
   filter: drop-shadow(3px 5px 8px rgba(0, 0, 0, 0.5));
 }
 
-/* Individual character sprite layers (head, body, pose) */
 .characterLayer {
   position: absolute;
   inset: 0;
@@ -328,10 +287,7 @@
   image-rendering: pixelated;
 }
 
-/* ========================================
-   CHARACTER SPRITE POSITIONING
-   Body sprites require different offsets per character type
-   ======================================== */
+/* CHARACTER SPRITE POSITIONING */
 
 .bodyKnight {
   transform: translateX(0px) translateY(0px);
@@ -349,12 +305,6 @@
   transform: translateX(5px) translateY(10px);
 }
 
-/* ========================================
-   POSE SPRITE POSITIONING
-   Each pose requires specific positioning per character type
-   ======================================== */
-
-/* Knight poses */
 .poseKnight {
   transform: translateX(15px) translateY(0px);
 }
@@ -367,7 +317,6 @@
   transform: translateX(-7px) translateY(1px);
 }
 
-/* Mage poses */
 .poseMage {
   transform: translateX(15px) translateY(0px);
 }
@@ -384,7 +333,6 @@
   transform: translateX(8px) translateY(-2px);
 }
 
-/* Mage2 poses */
 .poseMage2 {
   transform: translateX(15px) translateY(0px);
 }
@@ -397,7 +345,6 @@
   transform: translateX(0px) translateY(-2px);
 }
 
-/* Rogue poses */
 .poseRogue {
   transform: translateX(8px) translateY(0px);
 }
@@ -406,11 +353,7 @@
   transform: translateX(-8px) translateY(7px);
 }
 
-/* ========================================
-   CHARACTER EDIT MODAL
-   ======================================== */
-
-/* Dark overlay behind modal */
+/* CHARACTER EDIT MODAL */
 .modalOverlay {
   position: fixed;
   top: 0;
@@ -431,7 +374,6 @@
   to { opacity: 1; }
 }
 
-/* Modal content container */
 .modalContent {
   background: linear-gradient(180deg, #ffffff 0%, #f5f5f0 100%);
   padding: 32px;
@@ -458,7 +400,6 @@
   }
 }
 
-/* Modal header */
 .modalTitle {
   text-align: center;
   color: #2c3e50;
@@ -468,13 +409,11 @@
   border-bottom: 2px solid rgba(139, 105, 20, 0.3);
 }
 
-/* Modal button container */
 .modalButtonContainer {
   text-align: center;
   margin-top: 24px;
 }
 
-/* Save and close button */
 .closeButton {
   padding: 14px 32px;
   background: linear-gradient(180deg, #4caf50 0%, #388e3c 100%);
@@ -498,11 +437,7 @@
   transform: translateY(0);
 }
 
-/* ========================================
-   LOADING & ERROR STATES
-   ======================================== */
-
-/* Loading spinner display */
+/* LOADING & ERROR STATES */
 .loading {
   display: flex;
   justify-content: center;
@@ -529,7 +464,6 @@
   to { transform: rotate(360deg); }
 }
 
-/* Error message display */
 .error {
   display: flex;
   justify-content: center;
@@ -542,7 +476,6 @@
   text-align: center;
 }
 
-/* No data available message */
 .noData {
   display: flex;
   justify-content: center;
@@ -553,11 +486,8 @@
   background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%);
 }
 
-/* ========================================
-   RESPONSIVE DESIGN
-   ======================================== */
+/* RESPONSIVE DESIGN */
 
-/* Large tablets and small desktops */
 @media (max-width: 1200px) {
   .noteboardSection {
     width: 600px;
@@ -617,7 +547,7 @@
   }
 }
 
-/* Small tablets and large phones */
+/* Small tablets/large phones */
 @media (max-width: 768px) {
   .storyScene {
     padding: 20px 15px;
@@ -693,7 +623,7 @@
   }
 }
 
-/* Mobile phones */
+/* Mobile screens */
 @media (max-width: 480px) {
   .characterName {
     font-size: 0.75rem;
@@ -738,11 +668,7 @@
   }
 }
 
-/* ========================================
-   ACCESSIBILITY
-   ======================================== */
-
-/* Keyboard focus indicators */
+/* ACCESSIBILITY */
 .choiceButton:focus {
   outline: 3px solid #ffd700;
   outline-offset: 3px;
@@ -753,7 +679,6 @@
   outline-offset: 2px;
 }
 
-/* High contrast mode support */
 @media (prefers-contrast: high) {
   .choiceText,
   .actText {
@@ -762,7 +687,6 @@
   }
 }
 
-/* Reduce motion for accessibility */
 @media (prefers-reduced-motion: reduce) {
   .dragonImage,
   .choiceButton,

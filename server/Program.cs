@@ -8,23 +8,15 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-/*
-Explanation of code:
-- Single DbContext (AppDbContext) with one SQLite file (DragonGame.db) — avoids confusion.
-- Migration first, then seeding — ensures tables exist before you insert data.
-- JSON serializer uses camelCase, matching your frontend TypeScript interfaces.
-- ReferenceHandler set to IgnoreCycles to prevent $id/$values serialization.
-- SEEDING NOW HAPPENS **BEFORE** THE APP ACCEPTS ANY REQUESTS → fixes "No act found" race condition!
-*/
-
 var builder = WebApplication.CreateBuilder(args);
 
-// ---------------------- Services ----------------------
+// ========================================
+// Service Configuration
+// ========================================
 
-// Add controllers with views
 builder.Services.AddControllersWithViews();
 
-// Configure JSON serialization (camelCase + no circular refs)
+// Configure JSON serialization to match frontend TypeScript conventions
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -34,17 +26,14 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.WriteIndented = true;
     });
 
-// Configure Entity Framework with SQLite
+// Database configuration
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=App_Data/DragonGame.db"));
 
-
-
-// JWT Authentication 
+// JWT authentication setup
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-// Configure JWT authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not configured");
 
@@ -67,28 +56,31 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// ---------------------- Dependency Injection ----------------------
+// ========================================
+// Dependency Injection
+// ========================================
+
 builder.Services.AddScoped<AppDbContext>();
 
-// Register generic repository for all entities
+// Repositories
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-
-// Register specific repositories
 builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
 builder.Services.AddScoped<ICharacterPoseRepository, CharacterPoseRepository>();
 builder.Services.AddScoped<IPlayerSessionRepository, PlayerSessionRepository>();
 builder.Services.AddScoped<IStoryRepository, StoryRepository>();
 builder.Services.AddScoped<IChoiceHistoryRepository, ChoiceHistoryRepository>();
 
-// Register services
+// Services
 builder.Services.AddScoped<IPlayerSessionService, PlayerSessionService>();
 builder.Services.AddScoped<ICharacterService, CharacterService>();
 builder.Services.AddScoped<IPoseService, PoseService>();
 builder.Services.AddScoped<IChoiceHistoryService, ChoiceHistoryService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+// ========================================
+// CORS Configuration
+// ========================================
 
-// ---------------------- CORS ----------------------
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -98,54 +90,51 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod();
     });
 
+    // Specific policy for React development server
     options.AddPolicy("AllowReactDev",
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173") // React/Vite dev server
+            policy.WithOrigins("http://localhost:5173")
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
 });
 
-// ---------------------- Build app ----------------------
 var app = builder.Build();
 
-/*
-   CRITICAL FIX: Run migrations + seed the database **BEFORE** the app starts listening.
-   This prevents the race condition where a player creates a session before the story data exists.
-   After this change, "No act found for session X" disappears forever.
-*/
+// ========================================
+// Database Initialization
+// Run migrations and seed data before accepting requests to prevent race conditions
+// ========================================
+
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-    // 1. Apply any pending migrations
+    
     context.Database.Migrate();
-
-    // 2. Seed the full story (The Fallen Dragon) — guaranteed to finish before first request
     await DbSeeder.SeedAsync(context);
-
+    
     Console.WriteLine("Database migrated and fully seeded. Ready for players!");
 }
 
-// ---------------------- Middleware ----------------------
+// ========================================
+// Middleware Pipeline
+// ========================================
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
-// Apply CORS policies
-app.UseCors("AllowReactDev");   // Specific policy for your React frontend
-app.UseCors();                  // Fallback default policy (optional)
-
+app.UseCors("AllowReactDev");
+app.UseCors();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication(); 
 app.UseAuthorization();
 
-// ---------------------- Default route ----------------------
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Character}/{action=Create}/{id?}");
