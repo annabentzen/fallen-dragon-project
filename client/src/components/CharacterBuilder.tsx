@@ -36,24 +36,20 @@ export default function CharacterBuilder({
     "rogue-body.png",
   ];
 
-  // Extract character type from body to filter compatible poses
   const characterType = body.split("-")[0];
 
-  // Filter poses to only show ones matching the current body type
   const availablePoses = poses.filter(
     (pose) => !pose.characterType || pose.characterType === characterType
   );
 
   const selectedPose = availablePoses.find((pose) => pose.id === poseId);
 
-  // Reset pose if it's not valid for current character type
   useEffect(() => {
     if (poseId && !availablePoses.find((p) => p.id === poseId)) {
       onPoseChange(null);
     }
   }, [characterType, availablePoses, poseId, onPoseChange]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -99,11 +95,8 @@ export default function CharacterBuilder({
     <div className={styles.container}>
       <h2 className={styles.header}>Change your look</h2>
 
-      {/* Character preview with side arrows */}
       <div className={styles.characterSection}>
-        {/* Wrapper for character and arrows */}
         <div className={styles.characterWrapper}>
-          {/* Head arrows - LEFT TOP */}
           <button
             onClick={() =>
               cycleOption(currentHead, headOptions, onHeadChange, "prev")
@@ -112,7 +105,6 @@ export default function CharacterBuilder({
             aria-label="Previous head"
           ></button>
 
-          {/* Head arrows - RIGHT TOP */}
           <button
             onClick={() =>
               cycleOption(currentHead, headOptions, onHeadChange, "next")
@@ -121,7 +113,6 @@ export default function CharacterBuilder({
             aria-label="Next head"
           ></button>
 
-          {/* Body arrows - LEFT MIDDLE */}
           <button
             onClick={() =>
               cycleOption(currentBody, bodyOptions, onBodyChange, "prev")
@@ -130,7 +121,6 @@ export default function CharacterBuilder({
             aria-label="Previous body"
           ></button>
 
-          {/* Body arrows - RIGHT MIDDLE */}
           <button
             onClick={() =>
               cycleOption(currentBody, bodyOptions, onBodyChange, "next")
@@ -139,9 +129,7 @@ export default function CharacterBuilder({
             aria-label="Next body"
           ></button>
 
-          {/* Character preview */}
           <div className={styles.previewContainer}>
-            {/* Body layer - only show if NO pose is selected */}
             {!poseId && (
               <img
                 src={`/images/avatar/body/${currentBody}`}
@@ -157,14 +145,12 @@ export default function CharacterBuilder({
               />
             )}
 
-            {/* Head layer - on top of body */}
             <img
               src={`/images/avatar/heads/${currentHead}`}
               alt="head"
               className={styles.characterImage}
             />
 
-            {/* Pose image replaces body when selected */}
             {poseId && selectedPose && (
               <img
                 src={`/images/avatar/poses/${selectedPose.imageUrl}`}
@@ -187,10 +173,8 @@ export default function CharacterBuilder({
         </div>
       </div>
 
-      {/* Pose selector */}
       <div className={styles.poseSection}>
         <div className={styles.customDropdown} ref={dropdownRef}>
-          {/* Dropdown button */}
           <button
             className={styles.dropdownButton}
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -200,7 +184,6 @@ export default function CharacterBuilder({
             <span className={styles.dropdownArrow}></span>
           </button>
 
-          {/* Dropdown menu */}
           {isDropdownOpen && (
             <div className={styles.dropdownMenu}>
               <button
