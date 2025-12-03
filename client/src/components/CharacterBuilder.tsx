@@ -93,8 +93,6 @@ export default function CharacterBuilder({
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.header}>Change your look</h2>
-
       <div className={styles.characterSection}>
         <div className={styles.characterWrapper}>
           <button
