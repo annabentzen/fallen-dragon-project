@@ -1,7 +1,9 @@
 /* ========================================
-   NAVBAR STYLES
+   NAVBAR COMPONENT STYLES
+   Fixed navigation bar for site-wide navigation
    ======================================== */
 
+/* Main navbar container */
 .navbar {
   width: 100%;
   padding: 12px 24px;
@@ -17,6 +19,14 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
+/* Left section - contains title and username */
+.navLeft {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Site title - clickable to return home */
 .title {
   color: #f0c433;
   font-size: 1.5rem;
@@ -30,39 +40,36 @@
   color: #eada7d;
 }
 
-.navbarActions {
+/* Username display */
+.username {
+  color: #e0e0e0;
+  font-size: 1rem;
+  font-style: italic;
+}
+
+/* Right section - contains action buttons */
+.navRight {
   display: flex;
   gap: 12px;
   align-items: center;
 }
 
-.welcomeText {
-  color: #e0e0e0;
-  font-size: 22px;
-  font-style: italic;
-  margin-right: 8px;
-}
-
-/* Shared navbar link styles - text only, no button frame */
-.navButton,
-.editButton,
-.logoutButton {
+/* Base button styles - text-only links with no background */
+.navButton {
   padding: 8px 12px;
   background: transparent;
   border: none;
   cursor: pointer;
   font-weight: 600;
-  font-size: 20px;
+  font-size: 1rem;
   transition: all 0.2s ease;
   color: #64b5f6;
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
   position: relative;
 }
 
-/* Subtle underline effect on hover */
-.navButton::after,
-.editButton::after,
-.logoutButton::after {
+/* Animated underline effect on hover */
+.navButton::after {
   content: '';
   position: absolute;
   bottom: 4px;
@@ -74,29 +81,96 @@
   transition: transform 0.2s ease;
 }
 
-.navButton:hover,
-.editButton:hover,
-.logoutButton:hover {
+.navButton:hover {
   color: #fff8dc;
   text-shadow: 0 0 10px rgba(255, 215, 0, 0.6), 1px 1px 3px rgba(0, 0, 0, 0.5);
 }
 
-.navButton:hover::after,
-.editButton:hover::after,
-.logoutButton:hover::after {
+.navButton:hover::after {
   transform: translateX(-50%) scaleX(1);
 }
 
-/* Logout gets a slightly different color to stand out */
-.logoutButton {
-  color: #7c4dff;
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+/* Tablets */
+@media (max-width: 1024px) {
+  .navbar {
+    padding: 10px 20px;
+  }
+
+  .title {
+    font-size: 1.3rem;
+  }
+
+  .navButton {
+    font-size: 0.9rem;
+    padding: 6px 10px;
+  }
 }
 
-.logoutButton:hover {
-  color: #d2c7f2;
-  text-shadow: 0 0 10px  #9a79f2, 1px 1px 3px rgba(0, 0, 0, 0.5);
+/* Mobile phones */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 10px 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .title {
+    font-size: 1.1rem;
+  }
+
+  .username {
+    display: none; /* Hide username on mobile to save space */
+  }
+
+  .navRight {
+    gap: 8px;
+  }
+
+  .navButton {
+    padding: 6px 8px;
+    font-size: 0.85rem;
+  }
 }
 
-.logoutButton::after {
-  background: linear-gradient(90deg, transparent, #9a79f2, transparent);
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .navbar {
+    padding: 8px 12px;
+  }
+
+  .title {
+    font-size: 1rem;
+  }
+
+  .navButton {
+    padding: 5px 6px;
+    font-size: 0.75rem;
+  }
+}
+
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+
+/* Keyboard focus styles */
+.navButton:focus,
+.title:focus {
+  outline: 2px solid #ffd700;
+  outline-offset: 2px;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .navButton,
+  .title {
+    transition: none;
+  }
+
+  .navButton::after {
+    transition: none;
+  }
 }

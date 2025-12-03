@@ -1,9 +1,9 @@
 /* ========================================
-   STORY PAGE MODULE STYLES
-   Enhanced Fantasy Theme
+   STORY PAGE STYLES
+   Interactive story gameplay view with character, dragon, and narrative text
    ======================================== */
 
-/* Main container */
+/* Main story container */
 .storyContainer {
   min-height: 100vh;
   background-color: #1a1a2e;
@@ -12,9 +12,10 @@
 }
 
 /* ========================================
-   ATMOSPHERIC OVERLAY
+   ATMOSPHERIC EFFECTS
    ======================================== */
 
+/* Vignette overlay for depth and focus */
 .atmosphereOverlay {
   position: fixed;
   top: 0;
@@ -23,7 +24,6 @@
   bottom: 0;
   pointer-events: none;
   z-index: 100;
-  /* Subtle vignette effect */
   background: radial-gradient(
     ellipse at center,
     transparent 0%,
@@ -32,11 +32,11 @@
   );
 }
 
-
 /* ========================================
-   STORY SCENE LAYOUT
+   MAIN STORY SCENE LAYOUT
    ======================================== */
 
+/* Background scene with nature imagery */
 .storyScene {
   min-height: calc(100vh - 60px);
   background-image: url('/images/backgrounds/nature_3/origbig.png');
@@ -48,7 +48,7 @@
   overflow: hidden;
 }
 
-/* Subtle parallax-like depth layers */
+/* Subtle color overlay for depth */
 .storyScene::before {
   content: '';
   position: absolute;
@@ -68,9 +68,10 @@
 }
 
 /* ========================================
-   NOTEBOARD & TEXT SECTION (Top Center)
+   NARRATIVE TEXT SECTION (Top Center)
    ======================================== */
 
+/* Container for noteboard and choices */
 .noteboardSection {
   position: absolute;
   top: 20px;
@@ -84,19 +85,20 @@
   align-items: center;
 }
 
+/* Parchment-style noteboard for story text */
 .noteboardContainer {
-  background-image: url('/images/game-images/UI/symbols/PNG/05ogin&pass/beige_border2.png');
+  background-image: url('/images/game-images/ui/symbols/PNG/05ogin&pass/beige_border2.png');
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-position: center;
   padding: 70px 55px 55px 55px;
-  max-height: 320px;     
-  overflow-y: auto;  
+  max-height: 320px;
+  overflow-y: auto;
   height: auto;
   min-height: 200px;
   position: relative;
   width: 100%;
-  /* Custom scrollbar for noteboard */
+  /* Custom scrollbar styling */
   scrollbar-width: thin;
   scrollbar-color: rgba(139, 105, 20, 0.6) transparent;
 }
@@ -114,6 +116,7 @@
   border-radius: 4px;
 }
 
+/* Story narrative text */
 .actText {
   color: #2c3e50;
   font-size: 17px;
@@ -126,6 +129,7 @@
    CHOICE BUTTONS (Below Noteboard)
    ======================================== */
 
+/* Container for player choice buttons */
 .choicesContainer {
   margin-top: 15px;
   display: flex;
@@ -135,8 +139,9 @@
   max-width: 600px;
 }
 
+/* Individual choice button with custom background */
 .choiceButton {
-  background-image: url('/images/game-images/ui/button_yellow.png"');
+  background-image: url("/images/game-images/ui/button_yellow.png");
   background-size: 100% 100%;
   background-repeat: no-repeat;
   padding: 18px 28px;
@@ -153,6 +158,7 @@
   opacity: 0;
 }
 
+/* Staggered fade-in animation for choices */
 @keyframes fadeSlideIn {
   from {
     opacity: 0;
@@ -164,16 +170,19 @@
   }
 }
 
+/* Interactive hover effect */
 .choiceButton:hover {
   transform: scale(1.03) translateY(-2px);
   filter: brightness(1.15);
 }
 
+/* Click feedback */
 .choiceButton:active {
   transform: scale(0.98);
   filter: brightness(0.95);
 }
 
+/* Choice text styling */
 .choiceText {
   color: #1a1a2e;
   font-weight: 600;
@@ -183,9 +192,10 @@
 }
 
 /* ========================================
-   DRAGON IMAGE (Middle Right)
+   DRAGON DISPLAY (Middle Right)
    ======================================== */
 
+/* Dragon image container */
 .dragonSection {
   position: absolute;
   top: 45%;
@@ -196,15 +206,16 @@
   z-index: 5;
 }
 
+/* Dragon sprite with floating animation */
 .dragonImage {
   width: 100%;
   height: auto;
   filter: drop-shadow(0 15px 40px rgba(0, 0, 0, 0.5));
   animation: dragonFloat 5s ease-in-out infinite;
-  image-rendering: pixelated; /* Preserve pixel art crispness */
+  image-rendering: pixelated;
 }
 
-/* Enhanced float animation for dragon */
+/* Gentle floating animation */
 @keyframes dragonFloat {
   0%, 100% {
     transform: translateY(0px) rotate(0deg);
@@ -220,7 +231,7 @@
   }
 }
 
-/* Dragon glow effect on hover (subtle) */
+/* Subtle glow effect on hover */
 .dragonSection:hover .dragonImage {
   filter: drop-shadow(0 15px 40px rgba(0, 0, 0, 0.5)) 
           drop-shadow(0 0 30px rgba(147, 112, 219, 0.3));
@@ -230,6 +241,7 @@
    CHARACTER DISPLAY (Bottom Left)
    ======================================== */
 
+/* Character display container */
 .characterSection {
   position: absolute;
   bottom: 30px;
@@ -240,6 +252,7 @@
   animation: characterEnter 0.6s ease forwards;
 }
 
+/* Entry animation for character */
 @keyframes characterEnter {
   from {
     opacity: 0;
@@ -251,58 +264,50 @@
   }
 }
 
-/* Fancy scroll/banner style name tag */
+/* Character name tag with tape background */
 .characterNameBadge {
   text-align: center;
-  margin-bottom: -8px;
   position: relative;
   z-index: 2;
-  padding: 0 10px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 5px;
 }
 
+/* Tape image background */
 .characterNameBadge::before {
   content: '';
   position: absolute;
   top: 50%;
-  left: 0;
-  right: 0;
-  height: 28px;
-  transform: translateY(-50%);
-  background: linear-gradient(180deg, #90caf9 0%, #287abe 50%, #2c3e50 100%);
-  border-radius: 4px;
-  box-shadow: 
-    0 3px 10px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 215, 0, 0.4),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 130%;
+  height: 110%;
+  background-image: url("/images/game-images/ui/symbols/PNG/12Shop/tape.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
   z-index: -1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
-/* Ribbon ends */
-.characterNameBadge::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: -8px;
-  right: -8px;
-  height: 20px;
-  transform: translateY(-50%);
-  background: linear-gradient(180deg, #90caf9 0%, #42a5f5 100%);
-  border-radius: 3px;
-  z-index: -2;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-}
-
+/* Character name text */
 .characterName {
   font-weight: bold;
-  color: #fff8dc;
+  color: #2c3e50;
   margin: 0;
   padding: 6px 16px;
   text-transform: capitalize;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
+  text-shadow: 0px 1px 1px rgba(255, 255, 255, 0.5);
   letter-spacing: 0.5px;
+  font-size: 1rem;
+  position: relative;
+  z-index: 1;
 }
 
-/* Character preview - transparent background */
+/* Character sprite preview container */
 .characterPreview {
   width: 100%;
   aspect-ratio: 1;
@@ -310,33 +315,29 @@
   background: transparent;
   border: none;
   overflow: visible;
-  /* Subtle drop shadow on the character itself */
   filter: drop-shadow(3px 5px 8px rgba(0, 0, 0, 0.5));
 }
 
-/* Remove the frame corners since we don't have a frame anymore */
-.frameCorner {
-  display: none;
-}
-
+/* Individual character sprite layers (head, body, pose) */
 .characterLayer {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: contain;
-  image-rendering: pixelated; /* Preserve pixel art crispness */
+  image-rendering: pixelated;
 }
 
 /* ========================================
-   INDIVIDUAL BODY POSITIONING
+   CHARACTER SPRITE POSITIONING
+   Body sprites require different offsets per character type
    ======================================== */
 
 .bodyKnight {
   transform: translateX(0px) translateY(0px);
 }
 
-.bodyMage {
+.bodyMage1 {
   transform: translateX(0px) translateY(0px);
 }
 
@@ -349,7 +350,8 @@
 }
 
 /* ========================================
-   INDIVIDUAL POSE POSITIONING
+   POSE SPRITE POSITIONING
+   Each pose requires specific positioning per character type
    ======================================== */
 
 /* Knight poses */
@@ -408,6 +410,7 @@
    CHARACTER EDIT MODAL
    ======================================== */
 
+/* Dark overlay behind modal */
 .modalOverlay {
   position: fixed;
   top: 0;
@@ -428,6 +431,7 @@
   to { opacity: 1; }
 }
 
+/* Modal content container */
 .modalContent {
   background: linear-gradient(180deg, #ffffff 0%, #f5f5f0 100%);
   padding: 32px;
@@ -454,6 +458,7 @@
   }
 }
 
+/* Modal header */
 .modalTitle {
   text-align: center;
   color: #2c3e50;
@@ -463,11 +468,13 @@
   border-bottom: 2px solid rgba(139, 105, 20, 0.3);
 }
 
+/* Modal button container */
 .modalButtonContainer {
   text-align: center;
   margin-top: 24px;
 }
 
+/* Save and close button */
 .closeButton {
   padding: 14px 32px;
   background: linear-gradient(180deg, #4caf50 0%, #388e3c 100%);
@@ -495,6 +502,7 @@
    LOADING & ERROR STATES
    ======================================== */
 
+/* Loading spinner display */
 .loading {
   display: flex;
   justify-content: center;
@@ -521,6 +529,7 @@
   to { transform: rotate(360deg); }
 }
 
+/* Error message display */
 .error {
   display: flex;
   justify-content: center;
@@ -533,6 +542,7 @@
   text-align: center;
 }
 
+/* No data available message */
 .noData {
   display: flex;
   justify-content: center;
@@ -595,7 +605,7 @@
   }
 
   .characterName {
-    font-size: 13px;
+    font-size: 0.9rem;
   }
 
   .choiceText {
@@ -609,36 +619,13 @@
 
 /* Small tablets and large phones */
 @media (max-width: 768px) {
-  .navbar {
-    padding: 10px 16px;
-  }
-
-  .navbarTitle {
-    font-size: 18px;
-  }
-
-  .navbarActions {
-    gap: 8px;
-  }
-
-  .welcomeText {
-    display: none; /* Hide on smaller screens to save space */
-  }
-
-  .navButton,
-  .editButton,
-  .logoutButton {
-    padding: 6px 10px;
-    font-size: 13px;
-  }
-
   .storyScene {
     padding: 20px 15px;
     min-height: calc(100vh - 52px);
   }
 
   .atmosphereOverlay {
-    display: none; /* Remove vignette on mobile for clarity */
+    display: none;
   }
 
   .noteboardSection {
@@ -693,7 +680,7 @@
   }
 
   .characterName {
-    font-size: 15px;
+    font-size: 0.9rem;
   }
 
   .modalContent {
@@ -708,43 +695,13 @@
 
 /* Mobile phones */
 @media (max-width: 480px) {
-  .navbar {
-    padding: 8px 12px;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .navbarTitle {
-    font-size: 16px;
-    width: 100%;
-    text-align: center;
-  }
-
-  .navbarActions {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .navButton,
-  .editButton,
-  .logoutButton {
-    padding: 5px 8px;
-    font-size: 12px;
-  }
-
   .characterName {
-    font-size: 12px;
+    font-size: 0.75rem;
     padding: 5px 12px;
   }
 
   .characterNameBadge::before {
-    height: 24px;
-  }
-
-  .characterNameBadge::after {
-    height: 16px;
-    left: -6px;
-    right: -6px;
+    height: 90%;
   }
 
   .noteboardContainer {
@@ -785,17 +742,10 @@
    ACCESSIBILITY
    ======================================== */
 
+/* Keyboard focus indicators */
 .choiceButton:focus {
   outline: 3px solid #ffd700;
   outline-offset: 3px;
-}
-
-.navButton:focus,
-.editButton:focus,
-.logoutButton:focus {
-  outline: none;
-  text-decoration: underline;
-  text-underline-offset: 4px;
 }
 
 .closeButton:focus {
@@ -805,46 +755,31 @@
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
-  .choiceText {
-    color: #000;
-    text-shadow: none;
-  }
-
+  .choiceText,
   .actText {
     color: #000;
     text-shadow: none;
   }
 }
 
-/* Reduce motion for users who prefer it */
+/* Reduce motion for accessibility */
 @media (prefers-reduced-motion: reduce) {
-  .dragonImage {
+  .dragonImage,
+  .choiceButton,
+  .characterSection,
+  .modalOverlay,
+  .modalContent,
+  .closeButton,
+  .loading::after {
     animation: none;
   }
 
   .choiceButton {
-    animation: none;
     opacity: 1;
+  }
+
+  .closeButton,
+  .choiceButton {
     transition: none;
-  }
-
-  .characterSection {
-    animation: none;
-  }
-
-  .modalOverlay,
-  .modalContent {
-    animation: none;
-  }
-
-  .navButton,
-  .editButton,
-  .logoutButton,
-  .closeButton {
-    transition: none;
-  }
-
-  .loading::after {
-    animation: none;
   }
 }
