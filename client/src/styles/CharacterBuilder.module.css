@@ -255,8 +255,8 @@
 .dropdownMenu {
   position: absolute;
   top: calc(100% + var(--spacing-xs));
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
   width: 100%;
   max-width: 368px;
   margin: 0 auto;
@@ -273,8 +273,6 @@
 .dropdownOption {
   width: 100%;
   max-width: 368px;
-  left: 50%;
-  transform: translateX(-50%);
   padding: var(--spacing-sm) var(--spacing-md);
   font-size: var(--font-size-base);
   font-family: inherit;
@@ -290,7 +288,8 @@
 }
 
 .dropdownOption:hover {
-  background: url("");
+  background: url("/images/game-images/ui/button_yellow.png");
+  background-size: 100% 100%;
 }
 
 .dropdownOption:first-child {
@@ -462,7 +461,13 @@
   }
 
   .customDropdown {
+    flex: none;
     width: 100%;
+    max-width: 368px;
+  }
+
+  .poseSection {
+    justify-content: center;
   }
 
   .dropdownMenu {

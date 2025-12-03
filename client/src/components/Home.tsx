@@ -101,20 +101,6 @@ export default function Home() {
                 setCharacter((prev) => ({ ...prev, poseId }))
               }
             />
-
-            {/* Hero Name Input */}
-            <div className={styles.heroNameSection}>
-              <label className={styles.label}></label>
-              <input
-                type="text"
-                placeholder="Enter your hero-name"
-                value={characterName}
-                onChange={(e) => setCharacterName(e.target.value)}
-                className={styles.input}
-                disabled={loading}
-              />
-              {error && <div className={styles.errorMessage}>{error}</div>}
-            </div>
           </div>
 
           {/* RIGHT COLUMN - MISSION BRIEFING */}
@@ -144,6 +130,19 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
+        {/* Hero Name Input */}
+        <div className={styles.heroNameSection}>
+          <label className={styles.label}></label>
+          <input
+            type="text"
+            placeholder="Enter your hero-name"
+            value={characterName}
+            onChange={(e) => setCharacterName(e.target.value)}
+            className={styles.input}
+            disabled={loading}
+          />
+          {error && <div className={styles.errorMessage}>{error}</div>}
         </div>
 
         {/* Reset Character Button - fixed to bottom left */}

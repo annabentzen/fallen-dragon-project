@@ -190,7 +190,6 @@ export default function CharacterBuilder({
 
       {/* Pose selector */}
       <div className={styles.poseSection}>
-        <label className={styles.poseLabel}>Pose ({characterType}):</label>
         <div className={styles.customDropdown} ref={dropdownRef}>
           {/* Dropdown button */}
           <button
@@ -199,7 +198,7 @@ export default function CharacterBuilder({
             aria-label="Select character pose"
           >
             <span>{selectedPose ? selectedPose.name : "Select a pose"}</span>
-            <span className={styles.dropdownArrow}>▼</span>
+            <span className={styles.dropdownArrow}></span>
           </button>
 
           {/* Dropdown menu */}
