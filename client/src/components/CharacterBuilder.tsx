@@ -178,7 +178,7 @@ export default function CharacterBuilder({
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             aria-label="Select character pose"
           >
-            <span>{selectedPose ? selectedPose.name : "Select a pose"}</span>
+            <span>{selectedPose ? selectedPose.name : "Standing pose"}</span>
             <span className={styles.dropdownArrow}></span>
           </button>
 
@@ -188,7 +188,7 @@ export default function CharacterBuilder({
                 className={styles.dropdownOption}
                 onClick={() => handlePoseSelect(null)}
               >
-                Select a Pose
+                Standing pose
               </button>
               {availablePoses.map((pose) => (
                 <button

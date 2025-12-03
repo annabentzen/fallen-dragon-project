@@ -136,7 +136,7 @@
 }
 
 .choiceButton {
-  background-image: url('/images/game-images/ui/button_yellow.png"');
+  background-image: url("/images/game-images/ui/button_yellow.png");
   background-size: 100% 100%;
   background-repeat: no-repeat;
   padding: 18px 28px;
