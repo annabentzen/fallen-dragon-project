@@ -19,7 +19,7 @@ namespace DragonGame.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
                     ImageUrl = table.Column<string>(type: "TEXT", nullable: false),
                     CharacterType = table.Column<string>(type: "TEXT", nullable: true)
                 },
@@ -34,7 +34,7 @@ namespace DragonGame.Migrations
                 {
                     StoryId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Title = table.Column<string>(type: "TEXT", nullable: false)
+                    Title = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -126,7 +126,8 @@ namespace DragonGame.Migrations
                 {
                     SessionId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    CharacterName = table.Column<string>(type: "TEXT", nullable: false),
+                    CharacterName = table.Column<string>(type: "TEXT", maxLength: 30, nullable: false),
+                    UserId = table.Column<int>(type: "INTEGER", nullable: false),
                     CharacterId = table.Column<int>(type: "INTEGER", nullable: false),
                     StoryId = table.Column<int>(type: "INTEGER", nullable: false),
                     CurrentActNumber = table.Column<int>(type: "INTEGER", nullable: false),
@@ -152,6 +153,12 @@ namespace DragonGame.Migrations
                         column: x => x.StoryId,
                         principalTable: "Stories",
                         principalColumn: "StoryId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PlayerSessions_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -248,6 +255,11 @@ namespace DragonGame.Migrations
                 column: "StoryId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PlayerSessions_UserId",
+                table: "PlayerSessions",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Users_Username",
                 table: "Users",
                 column: "Username",
@@ -261,9 +273,6 @@ namespace DragonGame.Migrations
                 name: "ChoiceHistories");
 
             migrationBuilder.DropTable(
-                name: "Users");
-
-            migrationBuilder.DropTable(
                 name: "Choices");
 
             migrationBuilder.DropTable(
@@ -274,6 +283,9 @@ namespace DragonGame.Migrations
 
             migrationBuilder.DropTable(
                 name: "Characters");
+
+            migrationBuilder.DropTable(
+                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "Stories");

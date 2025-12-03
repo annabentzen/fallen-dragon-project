@@ -97,8 +97,6 @@ export default function CharacterBuilder({
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.header}>Change your look</h2>
-
       {/* Character preview with side arrows */}
       <div className={styles.characterSection}>
         {/* Wrapper for character and arrows */}

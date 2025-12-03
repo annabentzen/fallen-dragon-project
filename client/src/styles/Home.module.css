@@ -50,20 +50,51 @@
 }
 
 /* ========================================
+   HEADING TITLES BOTH COLUMNS
+   ======================================== */
+
+.header {
+  text-align: center;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary-dark);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 0 0 var(--spacing-lg) 0;
+  position: relative;
+  z-index: 2;
+}
+
+/* ========================================
    LEFT COLUMN - CHARACTER CREATOR
    ======================================== */
 
 .leftColumn {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: var(--spacing-lg);
   background: rgba(250, 248, 243, 0.98);
-  padding: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  border: none;
+  position: relative;
+  box-shadow: var(--shadow-lg);
+  height: fit-content;
+  width: 100%;
+  max-width: 480px;
+}
+
+.leftColumn::before {
+  content: "";
+  position: absolute;
+  top: -15px;
+  left: -15px;
+  right: -15px;
+  bottom: -15px;
   border: 30px solid transparent;
   border-image: url("/images/game-images/ui/border.png") 30 stretch;
-  box-shadow: var(--shadow-lg);
-  border-radius: var(--radius-xl);
-  height: fit-content;
+  pointer-events: none;
+  z-index: -1;
 }
 
 .creatorTitle {
@@ -138,18 +169,7 @@
   align-items: center;
   flex-direction: column;
   width: fit-content;
-}
-
-.briefingTitle {
-  text-align: center;
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-primary-dark);
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  margin: 0 0 var(--spacing-lg) 0;
-  position: relative;
-  z-index: 2;
+  max-width: 500px;
 }
 
 .introText {
@@ -200,10 +220,13 @@
 .heroNameSection {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-xs);
   width: 100%;
   max-width: 300px;
   align-items: center;
+  margin-bottom: 0;
+  margin: 0 auto;
+  margin-bottom: -30px;
 }
 
 .label {
@@ -220,30 +243,43 @@
 }
 
 .input {
-  width: 85%;
+  display: block;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto !important;
+
   font-size: var(--font-size-base);
+  font-weight: normal;
   text-align: center;
-  border: none;
-  background: url("/images/game-images/ui/text-field.png");
-  color: var(--color-game-text-light);
-  font-weight: var(--font-weight-semibold);
+  color: var(--color-game-text-primary);
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+
+  background: url("/images/game-images/ui/tape.png");
   background-size: 100% 100%;
   background-repeat: no-repeat;
-  transition: all var(--transition-normal);
-  font-family: inherit;
-  letter-spacing: 1px;
+  border: none !important;
+  background-color: transparent !important;
+
+  outline: none !important;
+  min-height: 50px;
+  cursor: text;
+  animation: gentlePulse 2s ease-in-out infinite;
 }
 
 .input:hover:not(:disabled) {
-  filter: brightness(1.2);
-  color: var(--color-game-text-gold);
+  font-weight: var(--font-weight-medium);
 }
 
 .input:focus {
-  outline: none;
-  filter: brightness(1.15);
-  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.3);
-  transform: scale(1.02);
+  outline: none !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.input:hover:not(:disabled):not(:focus) {
+  font-weight: var(--font-weight-semibold);
 }
 
 .input:disabled {
@@ -253,10 +289,20 @@
 }
 
 .input::placeholder {
-  color: rgba(245, 230, 211, 0.5);
-  font-style: inherit;
-  font-size: var(--font-size-sm);
+  color: var(--color-game-primary-dark);
   letter-spacing: 0.5px;
+  font-size: var(--font-size-base);
+  font-family: inherit;
+}
+
+@keyframes gentlePulse {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.1);
+  }
 }
 
 /* ========================================
@@ -322,11 +368,13 @@
   }
 
   .leftColumn {
-    order: 2;
+    order: 1;
+    margin: 0 auto;
   }
 
   .rightColumn {
-    order: 1;
+    order: 2;
+    align-items: center;
   }
 
   .resetButton {

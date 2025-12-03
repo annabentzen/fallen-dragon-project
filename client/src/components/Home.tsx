@@ -79,6 +79,20 @@ export default function Home() {
         <div className={styles.mainContent}>
           {/* LEFT COLUMN - CHARACTER CREATOR */}
           <div className={styles.leftColumn}>
+            <h2 className={styles.header}>Change your look</h2>
+            {/* Hero Name Input */}
+            <div className={styles.heroNameSection}>
+              <label className={styles.label}></label>
+              <input
+                type="text"
+                placeholder="Enter hero-name"
+                value={characterName}
+                onChange={(e) => setCharacterName(e.target.value)}
+                className={styles.input}
+                disabled={loading}
+              />
+              {error && <div className={styles.errorMessage}>{error}</div>}
+            </div>
             <CharacterBuilder
               character={character}
               poses={poses}
@@ -101,7 +115,7 @@ export default function Home() {
           {/* RIGHT COLUMN - MISSION BRIEFING */}
           <div className={styles.rightColumn}>
             <div className={styles.missionBriefing}>
-              <h2 className={styles.briefingTitle}>Mission</h2>
+              <h2 className={styles.header}>Mission</h2>
               <p className={styles.introText}>
                 A dragon has fallen and landed in your village. Hero, will you
                 use your special powers to save it? The village is depending on
@@ -125,19 +139,6 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </div>
-        {/* Hero Name Input */}
-        <div className={styles.heroNameSection}>
-          <label className={styles.label}></label>
-          <input
-            type="text"
-            placeholder="Enter your hero-name"
-            value={characterName}
-            onChange={(e) => setCharacterName(e.target.value)}
-            className={styles.input}
-            disabled={loading}
-          />
-          {error && <div className={styles.errorMessage}>{error}</div>}
         </div>
 
         {/* Reset Character Button - fixed to bottom left */}
