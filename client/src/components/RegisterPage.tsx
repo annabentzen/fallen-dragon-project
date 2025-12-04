@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { register, saveToken } from "../services/authApi";
 
 const RegisterPage: React.FC = () => {
@@ -29,9 +29,9 @@ const RegisterPage: React.FC = () => {
     try {
       const response = await register({ username, password });
       saveToken(response.token);
-      
+
       console.log("Registration successful:", response.username);
-      
+
       navigate("/home");
     } catch (err: any) {
       setError(err.message || "Registration failed");
@@ -43,11 +43,9 @@ const RegisterPage: React.FC = () => {
   return (
     <div style={{ maxWidth: "400px", margin: "50px auto", padding: "20px" }}>
       <h2>Register for The Fallen Dragon</h2>
-      
+
       {error && (
-        <div style={{ color: "red", marginBottom: "15px" }}>
-          {error}
-        </div>
+        <div style={{ color: "red", marginBottom: "15px" }}>{error}</div>
       )}
 
       <form onSubmit={handleSubmit}>
@@ -105,9 +103,9 @@ const RegisterPage: React.FC = () => {
 
       <p style={{ marginTop: "20px", textAlign: "center" }}>
         Already have an account?{" "}
-        <a href="/login" style={{ color: "#4caf50" }}>
+        <Link to="/" style={{ color: "#4caf50" }}>
           Login here
-        </a>
+        </Link>
       </p>
     </div>
   );

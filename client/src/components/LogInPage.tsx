@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { login, saveToken } from "../services/authApi";
 
 const LoginPage: React.FC = () => {
@@ -13,14 +13,14 @@ const LoginPage: React.FC = () => {
     e.preventDefault();
     setError("");
     setLoading(true);
- 
+
     try {
       const response = await login({ username, password });
-      
+
       saveToken(response.token);
-      
+
       console.log("Login successful:", response.username);
-      
+
       navigate("/home");
     } catch (err: any) {
       setError(err.message || "Login failed");
@@ -32,11 +32,9 @@ const LoginPage: React.FC = () => {
   return (
     <div style={{ maxWidth: "400px", margin: "50px auto", padding: "20px" }}>
       <h2>Login to The Fallen Dragon</h2>
-      
+
       {error && (
-        <div style={{ color: "red", marginBottom: "15px" }}>
-          {error}
-        </div>
+        <div style={{ color: "red", marginBottom: "15px" }}>{error}</div>
       )}
 
       <form onSubmit={handleSubmit}>
@@ -81,9 +79,9 @@ const LoginPage: React.FC = () => {
 
       <p style={{ marginTop: "20px", textAlign: "center" }}>
         Don't have an account?{" "}
-        <a href="/register" style={{ color: "#4caf50" }}>
+        <Link to="/register" style={{ color: "#4caf50" }}>
           Register here
-        </a>
+        </Link>
       </p>
     </div>
   );

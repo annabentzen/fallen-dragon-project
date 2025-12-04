@@ -214,7 +214,7 @@
   text-align: center;
   /* overlay on top of content */
   position: absolute;
-  top: 45%;
+  top: 40%;
   z-index: 100;
 }
 
