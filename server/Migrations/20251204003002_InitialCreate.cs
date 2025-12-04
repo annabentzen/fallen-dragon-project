@@ -3,12 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
 namespace DragonGame.Migrations
 {
     /// <inheritdoc />
-    public partial class initialcreate : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -188,25 +186,6 @@ namespace DragonGame.Migrations
                         principalTable: "PlayerSessions",
                         principalColumn: "SessionId",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.InsertData(
-                table: "Stories",
-                columns: new[] { "StoryId", "Title" },
-                values: new object[] { 1, "Fallen Dragon" });
-
-            migrationBuilder.InsertData(
-                table: "Acts",
-                columns: new[] { "ActId", "ActNumber", "IsEnding", "StoryId", "Text" },
-                values: new object[] { 1, 1, false, 1, "The dragon awakens..." });
-
-            migrationBuilder.InsertData(
-                table: "Choices",
-                columns: new[] { "ChoiceId", "ActId", "NextActNumber", "Text" },
-                values: new object[,]
-                {
-                    { 1, 1, 2, "Go left" },
-                    { 2, 1, 3, "Go right" }
                 });
 
             migrationBuilder.CreateIndex(
