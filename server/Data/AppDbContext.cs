@@ -91,23 +91,5 @@ public class AppDbContext : DbContext
                 .HasForeignKey(ps => ps.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
-
-        SeedData(modelBuilder);
-    }
-
-    private static void SeedData(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<Story>().HasData(
-            new Story { StoryId = 1, Title = "Fallen Dragon" }
-        );
-
-        modelBuilder.Entity<Act>().HasData(
-            new Act { ActId = 1, StoryId = 1, ActNumber = 1, Text = "The dragon awakens...", IsEnding = false }
-        );
-
-        modelBuilder.Entity<Choice>().HasData(
-            new Choice { ChoiceId = 1, ActId = 1, Text = "Go left", NextActNumber = 2 },
-            new Choice { ChoiceId = 2, ActId = 1, Text = "Go right", NextActNumber = 3 }
-        );
     }
 }
