@@ -323,7 +323,7 @@
 }
 
 .bodyMage1 {
-  transform: translateX(0px) translateY(0px);
+  transform: translateX(0px) translateY(9px);
 }
 
 .bodyMage2 {
@@ -344,7 +344,7 @@
 }
 
 .poseKnightAttacking {
-  transform: translateX(18px) translateY(0px);
+  transform: translateX(14px) translateY(0px);
 }
 
 .poseKnightStriking {
@@ -357,7 +357,7 @@
 }
 
 .poseMageFloating {
-  transform: translateX(7px) translateY(16px);
+  transform: translateX(5px) translateY(12px);
 }
 
 .poseMageCrouching {
@@ -370,7 +370,7 @@
 
 /* Mage2 poses */
 .poseMage2 {
-  transform: translateX(15px) translateY(0px);
+  transform: translateX(15px) translateY(10px);
 }
 
 .poseMage2Jumping {
@@ -378,7 +378,7 @@
 }
 
 .poseMage2Standing {
-  transform: translateX(0px) translateX(0px) translateY(-2px);
+  transform: translateX(0px) translateX(0px) translateY(0px);
 }
 
 /* Rogue poses */
@@ -393,18 +393,6 @@
 /* ========================================
    ANIMATIONS
    ======================================== */
-
-/* Fade in when character changes */
-@keyframes characterChange {
-  0% {
-    opacity: 0.7;
-    transform: scale(0.98);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
 
 @keyframes shimmer {
   0% {

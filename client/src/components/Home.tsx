@@ -1,3 +1,4 @@
+import Navbar from "./Navbar";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createSession } from "../services/storyApi";
@@ -74,9 +75,8 @@ export default function Home() {
 
   return (
     <div className={styles.pageWrapper}>
+      <Navbar showCharacterButton={false} />
       <div className={styles.container}>
-        <h1 className={styles.title}>The Fallen Dragon</h1>
-
         <div className={styles.mainContent}>
           {/* LEFT COLUMN - CHARACTER CREATOR */}
           <div className={styles.leftColumn}>
@@ -120,9 +120,9 @@ export default function Home() {
             <div className={styles.missionBriefing}>
               <h2 className={styles.header}>Mission</h2>
               <p className={styles.introText}>
-                A dragon has fallen and landed in your village. Hero, will you
-                use your special powers to save it? The village is depending on
-                you. Your choices will determine its fate.
+                A dragon has fallen and in your village. Hero, will you use your
+                special powers to save it? The village is depending on you. Your
+                choices will determine its fate.
               </p>
               <p className={styles.introText}>
                 <span className={styles.introHighlight}>

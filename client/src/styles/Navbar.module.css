@@ -4,24 +4,38 @@
 
 .navbar {
   width: 100%;
-  padding: 12px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(180deg, #2c3e50 0%, #4caf50 100%);
+  background: linear-gradient(180deg, #5a4a7d 0%, #3d2f5a 100%);
   color: white;
   position: sticky;
   top: 0;
   z-index: 1000;
-  border-bottom: 2px solid #2c3e50;
+  border-bottom: 3px solid #6b5b95;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
+.navLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dragonIcon {
+  width: 40px;
+  height: 40px;
+  image-rendering: pixelated;
+  cursor: pointer;
+}
+
 .title {
-  color: #f0c433;
-  font-size: 1.5rem;
+  color: #e9d180;
+  font-size: var(--font-size-lg);
+  letter-spacing: 2px;
+  text-transform: uppercase;
   margin: 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  text-shadow: 3px 3px 3px rgba(0, 0, 0, 0.5);
   cursor: pointer;
   transition: color 0.3s ease;
 }
@@ -30,10 +44,10 @@
   color: #eada7d;
 }
 
-.navbarActions {
+.navRight {
   display: flex;
-  gap: 12px;
   align-items: center;
+  gap: 16px;
 }
 
 .welcomeText {
@@ -54,7 +68,7 @@
   font-weight: 600;
   font-size: 20px;
   transition: all 0.2s ease;
-  color: #64b5f6;
+  color: #e9d180;
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
   position: relative;
 }
@@ -63,7 +77,7 @@
 .navButton::after,
 .editButton::after,
 .logoutButton::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 4px;
   left: 50%;
@@ -94,7 +108,7 @@
 
 .logoutButton:hover {
   color: #d2c7f2;
-  text-shadow: 0 0 10px  #9a79f2, 1px 1px 3px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 0 10px #9a79f2, 1px 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 .logoutButton::after {

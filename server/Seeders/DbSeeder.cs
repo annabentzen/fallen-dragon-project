@@ -44,7 +44,7 @@ Its chest rises and falls in slow, shallow breaths, but it is otherwise still. I
                     {
                         new Choice { Text = "Gently approach the sleeping dragon.", NextActNumber = 11 },
                         new Choice { Text = "Hide and watch behind a nearby bush", NextActNumber = 12 },
-                        new Choice { Text = "This is a serious matter, someone needs to know! Run back to the village for help", NextActNumber = 13 }
+                        new Choice { Text = "This is a serious matter, someone needs to know!\nRun back to the village for help", NextActNumber = 13 }
                     }
                 },
 
@@ -378,17 +378,17 @@ When the smoke clears, several of your friends and neighbours lay dead or wounde
 
         var poses = new List<CharacterPose>
         {
-            new() { Name = "Rogue Dizzy", ImageUrl = "rogue1-pose1.png", CharacterType = "rogue" },
-            new() { Name = "Mage Floating", ImageUrl = "mage1-pose1.png", CharacterType = "mage1" },
-            new() { Name = "Mage Crouching", ImageUrl = "mage1-pose2.png", CharacterType = "mage1" },
-            new() { Name = "Mage Dizzy", ImageUrl = "mage1-pose3.png", CharacterType = "mage1" },
-            new() { Name = "Mage 2 Jumping", ImageUrl = "mage2-pose1.png", CharacterType = "mage2" },
-            new() { Name = "Mage 2 Standing", ImageUrl = "mage2-pose2.png", CharacterType = "mage2" },
-            new() { Name = "Knight Attacking", ImageUrl = "knight1-pose1.png", CharacterType = "knight" },
-            new() { Name = "Knight Striking", ImageUrl = "knight1-pose2.png", CharacterType = "knight" }
+            new() { Name = "Dizzy", ImageUrl = "rogue1-pose1.png", CharacterType = "rogue" },
+            new() { Name = "Floating", ImageUrl = "mage1-pose1.png", CharacterType = "mage1" },
+            new() { Name = "Crouching", ImageUrl = "mage1-pose2.png", CharacterType = "mage1" },
+            new() { Name = "Dizzy", ImageUrl = "mage1-pose3.png", CharacterType = "mage1" },
+            new() { Name = "Jumping", ImageUrl = "mage2-pose1.png", CharacterType = "mage2" },
+            new() { Name = "Standing", ImageUrl = "mage2-pose2.png", CharacterType = "mage2" },
+            new() { Name = "Attacking", ImageUrl = "knight1-pose1.png", CharacterType = "knight" },
+            new() { Name = "Striking", ImageUrl = "knight1-pose2.png", CharacterType = "knight" }
         };
 
         context.CharacterPoses.AddRange(poses);
         await context.SaveChangesAsync();
     }
-} 
+}

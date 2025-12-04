@@ -62,7 +62,7 @@
   --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
   --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.18);
 
-  /* Magical glow effects */
+  /* glow effects */
   --glow-green: 0 0 20px rgba(76, 175, 80, 0.3);
   --glow-blue: 0 0 20px rgba(100, 181, 246, 0.3);
   --glow-gold: 0 0 20px rgba(255, 215, 0, 0.3);
